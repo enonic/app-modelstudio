@@ -329,6 +329,18 @@ exports.listComponents = function listComponents(params) {
     return queryResult;
 };
 
+exports.listSchemas = function listSchemas(params) {
+    var applicationKey = params.key;
+    var schemaType = params.type;
+
+    var queryResult = schemaLib.listSchemas({
+        key: applicationKey,
+        type: schemaType
+    });
+
+    return queryResult;
+};
+
 exports.listApps = function listApps() {
 
     return appLib.list(

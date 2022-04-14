@@ -53,6 +53,7 @@ export class UserItemStatisticsPanel
 
         this.header = new UserItemStatisticsHeader();
         this.textArea = new TextArea("descriptor-area");
+        this.textArea.hide();
 
         this.bindServerEventListeners();
     }
@@ -116,8 +117,9 @@ export class UserItemStatisticsPanel
         if (ComponentType[type]) {
             const mainGroup = new ItemDataGroup(i18n(`field.${type}`), ComponentType[type]);
             this.setResource(component, mainGroup);
+            this.textArea.show();
         } else {
-            this.textArea.setValue('');
+            this.textArea.hide();
         }
     }
 

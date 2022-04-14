@@ -18,7 +18,7 @@ module.exports = schemaGenerator.createObjectType({
     name: 'Query',
     fields: {
         components: {
-            type: graphQl.list(graphQlObjectTypes.PartComponentType),
+            type: graphQl.list(graphQlObjectTypes.ComponentType),
             args: {
                 key: graphQl.GraphQLString,
                 type: graphQlEnums.ComponentTypeEnum
@@ -27,7 +27,20 @@ module.exports = schemaGenerator.createObjectType({
                 var key = env.args.key;
                 var type = env.args.type;
 
-                return dynamicSchemas.list(key, type);
+                return dynamicSchemas.listComponents(key, type);
+            }
+        },
+        schemas: {
+            type: graphQl.list(graphQlObjectTypes.SchemaType),
+            args: {
+                key: graphQl.GraphQLString,
+                type: graphQlEnums.SchemaTypeEnum
+            },
+            resolve: function (env) {
+                var key = env.args.key;
+                var type = env.args.type;
+
+                return dynamicSchemas.listSchemas(key, type);
             }
         },
         applications: {

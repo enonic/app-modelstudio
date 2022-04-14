@@ -6,19 +6,16 @@ var form = require('./form');
 
 var graphQlUserItem = require('./userItem');
 
-exports.ComponentType = schemaGenerator.createInterfaceType({
-    name: 'Component',
-    description: 'Domain representation of a component descriptor',
+exports.SchemaType = schemaGenerator.createInterfaceType({
+    name: 'Schema',
+    description: 'Domain representation of a content schema',
     typeResolver: function(source) {
         //TODO
-        return "Part" === source.type
-               ? exports.PartComponentType
-               : exports.LayoutComponentType;
+        return "ContentType" === source.type
+               ? exports.ContentTypeSchemaType
+               : "Mixin" === source.type ? exports.MixinSchemaType : "Xdata" === source.type ? exports.XDataSchemaType : null;
     },
     fields: {
-        key: {
-            type: graphQl.GraphQLString
-        },
         name: {
             type: graphQl.GraphQLString
         },
@@ -34,32 +31,26 @@ exports.ComponentType = schemaGenerator.createInterfaceType({
         descriptionI18nKey: {
             type: graphQl.GraphQLString
         },
-        componentPath: {
-            type: graphQl.GraphQLString
-        },
         type: {
             type: graphQl.GraphQLString
         },
         resource: {
             type: graphQl.GraphQLString
         },
-        config: {
-            type: form.FormType
-        }
+        modifiedTime: {
+            type: graphQl.DateTime
+        },
+        createdTime: {
+            type: graphQl.DateTime
+        },
     }
 });
 
-exports.PartComponentType = schemaGenerator.createObjectType({
-    name: 'Part',
-    description: 'Domain representation of a part component descriptor',
-    interfaces:[exports.ComponentType],
+exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
+    name: 'ContentType',
+    description: 'Domain representation of a content type schema',
+    interfaces:[exports.SchemaType],
     fields: {
-        key: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.key;
-            }
-        },
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
@@ -102,32 +93,25 @@ exports.PartComponentType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        componentPath: {
-            type: graphQl.GraphQLString,
+        createdTime: {
+            type: graphQl.DateTime,
             resolve: function (env) {
-                return env.source.componentPath;
+                return env.source.createdTime;
             }
         },
-        config: {
-            type: form.FormType,
+        modifiedTime: {
+            type: graphQl.DateTime,
             resolve: function (env) {
-                return null;
+                return env.source.createdTime;
             }
-        }
+        },
     }
 });
-
-exports.LayoutComponentType = schemaGenerator.createObjectType({
-    name: 'Layout',
-    description: 'Domain representation of a layout component descriptor',
-    interfaces:[exports.ComponentType],
+exports.MixinSchemaType = schemaGenerator.createObjectType({
+    name: 'Mixin',
+    description: 'Domain representation of a mixin schema',
+    interfaces:[exports.SchemaType],
     fields: {
-        key: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.key;
-            }
-        },
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
@@ -170,20 +154,83 @@ exports.LayoutComponentType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        componentPath: {
-            type: graphQl.GraphQLString,
+        createdTime: {
+            type: graphQl.DateTime,
             resolve: function (env) {
-                return env.source.componentPath;
+                return env.source.createdTime;
             }
         },
-        config: {
-            type: form.FormType,
+        modifiedTime: {
+            type: graphQl.DateTime,
             resolve: function (env) {
-                return null;
+                return env.source.createdTime;
             }
-        }
+        },
     }
 });
 
-graphQlUserItem.typeResolverMap.partComponentType = exports.PartComponentType;
-graphQlUserItem.typeResolverMap.layoutComponentType = exports.LayoutComponentType;
+exports.XDataSchemaType = schemaGenerator.createObjectType({
+    name: 'XData',
+    description: 'Domain representation of a xdata schema',
+    interfaces:[exports.SchemaType],
+    fields: {
+        name: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.name;
+            }
+        },
+        displayName: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.displayName;
+            }
+        },
+        displayNameI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.displayNameI18nKey;
+            }
+        },
+        description: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.description;
+            }
+        },
+        descriptionI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.descriptionI18nKey;
+            }
+        },
+        resource: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.resource;
+            }
+        },
+        type: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.type;
+            }
+        },
+        createdTime: {
+            type: graphQl.DateTime,
+            resolve: function (env) {
+                return env.source.createdTime;
+            }
+        },
+        modifiedTime: {
+            type: graphQl.DateTime,
+            resolve: function (env) {
+                return env.source.createdTime;
+            }
+        },
+    }
+});
+
+graphQlUserItem.typeResolverMap.contentTypeSchemaType = exports.ContentTypeSchemaType;
+graphQlUserItem.typeResolverMap.mixinSchemaType = exports.MixinSchemaType;
+graphQlUserItem.typeResolverMap.xdataSchemaType = exports.XDataSchemaType;

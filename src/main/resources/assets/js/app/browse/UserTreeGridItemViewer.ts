@@ -50,8 +50,12 @@ export class UserTreeGridItemViewer
 
         switch (object.getType()) {
 
-        case UserTreeGridItemType.COMPONENT:
+        case UserTreeGridItemType.PART:
             return iconClass + 'icon-part';
+        case UserTreeGridItemType.LAYOUT:
+            return iconClass + 'icon-layout';
+        case UserTreeGridItemType.PAGE:
+            return iconClass + 'icon-page';
 
         case UserTreeGridItemType.ID_PROVIDER:
             if (object.getIdProvider().getKey().isSystem()) {

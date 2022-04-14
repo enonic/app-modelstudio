@@ -3,8 +3,6 @@ import {UserTreeGridItem, UserTreeGridItemBuilder, UserTreeGridItemType} from '.
 import {UserTreeGridActions} from './UserTreeGridActions';
 import {EditPrincipalEvent} from './EditPrincipalEvent';
 import {UserItemsRowFormatter} from './UserItemsRowFormatter';
-import {ListIdProvidersRequest} from '../../graphql/idprovider/ListIdProvidersRequest';
-import {ListPrincipalsRequest, ListPrincipalsData} from '../../graphql/principal/ListPrincipalsRequest';
 import {PrincipalBrowseSearchData} from './filter/PrincipalBrowseSearchData';
 import {UserItemType} from './UserItemType';
 import {ListUserItemsRequest} from '../../graphql/principal/ListUserItemsRequest';
@@ -29,7 +27,6 @@ import {ListApplicationsRequest} from '../../graphql/apps/ListApplicationsReques
 import {Application} from '../application/Application';
 import {ComponentType} from '../schema/ComponentType';
 import {ListComponentsRequest} from '../../graphql/apps/ListComponentsRequest';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Component} from '../schema/Component';
 
 export class UserItemsTreeGrid
@@ -381,6 +378,7 @@ export class UserItemsTreeGrid
         const from: number = parentNode.getChildren().length;
         const gridItems: UserTreeGridItem[] = parentNode.getChildren().map((el) => el.getData()).slice(0, from);
 
+        debugger;
         return new ListComponentsRequest()
             .setApplicationKey(parentNode.getData().getApplication().getApplicationKey())
             .setType(type)
@@ -390,8 +388,22 @@ export class UserItemsTreeGrid
                 // const principals: Principal[] = result.principals;
 
                 result.forEach((component: Component) => {
-                    gridItems.push(
-                        new UserTreeGridItemBuilder().setComponent(component).setType(UserTreeGridItemType.COMPONENT).build());
+                    const builder = new UserTreeGridItemBuilder().setComponent(component);
+
+                    if(ComponentType.PART == component.getType()) {
+                        builder.setType(UserTreeGridItemType.PART);
+                    }
+
+                    if(ComponentType.LAYOUT == component.getType()) {
+                        builder.setType(UserTreeGridItemType.LAYOUT);
+                    }
+
+                    if(ComponentType.PAGE == component.getType()) {
+                        builder.setType(UserTreeGridItemType.PAGE);
+                    }
+
+                    gridItems.push(builder.build());
+
                 });
 
                 // if (from + principals.length < result.total) {
