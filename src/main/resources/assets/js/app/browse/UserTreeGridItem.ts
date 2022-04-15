@@ -8,6 +8,9 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {Application} from '../application/Application';
 import {Component} from '../schema/Component';
+import {ComponentType} from '../schema/ComponentType';
+import {Schema} from '../schema/Schema';
+import {SchemaType} from '../schema/SchemaType';
 
 export enum UserTreeGridItemType {
     ID_PROVIDER,
@@ -19,7 +22,12 @@ export enum UserTreeGridItemType {
     PARTS,
     LAYOUTS,
     PAGES,
-    COMPONENT
+    CONTENT_TYPES,
+    MIXINS,
+    XDATAS,
+    PART,
+    LAYOUT,
+    PAGE, CONTENT_TYPE, MIXIN, XDATA
 }
 
 export class UserTreeGridItem
@@ -28,6 +36,8 @@ export class UserTreeGridItem
     private application: Application;
 
     private component: Component;
+
+    private schema: Schema;
 
     private idProvider: IdProvider;
 
@@ -40,10 +50,11 @@ export class UserTreeGridItem
     private children: boolean;
 
     constructor(builder: UserTreeGridItemBuilder) {
-        this.idProvider = builder.idProvider;
-        this.principal = builder.principal;
         this.application = builder.application;
         this.component = builder.component;
+        this.schema = builder.schema;
+        this.idProvider = builder.idProvider;
+        this.principal = builder.principal;
         this.type = builder.type;
         this.children = builder.children;
 
@@ -72,6 +83,10 @@ export class UserTreeGridItem
         this.component = component;
     }
 
+    setSchema(schema: Schema): void {
+        this.schema = schema;
+    }
+
     setType(type: UserTreeGridItemType): void {
         this.type = type;
     }
@@ -90,8 +105,15 @@ export class UserTreeGridItem
         case UserTreeGridItemType.APPLICATION:
             return this.application.getDisplayName();
 
-            case UserTreeGridItemType.COMPONENT:
+        case UserTreeGridItemType.PART:
+        case UserTreeGridItemType.LAYOUT:
+        case UserTreeGridItemType.PAGE:
             return this.component.getDisplayName();
+
+        case UserTreeGridItemType.CONTENT_TYPE:
+        case UserTreeGridItemType.MIXIN:
+        case UserTreeGridItemType.XDATA:
+            return this.schema.getDisplayName();
 
         case UserTreeGridItemType.ID_PROVIDER:
             return this.idProvider.getDisplayName();
@@ -115,7 +137,16 @@ export class UserTreeGridItem
             return i18n('field.layouts');
 
         case UserTreeGridItemType.PAGES:
-            return i18n('field.pages');
+        return i18n('field.pages');
+
+        case UserTreeGridItemType.CONTENT_TYPES:
+            return i18n('field.contentTypes');
+
+        case UserTreeGridItemType.MIXINS:
+            return i18n('field.mixins');
+
+        case UserTreeGridItemType.XDATAS:
+            return i18n('field.xdatas');
 
         }
         return '';
@@ -126,8 +157,15 @@ export class UserTreeGridItem
         case UserTreeGridItemType.APPLICATION:
             return this.application.getApplicationKey().toString();
 
-            case UserTreeGridItemType.COMPONENT:
+        case UserTreeGridItemType.PART:
+        case UserTreeGridItemType.LAYOUT:
+        case UserTreeGridItemType.PAGE:
             return this.component.getKey();
+
+        case UserTreeGridItemType.CONTENT_TYPE:
+        case UserTreeGridItemType.MIXIN:
+        case UserTreeGridItemType.XDATA:
+            return this.schema.getName();
 
         case UserTreeGridItemType.ID_PROVIDER:
             return this.idProvider.getKey().toString();
@@ -152,6 +190,15 @@ export class UserTreeGridItem
 
         case UserTreeGridItemType.PAGES:
             return this.application.getApplicationKey().toString() + '/pages';
+
+        case UserTreeGridItemType.CONTENT_TYPES:
+            return this.application.getApplicationKey().toString() + '/contentTypes';
+
+        case UserTreeGridItemType.MIXINS:
+            return this.application.getApplicationKey().toString() + '/mixins';
+
+        case UserTreeGridItemType.XDATAS:
+            return this.application.getApplicationKey().toString() + '/xdatas';
         default:
             return '';
         }
@@ -162,8 +209,51 @@ export class UserTreeGridItem
         return this.type === UserTreeGridItemType.APPLICATION;
     }
 
-    isComponent(): boolean {
-        return this.type === UserTreeGridItemType.COMPONENT;
+    isPart(): boolean {
+        return this.type === UserTreeGridItemType.PART;
+    }
+
+    isParts(): boolean {
+        return this.type === UserTreeGridItemType.PARTS;
+    }
+
+    isLayout(): boolean {
+        return this.type === UserTreeGridItemType.LAYOUT;
+    }
+
+    isLayouts(): boolean {
+        return this.type === UserTreeGridItemType.LAYOUTS;
+    }
+
+    isPage(): boolean {
+        return this.type === UserTreeGridItemType.PAGE;
+    }
+
+    isPages(): boolean {
+        return this.type === UserTreeGridItemType.PAGES;
+    }
+
+    isContentType(): boolean {
+        return this.type === UserTreeGridItemType.CONTENT_TYPE;
+    }
+    isContentTypes(): boolean {
+        return this.type === UserTreeGridItemType.CONTENT_TYPES;
+    }
+
+    isMixin(): boolean {
+        return this.type === UserTreeGridItemType.MIXIN;
+    }
+
+    isMixins(): boolean {
+        return this.type === UserTreeGridItemType.MIXINS;
+    }
+
+    isXData(): boolean {
+        return this.type === UserTreeGridItemType.XDATA;
+    }
+
+    isXDatas(): boolean {
+        return this.type === UserTreeGridItemType.XDATAS;
     }
 
     isUser(): boolean {
@@ -195,8 +285,9 @@ export class UserTreeGridItem
             return false;
         }
 
-        const other:UserTreeGridItem = <UserTreeGridItem> o;
-        return this.type === other.getType() && this.principal === other.getPrincipal() && this.idProvider === other.getIdProvider() && this.application === other.getApplication()&& this.component === other.getComponent();
+        const other: UserTreeGridItem = <UserTreeGridItem>o;
+        return this.type === other.getType() && this.principal === other.getPrincipal() && this.idProvider === other.getIdProvider() &&
+               this.application === other.getApplication() && this.component === other.getComponent() && this.schema === other.getSchema();
     }
 
     static create(): UserTreeGridItemBuilder {
@@ -213,6 +304,10 @@ export class UserTreeGridItem
 
     getComponent(): Component {
         return this.component;
+    }
+
+    getSchema(): Schema {
+        return this.schema;
     }
 
     static fromPrincipal(principal: Principal): UserTreeGridItem {
@@ -241,8 +336,14 @@ export class UserTreeGridItem
         case UserTreeGridItemType.APPLICATION:
             return 'icon-folder icon-large';
 
-            case UserTreeGridItemType.COMPONENT:
-            return 'icon-part icon-large';
+        case UserTreeGridItemType.PART:
+            return 'icon-puzzle icon-large';
+
+        case UserTreeGridItemType.LAYOUT:
+            return 'icon-layout icon-large';
+
+        case UserTreeGridItemType.PAGE:
+            return 'icon-page icon-large';
 
         case UserTreeGridItemType.ID_PROVIDER:
             return 'icon-address-book icon-large';
@@ -276,6 +377,15 @@ export class UserTreeGridItem
 
         case UserTreeGridItemType.LAYOUTS:
             return 'icon-folder icon-large';
+
+        case UserTreeGridItemType.CONTENT_TYPES:
+            return 'icon-folder icon-large';
+
+        case UserTreeGridItemType.MIXINS:
+            return 'icon-folder icon-large';
+
+        case UserTreeGridItemType.XDATAS:
+            return 'icon-folder icon-large';
         }
     }
 
@@ -283,8 +393,8 @@ export class UserTreeGridItem
         return '';
     }
 
-    getIconSrc():string {
-        if( this.isApplication() ) {
+    getIconSrc(): string {
+        if (this.isApplication()) {
             return this.application.getIcon();
         }
 
@@ -295,6 +405,7 @@ export class UserTreeGridItem
 export class UserTreeGridItemBuilder {
     application: Application;
     component: Component;
+    schema: Schema;
     idProvider: IdProvider;
     principal: Principal;
     type: UserTreeGridItemType;
@@ -307,6 +418,11 @@ export class UserTreeGridItemBuilder {
 
     setComponent(component: Component): UserTreeGridItemBuilder {
         this.component = component;
+        return this;
+    }
+
+    setSchema(schema: Schema): UserTreeGridItemBuilder {
+        this.schema = schema;
         return this;
     }
 
@@ -335,9 +451,26 @@ export class UserTreeGridItemBuilder {
             return this.setApplication(userItem).setType(UserTreeGridItemType.APPLICATION);
         }
         if (userItem instanceof Component) {
-            return this.setComponent(userItem).setType(UserTreeGridItemType.COMPONENT);
-        }
-        else if (userItem instanceof Principal) {
+            if (ComponentType.PART == (<Component>userItem).getType()) {
+                return this.setComponent(userItem).setType(UserTreeGridItemType.PART);
+            }
+            if (ComponentType.LAYOUT == (<Component>userItem).getType()) {
+                return this.setComponent(userItem).setType(UserTreeGridItemType.LAYOUT);
+            }
+            if (ComponentType.PAGE == (<Component>userItem).getType()) {
+                return this.setComponent(userItem).setType(UserTreeGridItemType.PAGE);
+            }
+        } else if (userItem instanceof Schema) {
+            if (SchemaType.CONTENT_TYPE == (<Schema>userItem).getType()) {
+                return this.setSchema(userItem).setType(UserTreeGridItemType.CONTENT_TYPE);
+            }
+            if (SchemaType.MIXIN == (<Schema>userItem).getType()) {
+                return this.setSchema(userItem).setType(UserTreeGridItemType.MIXIN);
+            }
+            if (SchemaType.XDATA == (<Schema>userItem).getType()) {
+                return this.setSchema(userItem).setType(UserTreeGridItemType.XDATA);
+            }
+        } else if (userItem instanceof Principal) {
             return this.setPrincipal(userItem).setType(UserTreeGridItemType.PRINCIPAL);
         } else if (userItem instanceof IdProvider) {
             return this.setIdProvider(userItem).setType(UserTreeGridItemType.ID_PROVIDER);

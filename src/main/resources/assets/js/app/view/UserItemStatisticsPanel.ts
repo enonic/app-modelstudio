@@ -53,6 +53,7 @@ export class UserItemStatisticsPanel
 
         this.header = new UserItemStatisticsHeader();
         this.textArea = new TextArea("descriptor-area");
+        this.textArea.hide();
 
         this.bindServerEventListeners();
     }
@@ -112,12 +113,12 @@ export class UserItemStatisticsPanel
         const component = item.getComponent();
         const type: ComponentType = component ? component.getType() : null;
 
-        debugger;
         if (ComponentType[type]) {
             const mainGroup = new ItemDataGroup(i18n(`field.${type}`), ComponentType[type]);
             this.setResource(component, mainGroup);
+            this.textArea.show();
         } else {
-            this.textArea.setValue('');
+            this.textArea.hide();
         }
     }
 
@@ -125,7 +126,6 @@ export class UserItemStatisticsPanel
         // const membershipsGroup = new ItemDataGroup(i18n('field.rolesAndGroups'), 'memberships');
 
         // return this.fetchPrincipal(principal.getKey()).then((user: Principal) => {
-        debugger;
             const resource = component.getResource();
             this.textArea.setValue(resource);
             // mainGroup.addDataList(i18n('field.email'), (user as User).getEmail());

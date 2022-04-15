@@ -3,8 +3,6 @@ import {UserTreeGridItem, UserTreeGridItemBuilder, UserTreeGridItemType} from '.
 import {UserTreeGridActions} from './UserTreeGridActions';
 import {EditPrincipalEvent} from './EditPrincipalEvent';
 import {UserItemsRowFormatter} from './UserItemsRowFormatter';
-import {ListIdProvidersRequest} from '../../graphql/idprovider/ListIdProvidersRequest';
-import {ListPrincipalsRequest, ListPrincipalsData} from '../../graphql/principal/ListPrincipalsRequest';
 import {PrincipalBrowseSearchData} from './filter/PrincipalBrowseSearchData';
 import {UserItemType} from './UserItemType';
 import {ListUserItemsRequest} from '../../graphql/principal/ListUserItemsRequest';
@@ -24,13 +22,16 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ListPrincipalsKeysResult, ListPrincipalsNamesRequest} from '../../graphql/principal/ListPrincipalsNamesRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {GetPrincipalsTotalRequest} from '../../graphql/principal/GetPrincipalsTotalRequest';
 import {ListApplicationsRequest} from '../../graphql/apps/ListApplicationsRequest';
 import {Application} from '../application/Application';
 import {ComponentType} from '../schema/ComponentType';
 import {ListComponentsRequest} from '../../graphql/apps/ListComponentsRequest';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Component} from '../schema/Component';
+import {SchemaType} from '../schema/SchemaType';
+import {ListSchemasRequest} from '../../graphql/apps/ListSchemasRequest';
+import {Schema} from '../schema/Schema';
 
 export class UserItemsTreeGrid
     extends TreeGrid<UserTreeGridItem> {
@@ -331,7 +332,16 @@ export class UserItemsTreeGrid
             const pageFolderItem: UserTreeGridItem =
                 new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.PAGES).setHasChildren(
                     /*totalGroups > 0*/true).build();
-            return [partFolderItem, layoutFolderItem, pageFolderItem];
+            const contentTypesFolderItem: UserTreeGridItem =
+                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.CONTENT_TYPES).setHasChildren(
+                    /*totalGroups > 0*/true).build();
+            const mixinsFolderItem: UserTreeGridItem =
+                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.MIXINS).setHasChildren(
+                    /*totalGroups > 0*/true).build();
+            const xDataFolderItem: UserTreeGridItem =
+                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.XDATAS).setHasChildren(
+                    /*totalGroups > 0*/true).build();
+            return [partFolderItem, layoutFolderItem, pageFolderItem, contentTypesFolderItem, mixinsFolderItem, xDataFolderItem];
         });
     }
 
@@ -359,9 +369,9 @@ export class UserItemsTreeGrid
 
     private fetchComponents(parentNode: TreeNode<UserTreeGridItem>): Q.Promise<UserTreeGridItem[]> {
         const folder: UserTreeGridItem = parentNode.getData();
-        const componentType = this.getComponentTypeForFolderItem(folder.getType());
+        const dynamicSchemaType = this.getDynamicSchemaTypeForFolderItem(folder.getType());
 
-        return this.loadChildren(parentNode, componentType);
+        return this.loadChildren(parentNode, dynamicSchemaType);
     }
 
 
@@ -376,30 +386,71 @@ export class UserItemsTreeGrid
         return item.hasChildren();
     }
 
-    private loadChildren(parentNode: TreeNode<UserTreeGridItem>, type: ComponentType): Q.Promise<UserTreeGridItem[]> {
+    private loadChildren(parentNode: TreeNode<UserTreeGridItem>, type: ComponentType | SchemaType): Q.Promise<UserTreeGridItem[]> {
         this.removeEmptyNode(parentNode);
-        const from: number = parentNode.getChildren().length;
-        const gridItems: UserTreeGridItem[] = parentNode.getChildren().map((el) => el.getData()).slice(0, from);
+        // const from: number = parentNode.getChildren().length;
+        // const gridItems: UserTreeGridItem[] = parentNode.getChildren().map((el) => el.getData()).slice(0, from);
 
-        return new ListComponentsRequest()
-            .setApplicationKey(parentNode.getData().getApplication().getApplicationKey())
-            .setType(type)
-            .sendAndParse()
-            .then((result: Component[]) => {
-                debugger;
-                // const principals: Principal[] = result.principals;
+        if(parentNode.getData().isPages() || parentNode.getData().isParts() || parentNode.getData().isLayouts()) {
+            return new ListComponentsRequest()
+                .setApplicationKey(parentNode.getData().getApplication().getApplicationKey())
+                .setType(<ComponentType>type)
+                .sendAndParse()
+                .then((result: Component[]) => {
+                    const gridItems = [];
+                    result.forEach((component: Component) => {
+                        const builder = new UserTreeGridItemBuilder().setComponent(component);
 
-                result.forEach((component: Component) => {
-                    gridItems.push(
-                        new UserTreeGridItemBuilder().setComponent(component).setType(UserTreeGridItemType.COMPONENT).build());
+                        if(ComponentType.PART == component.getType()) {
+                            builder.setType(UserTreeGridItemType.PART);
+                        }
+
+                        if(ComponentType.LAYOUT == component.getType()) {
+                            builder.setType(UserTreeGridItemType.LAYOUT);
+                        }
+
+                        if(ComponentType.PAGE == component.getType()) {
+                            builder.setType(UserTreeGridItemType.PAGE);
+                        }
+
+                        gridItems.push(builder.build());
+
+                    });
+
+                    return gridItems;
                 });
+        }
 
-                // if (from + principals.length < result.total) {
-                //     gridItems.push(UserTreeGridItem.create().build());
-                // }
+        if(parentNode.getData().isContentTypes() || parentNode.getData().isMixins() || parentNode.getData().isXDatas()) {
+            return new ListSchemasRequest()
+                .setApplicationKey(parentNode.getData().getApplication().getApplicationKey())
+                .setType(<SchemaType>type)
+                .sendAndParse()
+                .then((result: Schema[]) => {
+                    const gridItems = [];
+                    result.forEach((schema: Schema) => {
+                        const builder = new UserTreeGridItemBuilder().setSchema(schema);
 
-                return gridItems;
-            });
+                        if(SchemaType.CONTENT_TYPE == schema.getType()) {
+                            builder.setType(UserTreeGridItemType.CONTENT_TYPE);
+                        }
+
+                        if(SchemaType.MIXIN == schema.getType()) {
+                            builder.setType(UserTreeGridItemType.MIXIN);
+                        }
+
+                        if(SchemaType.XDATA == schema.getType()) {
+                            builder.setType(UserTreeGridItemType.XDATA);
+                        }
+
+                        gridItems.push(builder.build());
+
+                    });
+
+                    return gridItems;
+                });
+        }
+
     }
 
     // private loadChildren(parentNode: TreeNode<UserTreeGridItem>, allowedTypes: PrincipalType[]): Q.Promise<UserTreeGridItem[]> {
@@ -476,7 +527,7 @@ export class UserItemsTreeGrid
         throw new Error('Invalid item type for folder with principals: ' + UserTreeGridItemType[itemType]);
     }
 
-    private getComponentTypeForFolderItem(itemType: UserTreeGridItemType): ComponentType {
+    private getDynamicSchemaTypeForFolderItem(itemType: UserTreeGridItemType): ComponentType | SchemaType {
         if (itemType === UserTreeGridItemType.PARTS) {
             return ComponentType.PART;
         }
@@ -489,7 +540,19 @@ export class UserItemsTreeGrid
             return ComponentType.PAGE;
         }
 
-        throw new Error('Invalid item type for folder with components: ' + UserTreeGridItemType[itemType]);
+        if (itemType === UserTreeGridItemType.CONTENT_TYPES) {
+            return SchemaType.CONTENT_TYPE;
+        }
+
+        if (itemType === UserTreeGridItemType.MIXINS) {
+            return SchemaType.MIXIN;
+        }
+
+        if (itemType === UserTreeGridItemType.XDATAS) {
+            return SchemaType.XDATA;
+        }
+
+        throw new Error('Invalid dynamic schema type for folder with components: ' + UserTreeGridItemType[itemType]);
     }
 
     private isSingleItemSelected(): boolean {

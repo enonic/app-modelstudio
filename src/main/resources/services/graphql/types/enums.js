@@ -10,6 +10,16 @@ exports.ComponentTypeEnum = schemaGenerator.createEnumType({
     }
 });
 
+exports.SchemaTypeEnum = schemaGenerator.createEnumType({
+    name: 'SchemaType',
+    description: 'Enumeration of schema types',
+    values: {
+        CONTENT_TYPE: 'CONTENT_TYPE',
+        MIXIN: 'MIXIN',
+        XDATA: 'XDATA'
+    }
+});
+
 exports.IdProviderModeEnum = schemaGenerator.createEnumType({
     name: 'IdProviderMode',
     description: 'Enumeration of Id provider modes',

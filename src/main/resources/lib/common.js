@@ -43,17 +43,17 @@ exports.ComponentType.all = function () {
     ];
 };
 
-var ContentSchemaType = exports.ContentSchemaType = {
+var SchemaType = exports.SchemaType = {
     X_DATA: 'XDATA',
     MIXIN: 'MIXIN',
     CONTENT_TYPE: 'CONTENTTYPE'
 };
 
-exports.ContentSchemaType.all = function () {
+exports.SchemaType.all = function () {
     return [
-        ContentSchemaType.X_DATA,
-        ContentSchemaType.MIXIN,
-        ContentSchemaType.CONTENT_TYPE
+        SchemaType.X_DATA,
+        SchemaType.MIXIN,
+        SchemaType.CONTENT_TYPE
     ];
 };
 
@@ -324,6 +324,18 @@ exports.listComponents = function listComponents(params) {
     var queryResult = schemaLib.listComponents({
         key: applicationKey,
         type: componentType
+    });
+
+    return queryResult;
+};
+
+exports.listSchemas = function listSchemas(params) {
+    var applicationKey = params.key;
+    var schemaType = params.type;
+
+    var queryResult = schemaLib.listSchemas({
+        key: applicationKey,
+        type: schemaType
     });
 
     return queryResult;

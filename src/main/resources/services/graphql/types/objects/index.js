@@ -6,10 +6,12 @@ var graphQlUserItem = require('./userItem');
 var graphQlTypes = require('./types');
 var graphQlRepository = require('./repository');
 var graphQlComponent = require('./component');
+var graphQlSchema = require('./schema');
 var graphQlApplication = require('./application');
 
 module.exports = {
-    PartComponentType: graphQlComponent.PartComponentType,
+    ComponentType: graphQlComponent.ComponentType,
+    SchemaType: graphQlSchema.SchemaType,
     ApplicationType: graphQlApplication.ApplicationType,
     IdProviderType: graphQlIdProvider.IdProviderType,
     IdProviderDeleteType: graphQlIdProvider.IdProviderDeleteType,

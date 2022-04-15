@@ -105,6 +105,7 @@ export class Component
                 this.displayName === other.getDisplayName() &&
                 this.description === other.getDescription() &&
                 this.type === other.getType() &&
+                this.icon === other.getIcon() &&
                 this.resource === other.getResource();
                 // && this.config.equals(other.getConfig()) &&
                 // ObjectHelper.arrayEquals(this.regions, other.getRegions());

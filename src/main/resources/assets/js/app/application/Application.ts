@@ -131,7 +131,6 @@ export class ApplicationBuilder
         this.displayName = json.displayName;
         this.modifiedTime = json.modifiedTime;
         this.description = json.description;
-        debugger;
         this.icon = json.icon;
         return this;
     }

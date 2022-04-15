@@ -85,8 +85,14 @@ var common = require('./common');
             module.exports.removeMembers(key, removeMs);
         }
     },
-    list: function (key, type) {
+    listComponents: function (key, type) {
         return common.listComponents({
+            key: key,
+            type: type
+        });
+    },
+    listSchemas: function (key, type) {
+        return common.listSchemas({
             key: key,
             type: type
         });
