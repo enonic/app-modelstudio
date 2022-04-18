@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.build",
+  "files": [
+    "./src/main/resources/assets/js/main.ts"
+  ],
+  "include": [
+    "src/**/*",
+    "../lib-admin-ui/src/main/resources/assets/admin/common/js/_**/*.ts",
+    ".xp/dev/lib-admin-ui/**/*.ts"
+  ]
+}
