@@ -57,6 +57,11 @@ export class UserTreeGridItemViewer
         case UserTreeGridItemType.PAGE:
             return iconClass + 'icon-page';
 
+        case UserTreeGridItemType.CONTENT_TYPE:
+        case UserTreeGridItemType.MIXIN:
+        case UserTreeGridItemType.XDATA:
+            return iconClass + 'icon-folder';
+
         case UserTreeGridItemType.ID_PROVIDER:
             if (object.getIdProvider().getKey().isSystem()) {
                 iconClass += 'icon-system ';

@@ -11,7 +11,6 @@ import {PrincipalServerEventsHandler} from '../event/PrincipalServerEventsHandle
 import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
 import {ItemDataGroup} from 'lib-admin-ui/app/view/ItemDataGroup';
 import {Principal} from 'lib-admin-ui/security/Principal';
-import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {PrincipalViewer} from 'lib-admin-ui/ui/security/PrincipalViewer';
 import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
@@ -30,8 +29,9 @@ import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from 'lib-admin-ui/util/Config';
 import {ComponentType} from '../schema/ComponentType';
 import {Component} from '../schema/Component';
-import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
+import {SchemaType} from '../schema/SchemaType';
+import {Schema} from '../schema/Schema';
 
 export class UserItemStatisticsPanel
     extends ItemStatisticsPanel {
@@ -111,29 +111,19 @@ export class UserItemStatisticsPanel
 
     private appendMetadata(item: UserTreeGridItem): void {
         const component = item.getComponent();
-        const type: ComponentType = component ? component.getType() : null;
+        const schema = item.getSchema();
+        const type: ComponentType | SchemaType = component ? component.getType() : schema ? schema.getType() : null;
 
-        if (ComponentType[type]) {
-            const mainGroup = new ItemDataGroup(i18n(`field.${type}`), ComponentType[type]);
-            this.setResource(component, mainGroup);
+        if (type != null) {
+            this.setResource(component || schema /*, mainGroup*/);
             this.textArea.show();
         } else {
             this.textArea.hide();
         }
     }
 
-    private setResource(component: Component, mainGroup: ItemDataGroup): void {
-        // const membershipsGroup = new ItemDataGroup(i18n('field.rolesAndGroups'), 'memberships');
-
-        // return this.fetchPrincipal(principal.getKey()).then((user: Principal) => {
-            const resource = component.getResource();
-            this.textArea.setValue(resource);
-            // mainGroup.addDataList(i18n('field.email'), (user as User).getEmail());
-            // this.appendTransitiveSwitch(principal.getKey(), membershipsGroup, memberships.length > 0);
-            // this.appendRolesAndGroups(memberships, membershipsGroup);
-
-            // return this.addReportGroup(principal, [mainGroup, membershipsGroup]);
-        // });
+    private setResource(schema: Component | Schema): void {
+        this.textArea.setValue(schema.getResource());
     }
 
     private createUserMetadataGroups(principal: Principal, mainGroup: ItemDataGroup): Q.Promise<ItemDataGroup[]> {
