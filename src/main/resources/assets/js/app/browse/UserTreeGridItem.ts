@@ -345,6 +345,15 @@ export class UserTreeGridItem
         case UserTreeGridItemType.PAGE:
             return 'icon-page icon-large';
 
+        case UserTreeGridItemType.MIXIN:
+            return 'icon-folder icon-large';
+
+        case UserTreeGridItemType.CONTENT_TYPE:
+            return 'icon-folder icon-large';
+
+        case UserTreeGridItemType.XDATA:
+            return 'icon-folder icon-large';
+
         case UserTreeGridItemType.ID_PROVIDER:
             return 'icon-address-book icon-large';
 
