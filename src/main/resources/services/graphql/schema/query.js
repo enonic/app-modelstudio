@@ -51,6 +51,28 @@ module.exports = schemaGenerator.createObjectType({
                 return applications.list();
             }
         },
+        site: {
+            type: graphQlObjectTypes.SiteType,
+            args: {
+                key: graphQl.GraphQLString,
+            },
+            resolve: function (env) {
+                var key = env.args.key;
+
+                return dynamicSchemas.getSite(key);
+            }
+        },
+        styles: {
+            type: graphQlObjectTypes.StylesType,
+            args: {
+                key: graphQl.GraphQLString,
+            },
+            resolve: function (env) {
+                var key = env.args.key;
+
+                return dynamicSchemas.getStyles(key);
+            }
+        },
         idProviders: {
             type: graphQl.list(graphQlObjectTypes.IdProviderType),
             resolve: function () {

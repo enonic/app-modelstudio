@@ -27,11 +27,11 @@ import {Button} from 'lib-admin-ui/ui/button/Button';
 import {UserItemStatisticsHeader} from './UserItemStatisticsHeader';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {CONFIG} from 'lib-admin-ui/util/Config';
-import {ComponentType} from '../schema/ComponentType';
 import {Component} from '../schema/Component';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
-import {SchemaType} from '../schema/SchemaType';
 import {Schema} from '../schema/Schema';
+import {Site} from '../schema/Site';
+import {Styles} from '../schema/Styles';
 
 export class UserItemStatisticsPanel
     extends ItemStatisticsPanel {
@@ -112,18 +112,19 @@ export class UserItemStatisticsPanel
     private appendMetadata(item: UserTreeGridItem): void {
         const component = item.getComponent();
         const schema = item.getSchema();
-        const type: ComponentType | SchemaType = component ? component.getType() : schema ? schema.getType() : null;
+        const site = item.getSite();
+        const styles = item.getStyles();
 
-        if (type != null) {
-            this.setResource(component || schema /*, mainGroup*/);
+        if (component || schema || site || styles) {
+            this.setResource(component || schema || site || styles);
             this.textArea.show();
         } else {
             this.textArea.hide();
         }
     }
 
-    private setResource(schema: Component | Schema): void {
-        this.textArea.setValue(schema.getResource());
+    private setResource(item: Component | Schema | Site | Styles): void {
+        this.textArea.setValue(item.getResource());
     }
 
     private createUserMetadataGroups(principal: Principal, mainGroup: ItemDataGroup): Q.Promise<ItemDataGroup[]> {

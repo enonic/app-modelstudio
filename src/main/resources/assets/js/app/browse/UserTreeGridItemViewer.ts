@@ -60,7 +60,11 @@ export class UserTreeGridItemViewer
         case UserTreeGridItemType.CONTENT_TYPE:
         case UserTreeGridItemType.MIXIN:
         case UserTreeGridItemType.XDATA:
-            return iconClass + 'icon-folder';
+            return iconClass + 'icon-file-text2';
+
+        case UserTreeGridItemType.SITE:
+        case UserTreeGridItemType.STYLES:
+            return iconClass + 'icon-file-text2';
 
         case UserTreeGridItemType.ID_PROVIDER:
             if (object.getIdProvider().getKey().isSystem()) {
