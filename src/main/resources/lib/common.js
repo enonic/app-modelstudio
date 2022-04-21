@@ -341,6 +341,22 @@ exports.listSchemas = function listSchemas(params) {
     return queryResult;
 };
 
+exports.getSite = function getSite(params) {
+    var applicationKey = params.key;
+
+    return schemaLib.getSite({
+        key: applicationKey
+    });
+};
+
+exports.getStyles = function getStyles(params) {
+    var applicationKey = params.key;
+
+    return schemaLib.getStyles({
+        key: applicationKey
+    });
+};
+
 exports.listApps = function listApps() {
 
     return appLib.list(

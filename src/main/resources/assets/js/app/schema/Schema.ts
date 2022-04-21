@@ -158,7 +158,6 @@ export class SchemaBuilder {
     }
 
     public setType(value: SchemaType): SchemaBuilder {
-        debugger;
         this.type = value;
         return this;
     }

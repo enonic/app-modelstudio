@@ -22,7 +22,6 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ListPrincipalsKeysResult, ListPrincipalsNamesRequest} from '../../graphql/principal/ListPrincipalsNamesRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {GetPrincipalsTotalRequest} from '../../graphql/principal/GetPrincipalsTotalRequest';
 import {ListApplicationsRequest} from '../../graphql/apps/ListApplicationsRequest';
 import {Application} from '../application/Application';
@@ -32,6 +31,10 @@ import {Component} from '../schema/Component';
 import {SchemaType} from '../schema/SchemaType';
 import {ListSchemasRequest} from '../../graphql/apps/ListSchemasRequest';
 import {Schema} from '../schema/Schema';
+import {GetSiteRequest} from '../../graphql/apps/GetSiteRequest';
+import {Site} from '../schema/Site';
+import {Styles} from '../schema/Styles';
+import {GetStylesRequest} from '../../graphql/apps/GetStylesRequest';
 
 export class UserItemsTreeGrid
     extends TreeGrid<UserTreeGridItem> {
@@ -300,7 +303,17 @@ export class UserItemsTreeGrid
     private createApplicationFolders(parentNode: TreeNode<UserTreeGridItem>): Q.Promise<UserTreeGridItem[]> {
         const applicationNode: UserTreeGridItem = parentNode.getData();
         if (applicationNode.isApplication()) {
-            return Q(this.addFoldersToApplication(applicationNode));
+            let folders = this.addFoldersToApplication(applicationNode);
+            return this.loadChildren(parentNode, null).then(children => {
+                let result = [];
+                if (folders && folders.length > 0) {
+                    result = result.concat(folders);
+                }
+                if (children && children.length > 0) {
+                    result = result.concat(children);
+                }
+                return result;
+            });
         }
 
         return Q([]);
@@ -315,34 +328,34 @@ export class UserItemsTreeGrid
         return Q([]);
     }
 
-    private addFoldersToApplication(parentItem: UserTreeGridItem): Q.Promise<UserTreeGridItem[]> {
+    private addFoldersToApplication(parentItem: UserTreeGridItem): UserTreeGridItem[]/*Q.Promise<UserTreeGridItem[]>*/ {
         const application: Application = parentItem.getApplication();
-        const promises: Q.Promise<number>[] = [];
+        // const promises: Q.Promise<number>[] = [];
 
         // promises.push(this.getTotalPrincipals(idProvider.getKey(), PrincipalType.USER));
         // promises.push(this.getTotalPrincipals(idProvider.getKey(), PrincipalType.GROUP));
 
-        return Q.all(promises).spread((totalUsers: number, totalGroups: number) => {
-            const partFolderItem: UserTreeGridItem =
-                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.PARTS).setHasChildren(
-                    /*totalUsers > 0*/true).build();
-            const layoutFolderItem: UserTreeGridItem =
-                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.LAYOUTS).setHasChildren(
-                    /*totalGroups > 0*/true).build();
-            const pageFolderItem: UserTreeGridItem =
-                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.PAGES).setHasChildren(
-                    /*totalGroups > 0*/true).build();
-            const contentTypesFolderItem: UserTreeGridItem =
-                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.CONTENT_TYPES).setHasChildren(
-                    /*totalGroups > 0*/true).build();
-            const mixinsFolderItem: UserTreeGridItem =
-                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.MIXINS).setHasChildren(
-                    /*totalGroups > 0*/true).build();
-            const xDataFolderItem: UserTreeGridItem =
-                new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.XDATAS).setHasChildren(
-                    /*totalGroups > 0*/true).build();
-            return [partFolderItem, layoutFolderItem, pageFolderItem, contentTypesFolderItem, mixinsFolderItem, xDataFolderItem];
-        });
+        // return Q.all(promises).spread((totalUsers: number, totalGroups: number) => {
+        const partFolderItem: UserTreeGridItem =
+            new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.PARTS).setHasChildren(
+                /*totalUsers > 0*/true).build();
+        const layoutFolderItem: UserTreeGridItem =
+            new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.LAYOUTS).setHasChildren(
+                /*totalGroups > 0*/true).build();
+        const pageFolderItem: UserTreeGridItem =
+            new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.PAGES).setHasChildren(
+                /*totalGroups > 0*/true).build();
+        const contentTypesFolderItem: UserTreeGridItem =
+            new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.CONTENT_TYPES).setHasChildren(
+                /*totalGroups > 0*/true).build();
+        const mixinsFolderItem: UserTreeGridItem =
+            new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.MIXINS).setHasChildren(
+                /*totalGroups > 0*/true).build();
+        const xDataFolderItem: UserTreeGridItem =
+            new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.XDATAS).setHasChildren(
+                /*totalGroups > 0*/true).build();
+        return [partFolderItem, layoutFolderItem, pageFolderItem, contentTypesFolderItem, mixinsFolderItem, xDataFolderItem];
+        // });
     }
 
     private addUsersGroupsToIdProvider(parentItem: UserTreeGridItem): Q.Promise<UserTreeGridItem[]> {
@@ -391,7 +404,7 @@ export class UserItemsTreeGrid
         // const from: number = parentNode.getChildren().length;
         // const gridItems: UserTreeGridItem[] = parentNode.getChildren().map((el) => el.getData()).slice(0, from);
 
-        if(parentNode.getData().isPages() || parentNode.getData().isParts() || parentNode.getData().isLayouts()) {
+        if (parentNode.getData().isPages() || parentNode.getData().isParts() || parentNode.getData().isLayouts()) {
             return new ListComponentsRequest()
                 .setApplicationKey(parentNode.getData().getApplication().getApplicationKey())
                 .setType(<ComponentType>type)
@@ -401,15 +414,15 @@ export class UserItemsTreeGrid
                     result.forEach((component: Component) => {
                         const builder = new UserTreeGridItemBuilder().setComponent(component);
 
-                        if(ComponentType.PART == component.getType()) {
+                        if (ComponentType.PART == component.getType()) {
                             builder.setType(UserTreeGridItemType.PART);
                         }
 
-                        if(ComponentType.LAYOUT == component.getType()) {
+                        if (ComponentType.LAYOUT == component.getType()) {
                             builder.setType(UserTreeGridItemType.LAYOUT);
                         }
 
-                        if(ComponentType.PAGE == component.getType()) {
+                        if (ComponentType.PAGE == component.getType()) {
                             builder.setType(UserTreeGridItemType.PAGE);
                         }
 
@@ -421,7 +434,7 @@ export class UserItemsTreeGrid
                 });
         }
 
-        if(parentNode.getData().isContentTypes() || parentNode.getData().isMixins() || parentNode.getData().isXDatas()) {
+        if (parentNode.getData().isContentTypes() || parentNode.getData().isMixins() || parentNode.getData().isXDatas()) {
             return new ListSchemasRequest()
                 .setApplicationKey(parentNode.getData().getApplication().getApplicationKey())
                 .setType(<SchemaType>type)
@@ -431,15 +444,15 @@ export class UserItemsTreeGrid
                     result.forEach((schema: Schema) => {
                         const builder = new UserTreeGridItemBuilder().setSchema(schema);
 
-                        if(SchemaType.CONTENT_TYPE == schema.getType()) {
+                        if (SchemaType.CONTENT_TYPE == schema.getType()) {
                             builder.setType(UserTreeGridItemType.CONTENT_TYPE);
                         }
 
-                        if(SchemaType.MIXIN == schema.getType()) {
+                        if (SchemaType.MIXIN == schema.getType()) {
                             builder.setType(UserTreeGridItemType.MIXIN);
                         }
 
-                        if(SchemaType.XDATA == schema.getType()) {
+                        if (SchemaType.XDATA == schema.getType()) {
                             builder.setType(UserTreeGridItemType.XDATA);
                         }
 
@@ -449,6 +462,30 @@ export class UserItemsTreeGrid
 
                     return gridItems;
                 });
+        }
+
+        if (parentNode.getData().isApplication()) {
+            const promises: Q.Promise<Site | Styles>[] = [];
+
+            promises.push(new GetSiteRequest().setApplicationKey(
+                parentNode.getData().getApplication().getApplicationKey()).sendAndParse());
+            promises.push(new GetStylesRequest().setApplicationKey(
+                parentNode.getData().getApplication().getApplicationKey()).sendAndParse());
+
+            return Q.all(promises).spread((site, styles) => {
+                const result = [];
+                if (site) {
+                    const siteItem: UserTreeGridItem = new UserTreeGridItemBuilder().setSite(site).setType(
+                        UserTreeGridItemType.SITE).build();
+                    result.push(siteItem);
+                }
+                if (styles) {
+                    const stylesItem: UserTreeGridItem = new UserTreeGridItemBuilder().setStyles(styles).setType(
+                        UserTreeGridItemType.STYLES).build();
+                    result.push(stylesItem);
+                }
+                return result;
+            });
         }
 
     }

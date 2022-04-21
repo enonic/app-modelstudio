@@ -97,6 +97,16 @@ var common = require('./common');
             type: type
         });
     },
+    getSite: function (key) {
+        return common.getSite({
+            key: key
+        });
+    },
+    getStyles: function (key) {
+        return common.getStyles({
+            key: key
+        });
+    },
     delete: function (keys) {
         return keys.map(function (key) {
             try {
