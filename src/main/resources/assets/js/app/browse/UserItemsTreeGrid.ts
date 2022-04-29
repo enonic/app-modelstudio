@@ -22,6 +22,7 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ListPrincipalsKeysResult, ListPrincipalsNamesRequest} from '../../graphql/principal/ListPrincipalsNamesRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {GetPrincipalsTotalRequest} from '../../graphql/principal/GetPrincipalsTotalRequest';
 import {ListApplicationsRequest} from '../../graphql/apps/ListApplicationsRequest';
 import {Application} from '../application/Application';
@@ -275,10 +276,22 @@ export class UserItemsTreeGrid
 
     private fetchApplications(): Q.Promise<UserTreeGridItem[]> {
 
-        return new ListApplicationsRequest().sendAndParse().then((result: Application[]) => {
-            return result.map(application => {
-                return new UserTreeGridItemBuilder().setApplication(application).setType(UserTreeGridItemType.APPLICATION).build();
-            });
+        return new ListApplicationsRequest().sendAndParse().then((apps: Application[]) => {
+
+            const sitePromises: Q.Promise<Site>[] = apps
+                .map(app => app.getApplicationKey())
+                .map(key => new GetSiteRequest().setApplicationKey(key)
+                    .sendAndParse());
+
+
+            return Q.all(sitePromises).then((sites: Site[]) => {
+                const appNamesToShow: string[] = sites.filter(key => key != null).map(site => site.getKey().getName());
+                const appsToShow: Application[] = apps.filter(app => appNamesToShow.indexOf(app.getApplicationKey().getName()) >= 0);
+
+
+                return appsToShow.map(application => new UserTreeGridItemBuilder().setApplication(application).setType(
+                    UserTreeGridItemType.APPLICATION).build());
+            })
         });
 
         // return new ListIdProvidersRequest()
