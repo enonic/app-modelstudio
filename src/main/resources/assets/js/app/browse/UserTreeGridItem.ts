@@ -13,6 +13,7 @@ import {Schema} from '../schema/Schema';
 import {SchemaType} from '../schema/SchemaType';
 import {Site} from '../schema/Site';
 import {Styles} from '../schema/Styles';
+import {RenderableApplication} from '../application/RenderableApplication';
 
 export enum UserTreeGridItemType {
     ID_PROVIDER,
@@ -40,7 +41,7 @@ export enum UserTreeGridItemType {
 export class UserTreeGridItem
     implements ViewItem {
 
-    private application: Application;
+    private application: RenderableApplication;
 
     private component: Component;
 
@@ -88,7 +89,7 @@ export class UserTreeGridItem
         this.principal = principal;
     }
 
-    setApplication(application: Application): void {
+    setApplication(application: RenderableApplication): void {
         this.application = application;
     }
 
@@ -341,7 +342,7 @@ export class UserTreeGridItem
         return this.idProvider;
     }
 
-    getApplication(): Application {
+    getApplication(): RenderableApplication {
         return this.application;
     }
 
@@ -469,7 +470,7 @@ export class UserTreeGridItem
 }
 
 export class UserTreeGridItemBuilder {
-    application: Application;
+    application: RenderableApplication;
     component: Component;
     schema: Schema;
     site: Site;
@@ -479,7 +480,7 @@ export class UserTreeGridItemBuilder {
     type: UserTreeGridItemType;
     children: boolean;
 
-    setApplication(application: Application): UserTreeGridItemBuilder {
+    setApplication(application: RenderableApplication): UserTreeGridItemBuilder {
         this.application = application;
         return this;
     }
@@ -525,7 +526,7 @@ export class UserTreeGridItemBuilder {
     }
 
     setAny(userItem: UserItem): UserTreeGridItemBuilder {
-        if (userItem instanceof Application) {
+        if (userItem instanceof RenderableApplication) {
             return this.setApplication(userItem).setType(UserTreeGridItemType.APPLICATION);
         }
         if (userItem instanceof Component) {

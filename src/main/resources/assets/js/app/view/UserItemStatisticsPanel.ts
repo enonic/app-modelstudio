@@ -32,6 +32,8 @@ import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
 import {Schema} from '../schema/Schema';
 import {Site} from '../schema/Site';
 import {Styles} from '../schema/Styles';
+import {Application} from '../application/Application';
+import {RenderableApplication} from '../application/RenderableApplication';
 
 export class UserItemStatisticsPanel
     extends ItemStatisticsPanel {
@@ -111,19 +113,20 @@ export class UserItemStatisticsPanel
 
     private appendMetadata(item: UserTreeGridItem): void {
         const component = item.getComponent();
+        const application = item.getApplication();
         const schema = item.getSchema();
         const site = item.getSite();
         const styles = item.getStyles();
 
-        if (component || schema || site || styles) {
-            this.setResource(component || schema || site || styles);
+        if (component || schema || site || styles || application) {
+            this.setResource(component || schema || site || styles || application);
             this.textArea.show();
         } else {
             this.textArea.hide();
         }
     }
 
-    private setResource(item: Component | Schema | Site | Styles): void {
+    private setResource(item: Component | Schema | Site | Styles | RenderableApplication): void {
         this.textArea.setValue(item.getResource());
     }
 
