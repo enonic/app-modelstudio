@@ -42,7 +42,7 @@ exports.SchemaType = schemaGenerator.createInterfaceType({
         },
         createdTime: {
             type: graphQl.DateTime
-        },
+        }
     }
 });
 
@@ -231,6 +231,27 @@ exports.XDataSchemaType = schemaGenerator.createObjectType({
     }
 });
 
+exports.SchemaDeleteType = schemaGenerator.createObjectType({
+    name: 'SchemaDelete',
+    description: 'Result of a Schema delete operation',
+    fields: {
+        id: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.id;
+            }
+        },
+        result: {
+            type: graphQl.GraphQLBoolean,
+            resolve: function (env) {
+                return env.source.result;
+            }
+        }
+    }
+});
+
+
 graphQlUserItem.typeResolverMap.contentTypeSchemaType = exports.ContentTypeSchemaType;
 graphQlUserItem.typeResolverMap.mixinSchemaType = exports.MixinSchemaType;
 graphQlUserItem.typeResolverMap.xdataSchemaType = exports.XDataSchemaType;
+graphQlUserItem.typeResolverMap.schemaDeleteType = exports.SchemaDeleteType;

@@ -118,8 +118,9 @@ export class UserItemStatisticsPanel
         const site = item.getSite();
         const styles = item.getStyles();
 
-        if (component || schema || site || styles || application) {
-            this.setResource(component || schema || site || styles || application);
+
+        if (item.isComponent() || item.isSchema() || item.isSite() || item.isStyles() || item.isApplication()) {
+            this.setResource( component || schema || site || styles || application );
             this.textArea.show();
         } else {
             this.textArea.hide();

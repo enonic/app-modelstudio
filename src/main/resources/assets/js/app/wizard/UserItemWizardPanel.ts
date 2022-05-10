@@ -1,6 +1,6 @@
 import * as Q from 'q';
 import {UserItemWizardActions} from './action/UserItemWizardActions';
-import {UserItemWizardPanelParams} from './UserItemWizardPanelParams';
+import {DynamicWizardPanelParams} from './DynamicWizardPanelParams';
 import {PrincipalServerEventsHandler} from '../event/PrincipalServerEventsHandler';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
@@ -21,13 +21,17 @@ import {DeleteUserItemResult} from '../../graphql/useritem/DeleteUserItemResult'
 import {IdProvider} from '../principal/IdProvider';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {UserItemNamedEvent} from '../event/UserItemNamedEvent';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {BaseDeleteRequest} from '../../graphql/apps/BaseDeleteRequest';
+import {DeleteSchemaResult} from '../../graphql/apps/DeleteSchemaResult';
 
-export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
+
+export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
     extends WizardPanel<USER_ITEM_TYPE> {
 
     protected wizardActions: UserItemWizardActions<USER_ITEM_TYPE>;
 
-    protected params: UserItemWizardPanelParams<USER_ITEM_TYPE>;
+    protected params: DynamicWizardPanelParams<USER_ITEM_TYPE>;
 
     private locked: boolean;
 
@@ -35,7 +39,7 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
 
     private userItemNamedListeners: { (event: UserItemNamedEvent): void }[];
 
-    protected constructor(params: UserItemWizardPanelParams<USER_ITEM_TYPE>) {
+    protected constructor(params: DynamicWizardPanelParams<USER_ITEM_TYPE>) {
         super(params);
 
         this.lockChangedListeners = [];
@@ -66,7 +70,7 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
         this.handleServerEvents();
     }
 
-    protected getParams(): UserItemWizardPanelParams<USER_ITEM_TYPE> {
+    protected getParams(): DynamicWizardPanelParams<USER_ITEM_TYPE> {
         return this.params;
     }
 
@@ -84,8 +88,17 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
     }
 
     protected getWizardNameValue(): string {
-        return this.getPersistedItem() ? this.getPersistedItem().getKey().getId() : '';
+        return this.getPersistedItem() ? this.getPersistedModelName() : '';
     }
+
+    protected getPersistedModelId(): string {
+        throw Error('Must be implemented in inheritors');
+    }
+
+    protected getPersistedModelName(): string {
+        throw Error('Must be implemented in inheritors');
+    }
+
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
         const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndName();
@@ -95,14 +108,16 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
         let displayName: string = '';
 
         if (existing) {
-            displayName = existing.getDisplayName();
+            displayName = this.getPersistedDisplayName();
 
             wizardHeader.toggleNameInput(false);
             wizardHeader.setAutoGenerationEnabled(false);
         }
 
-        wizardHeader.setPath(this.getParams().persistedPath);
         wizardHeader.setDisplayName(displayName);
+
+        debugger;
+        wizardHeader.setPath(this.getParams().persistedPath);
         wizardHeader.setName(name);
 
         return wizardHeader;
@@ -112,18 +127,18 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
         return <WizardHeaderWithDisplayNameAndName> super.getWizardHeader();
     }
 
-    isSystemUserItem(): boolean {
-        return this.getParams().isSystemKey();
-    }
+    // isSystemUserItem(): boolean {
+    //     return this.getParams().isSystemKey();
+    // }
 
     protected createFormIcon(): FormIcon {
         let iconUrl = ImgEl.PLACEHOLDER;
         let formIcon = new FormIcon(iconUrl, 'icon');
         formIcon.addClass('icon icon-xlarge');
 
-        if (this.isSystemUserItem()) {
-            formIcon.addClass('icon-system');
-        }
+        // if (this.isSystemUserItem()) {
+        //     formIcon.addClass('icon-system');
+        // }
         return formIcon;
     }
 
@@ -155,7 +170,7 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
 
     private handleServerEvents() {
         const deleteHandler = (ids: string[]) => {
-            const id: string = this.isDataLoaded() ? this.getPersistedItem()?.getKey().toString() : this.params.tabId.getId();
+            const id: string = this.isDataLoaded() ? this.getPersistedModelId() : this.params.tabId.getId();
 
             if (!!id && ids.indexOf(id) >= 0) {
                 this.close();
@@ -325,32 +340,28 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
 
                 this.produceDeleteRequest()
                     .sendAndParse()
-                    .done((results: DeleteUserItemResult[]) => {
+                    .done((results: DeleteSchemaResult<any>[]) => {
                         this.handleDeletedResult(results);
                     });
 
             }).open();
     }
 
-    protected abstract produceDeleteRequest(): DeleteUserItemRequest;
+    protected abstract produceDeleteRequest(): BaseDeleteRequest<any>;
 
-    protected handleDeletedResult(results: DeleteUserItemResult[]): void {
+    protected handleDeletedResult(results: DeleteSchemaResult<any>[]): void {
         if (!results || results.length === 0) {
             return;
         }
 
-        if (results[0].isDeleted()) {
-            this.handleSuccessfulDelete(results);
-
-            return;
-        }
-
-        if (results[0].getReason()) {
-            DefaultErrorHandler.handle(results[0].getReason());
-        }
+            this.handleSuccessfulDelete(results[0]);
+        //
+        // if (results[0].getReason()) {
+        //     DefaultErrorHandler.handle(results[0].getReason());
+        // }
     }
 
-    protected abstract handleSuccessfulDelete(results: DeleteUserItemResult[]);
+    protected abstract handleSuccessfulDelete(result: DeleteSchemaResult<any>);
 
     onLockChanged(listener: (value: boolean) => void): void {
         this.lockChangedListeners.push(listener);
@@ -372,9 +383,9 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends UserItem>
         this.userItemNamedListeners.push(listener);
     }
 
-    protected notifyUserItemNamed(userItem: UserItem): void {
-        this.userItemNamedListeners.forEach((listener: (event: UserItemNamedEvent) => void) => {
-            listener.call(this, new UserItemNamedEvent(this, userItem));
-        });
-    }
+    // protected notifyUserItemNamed(userItem: UserItem): void {
+    //     this.userItemNamedListeners.forEach((listener: (event: UserItemNamedEvent) => void) => {
+    //         listener.call(this, new UserItemNamedEvent(this, userItem));
+    //     });
+    // }
 }

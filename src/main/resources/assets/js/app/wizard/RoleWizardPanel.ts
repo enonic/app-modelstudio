@@ -1,5 +1,5 @@
 import {MembersWizardPanel} from './MembersWizardPanel';
-import {PrincipalWizardPanelParams} from './PrincipalWizardPanelParams';
+import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {CreateRoleRequest} from '../../graphql/principal/role/CreateRoleRequest';
 import {UpdateRoleRequest} from '../../graphql/principal/role/UpdateRoleRequest';
 import {UserItemCreatedEvent} from '../event/UserItemCreatedEvent';
@@ -13,10 +13,10 @@ import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 
-export class RoleWizardPanel
+export class RoleWizardPanel{}/*
     extends MembersWizardPanel {
 
-    constructor(params: PrincipalWizardPanelParams) {
+    constructor(params: ComponentWizardPanelParams) {
         super(params);
 
         this.addClass('role-wizard-panel');
@@ -91,3 +91,4 @@ export class RoleWizardPanel
             .build();
     }
 }
+*/

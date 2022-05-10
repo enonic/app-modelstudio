@@ -43,49 +43,60 @@ export class UserTreeGridActions implements TreeGridActions<UserTreeGridItem> {
             let directoriesSelected: number = 0;
             let usersSelected: number = 0;
 
-            items.forEach((item: UserTreeGridItem) => {
-                const itemType: UserTreeGridItemType = item.getType();
-                switch (itemType) {
-                case UserTreeGridItemType.PRINCIPAL:
-                    principalsSelected++;
-                    if (ObjectHelper.iFrameSafeInstanceOf(item.getPrincipal(), User)) {
-                        usersSelected++;
-                    }
-                    break;
-                case UserTreeGridItemType.ROLES:
-                    directoriesSelected++;
-                    break;
-                case UserTreeGridItemType.GROUPS:
-                    directoriesSelected++;
-                    break;
-                case UserTreeGridItemType.USERS:
-                    directoriesSelected++;
-                    break;
-                case UserTreeGridItemType.ID_PROVIDER:
-                    idProvidersSelected++;
-                    break;
-                }
-            });
-
-            const totalSelection = idProvidersSelected + principalsSelected + directoriesSelected;
-            const anyPrincipal = principalsSelected > 0;
-            const anyIdProvider = idProvidersSelected > 0;
-            const onlyUsersSelected = totalSelection >= 1 && totalSelection === usersSelected;
-            const onePrincipalSelected = totalSelection === 1 && totalSelection === principalsSelected;
-
-            this.EDIT.setEnabled(directoriesSelected < 1 && (anyIdProvider || anyPrincipal));
-
-            if (this.isSystemUserItemSelected(items)) {
+            if(items.length > 1 || items.length == 0) {
                 this.DELETE.setEnabled(false);
-            } else if (onlyUsersSelected || onePrincipalSelected) {
-                this.DELETE.setEnabled(true);
-            } else if (totalSelection === 1) {
-                this.establishDeleteActionState(items[0]);
-            } else {
-                this.DELETE.setEnabled(false);
+                this.EDIT.setEnabled(false);
+                this.NEW.setEnabled(false);
+                return;
             }
 
-            this.SYNC.setEnabled(anyIdProvider);
+            const item = items[0];
+
+                if(item.isComponent() || item.isSchema()) {
+                    this.EDIT.setEnabled(true);
+                    this.DELETE.setEnabled(true);
+                }
+            //     const itemType: UserTreeGridItemType = item.getType();
+            //     switch (itemType) {
+            //     case UserTreeGridItemType.PRINCIPAL:
+            //         principalsSelected++;
+            //         if (ObjectHelper.iFrameSafeInstanceOf(item.getPrincipal(), User)) {
+            //             usersSelected++;
+            //         }
+            //         break;
+            //     case UserTreeGridItemType.ROLES:
+            //         directoriesSelected++;
+            //         break;
+            //     case UserTreeGridItemType.GROUPS:
+            //         directoriesSelected++;
+            //         break;
+            //     case UserTreeGridItemType.USERS:
+            //         directoriesSelected++;
+            //         break;
+            //     case UserTreeGridItemType.ID_PROVIDER:
+            //         idProvidersSelected++;
+            //         break;
+            //     }
+            //
+            // const totalSelection = idProvidersSelected + principalsSelected + directoriesSelected;
+            // const anyPrincipal = principalsSelected > 0;
+            // const anyIdProvider = idProvidersSelected > 0;
+            // const onlyUsersSelected = totalSelection >= 1 && totalSelection === usersSelected;
+            // const onePrincipalSelected = totalSelection === 1 && totalSelection === principalsSelected;
+            //
+            // this.EDIT.setEnabled(directoriesSelected < 1 && (anyIdProvider || anyPrincipal));
+            //
+            // if (this.isSystemUserItemSelected(items)) {
+            //     this.DELETE.setEnabled(false);
+            // } else if (onlyUsersSelected || onePrincipalSelected) {
+            //     this.DELETE.setEnabled(true);
+            // } else if (totalSelection === 1) {
+            //     this.establishDeleteActionState(items[0]);
+            // } else {
+            //     this.DELETE.setEnabled(false);
+            // }
+            //
+            // this.SYNC.setEnabled(anyIdProvider);
         });
     }
 
