@@ -5,6 +5,7 @@ var principals = require('/lib/principals');
 var users = require('/lib/users');
 var groups = require('/lib/groups');
 var roles = require('/lib/roles');
+var schemas = require('/lib/schemas');
 
 var schemaGenerator = require('../schemaUtil').schemaGenerator;
 
@@ -14,6 +15,48 @@ var graphQlInputTypes = require('../types').inputs;
 module.exports = schemaGenerator.createObjectType({
     name: 'Mutation',
     fields: {
+        createSchema: {
+            type: graphQlObjectTypes.SchemaType,
+            args: {
+                name: graphQl.nonNull(graphQl.GraphQLString),
+                type: graphQl.nonNull(graphQl.GraphQLString),
+                resource: graphQl.GraphQLString,
+
+            },
+            resolve: function (env) {
+                return schemas.create({
+                    name: env.args.name,
+                    type: env.args.type,
+                    resource: env.args.resource,
+                });
+            }
+        },
+        updateSchema: {
+            type: graphQlObjectTypes.SchemaType,
+            args: {
+                name: graphQl.nonNull(graphQl.GraphQLString),
+                type: graphQl.nonNull(graphQl.GraphQLString),
+                resource: graphQl.GraphQLString,
+
+            },
+            resolve: function (env) {
+                return schemas.update({
+                    name: env.args.name,
+                    type: env.args.type,
+                    resource: env.args.resource,
+                });
+            }
+        },
+        deleteSchemas: {
+            type: graphQl.list(graphQlObjectTypes.SchemaDeleteType),
+            args: {
+                ids: graphQl.list(graphQl.GraphQLString),
+                type: graphQl.GraphQLString
+            },
+            resolve: function (env) {
+                return schemas.delete({names: env.args.ids, type: env.args.type});
+            }
+        },
         // Principal
         deletePrincipals: {
             type: graphQl.list(graphQlObjectTypes.PrincipalDeleteType),

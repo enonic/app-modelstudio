@@ -12,8 +12,9 @@ var graphQlSite = require('./site');
 var graphQlStyles = require('./styles');
 
 module.exports = {
-    ComponentType: graphQlComponent.ComponentType,
     SchemaType: graphQlSchema.SchemaType,
+    SchemaDeleteType: graphQlSchema.SchemaDeleteType,
+    ComponentType: graphQlComponent.ComponentType,
     ApplicationType: graphQlApplication.ApplicationType,
     SiteType: graphQlSite.SiteType,
     StylesType: graphQlStyles.StylesType,

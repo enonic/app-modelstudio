@@ -1,13 +1,13 @@
 import * as Q from 'q';
-import {PrincipalWizardPanelParams} from './PrincipalWizardPanelParams';
+import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {GetPrincipalByKeyRequest} from '../../graphql/principal/GetPrincipalByKeyRequest';
 import {Principal} from 'lib-admin-ui/security/Principal';
 
-export class PrincipalWizardDataLoader {
+export class PrincipalWizardDataLoader {}/*{
 
     principal: Principal;
 
-    loadData(params: PrincipalWizardPanelParams): Q.Promise<PrincipalWizardDataLoader> {
+    loadData(params: ComponentWizardPanelParams): Q.Promise<PrincipalWizardDataLoader> {
 
         if (!params.persistedItem && !params.principalKey) {
             return this.loadDataForNew(params);
@@ -18,12 +18,12 @@ export class PrincipalWizardDataLoader {
         }
     }
 
-    private loadDataForNew(params: PrincipalWizardPanelParams): Q.Promise<PrincipalWizardDataLoader> {
+    private loadDataForNew(params: ComponentWizardPanelParams): Q.Promise<PrincipalWizardDataLoader> {
 
         return Q(this);
     }
 
-    private loadDataForEdit(params: PrincipalWizardPanelParams): Q.Promise<PrincipalWizardDataLoader> {
+    private loadDataForEdit(params: ComponentWizardPanelParams): Q.Promise<PrincipalWizardDataLoader> {
 
         return this.loadDataForNew(params).then(() => {
 
@@ -36,7 +36,7 @@ export class PrincipalWizardDataLoader {
         });
     }
 
-    private loadPrincipalToEdit(params: PrincipalWizardPanelParams): Q.Promise<Principal> {
+    private loadPrincipalToEdit(params: ComponentWizardPanelParams): Q.Promise<Principal> {
         if (!params.persistedItem && !!params.principalKey) {
             return new GetPrincipalByKeyRequest(params.principalKey).setIncludeMemberships(true).sendAndParse();
         } else {
@@ -46,3 +46,4 @@ export class PrincipalWizardDataLoader {
     }
 
 }
+*/

@@ -1,16 +1,16 @@
 import * as Q from 'q';
-import {IdProviderWizardPanelParams} from './IdProviderWizardPanelParams';
+import {SchemaWizardPanelParams} from './SchemaWizardPanelParams';
 import {GetIdProviderByKeyRequest} from '../../graphql/idprovider/GetIdProviderByKeyRequest';
 import {GetDefaultIdProviderRequest} from '../../graphql/idprovider/GetDefaultIdProviderRequest';
 import {IdProvider} from '../principal/IdProvider';
 
-export class IdProviderWizardDataLoader {
+export class IdProviderWizardDataLoader {}/*{
 
     idProvider: IdProvider;
 
     defaultIdProvider: IdProvider;
 
-    loadData(params: IdProviderWizardPanelParams): Q.Promise<IdProviderWizardDataLoader> {
+    loadData(params: SchemaWizardPanelParams): Q.Promise<IdProviderWizardDataLoader> {
         if (!params.persistedItem && !params.idProviderKey) {
             return this.loadDataForNew();
         } else {
@@ -18,7 +18,7 @@ export class IdProviderWizardDataLoader {
         }
     }
 
-    loadDataForEdit(params: IdProviderWizardPanelParams): Q.Promise<IdProviderWizardDataLoader> {
+    loadDataForEdit(params: SchemaWizardPanelParams): Q.Promise<IdProviderWizardDataLoader> {
 
         return this.loadDataForNew().then((loader) => {
 
@@ -41,7 +41,7 @@ export class IdProviderWizardDataLoader {
         });
     }
 
-    private loadIdProviderToEdit(params: IdProviderWizardPanelParams): Q.Promise<IdProvider> {
+    private loadIdProviderToEdit(params: SchemaWizardPanelParams): Q.Promise<IdProvider> {
         if (!params.persistedItem && !!params.idProviderKey) {
             return new GetIdProviderByKeyRequest(params.idProviderKey).sendAndParse();
         } else {
@@ -54,3 +54,4 @@ export class IdProviderWizardDataLoader {
     }
 
 }
+*/

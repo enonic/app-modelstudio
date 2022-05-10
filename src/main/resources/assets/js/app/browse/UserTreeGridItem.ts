@@ -6,7 +6,6 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
-import {Application} from '../application/Application';
 import {Component} from '../schema/Component';
 import {ComponentType} from '../schema/ComponentType';
 import {Schema} from '../schema/Schema';
@@ -193,7 +192,7 @@ export class UserTreeGridItem
         case UserTreeGridItemType.CONTENT_TYPE:
         case UserTreeGridItemType.MIXIN:
         case UserTreeGridItemType.XDATA:
-            return this.schema.getName();
+            return this.schema.getName().toString();
 
         case UserTreeGridItemType.SITE:
             return this.site.getKey().toString() + '/site.xml';
@@ -293,6 +292,16 @@ export class UserTreeGridItem
 
     isSite(): boolean {
         return this.type === UserTreeGridItemType.SITE;
+    }
+
+    isSchema(): boolean {
+        return this.type === UserTreeGridItemType.CONTENT_TYPE || this.type === UserTreeGridItemType.MIXIN || this.type ===
+               UserTreeGridItemType.XDATA;
+    }
+
+    isComponent(): boolean {
+        return this.type === UserTreeGridItemType.PART || this.type === UserTreeGridItemType.LAYOUT || this.type ===
+               UserTreeGridItemType.PAGE;
     }
 
     isStyles(): boolean {

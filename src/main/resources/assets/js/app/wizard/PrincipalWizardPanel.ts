@@ -1,6 +1,6 @@
 import * as Q from 'q';
 import {UserItemWizardPanel} from './UserItemWizardPanel';
-import {PrincipalWizardPanelParams} from './PrincipalWizardPanelParams';
+import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {Router} from '../Router';
 import {PrincipalWizardDataLoader} from './PrincipalWizardDataLoader';
 import {GraphQlRequest} from '../../graphql/GraphQlRequest';
@@ -19,19 +19,17 @@ import {UserItemKey} from 'lib-admin-ui/security/UserItemKey';
 import {DeletePrincipalRequest} from '../../graphql/principal/DeletePrincipalRequest';
 import {DeleteUserItemRequest} from '../../graphql/useritem/DeleteUserItemRequest';
 
-export class PrincipalWizardPanel extends UserItemWizardPanel<Principal> {
-
-    protected params: PrincipalWizardPanelParams;
+export class PrincipalWizardPanel {}/*extends UserItemWizardPanel<Principal> {
 
     public static debug: boolean = false;
 
-    constructor(params: PrincipalWizardPanelParams) {
+    constructor(params: ComponentWizardPanelParams) {
         super(params);
 
         this.addClass('principal-wizard-panel');
     }
 
-    protected getParams(): PrincipalWizardPanelParams {
+    protected getParams(): ComponentWizardPanelParams {
         return this.params;
     }
 
@@ -127,7 +125,7 @@ export class PrincipalWizardPanel extends UserItemWizardPanel<Principal> {
                         .setYesCallback(() => {
                             void this.doLayoutPersistedItem(persistedPrincipal ? persistedPrincipal.clone() : null);
                         })
-                        .setNoCallback(() => { /* empty */
+                        .setNoCallback(() => { /!* empty *!/
                         })
                         .show();
                 }
@@ -221,3 +219,4 @@ export class PrincipalWizardPanel extends UserItemWizardPanel<Principal> {
         UserItemDeletedEvent.create().setPrincipals([this.getPersistedItem()]).build().fire();
     }
 }
+*/
