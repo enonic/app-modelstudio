@@ -3,12 +3,12 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {SchemaType} from './SchemaType';
 import {SchemaJson} from './SchemaJson';
-import {SchemaName} from './SchemaName';
+import {ModelName} from './ModelName';
 
 export class Schema
     implements Cloneable, Equitable {
 
-    private readonly name: SchemaName;
+    private readonly name: ModelName;
 
     private readonly displayName: string;
 
@@ -43,7 +43,7 @@ export class Schema
         return SchemaBuilder.fromJson(json).build();
     }
 
-     getName(): SchemaName {
+     getName(): ModelName {
         return this.name;
     }
 
@@ -101,7 +101,7 @@ export class Schema
 
 export class SchemaBuilder {
 
-    name: SchemaName;
+    name: ModelName;
 
     displayName: string;
 
@@ -133,7 +133,7 @@ export class SchemaBuilder {
     static fromJson(json: SchemaJson): SchemaBuilder {
         // const descriptorKey: DescriptorKey = DescriptorKey.fromString(json.key);
         return new SchemaBuilder()
-            .setName(SchemaName.fromString(json.name))
+            .setName(ModelName.fromString(json.name))
             .setDisplayName(json.displayName)
             .setDescription(json.description)
             .setType(SchemaType[json.type.toUpperCase()])
@@ -143,7 +143,7 @@ export class SchemaBuilder {
             .setCreatedTime(json.createdTime ? new Date(json.createdTime) : null);
     }
 
-    public setName(value: SchemaName): SchemaBuilder {
+    public setName(value: ModelName): SchemaBuilder {
         this.name = value;
         return this;
     }

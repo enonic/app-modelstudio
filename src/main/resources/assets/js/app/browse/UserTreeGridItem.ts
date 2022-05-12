@@ -187,7 +187,7 @@ export class UserTreeGridItem
         case UserTreeGridItemType.PART:
         case UserTreeGridItemType.LAYOUT:
         case UserTreeGridItemType.PAGE:
-            return this.component.getKey();
+            return this.component.getName().toString();
 
         case UserTreeGridItemType.CONTENT_TYPE:
         case UserTreeGridItemType.MIXIN:

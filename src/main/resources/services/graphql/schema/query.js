@@ -5,8 +5,13 @@ var idproviders = require('/lib/idproviders');
 var principals = require('/lib/principals');
 var useritems = require('/lib/useritems');
 var repositories = require('/lib/repositories');
-var dynamicSchemas = require('/lib/dynamicSchemas');
+// var dynamicSchemas = require('/lib/dynamicSchemas');
 var applications = require('/lib/applications');
+
+var schemas = require('/lib/schemas');
+var components = require('/lib/components');
+var sites = require('/lib/sites');
+var styles = require('/lib/styles');
 
 var schemaGenerator = require('../schemaUtil').schemaGenerator;
 
@@ -27,7 +32,7 @@ module.exports = schemaGenerator.createObjectType({
                 var key = env.args.key;
                 var type = env.args.type;
 
-                return dynamicSchemas.listComponents(key, type);
+                return components.list({key, type});
             }
         },
         schemas: {
@@ -40,7 +45,7 @@ module.exports = schemaGenerator.createObjectType({
                 var key = env.args.key;
                 var type = env.args.type;
 
-                return dynamicSchemas.listSchemas(key, type);
+                return schemas.list({key, type});
             }
         },
         applications: {
@@ -59,7 +64,7 @@ module.exports = schemaGenerator.createObjectType({
             resolve: function (env) {
                 var key = env.args.key;
 
-                return dynamicSchemas.getSite(key);
+                return sites.get({key});
             }
         },
         styles: {
@@ -70,7 +75,7 @@ module.exports = schemaGenerator.createObjectType({
             resolve: function (env) {
                 var key = env.args.key;
 
-                return dynamicSchemas.getStyles(key);
+                return styles.get({key});
             }
         },
         idProviders: {

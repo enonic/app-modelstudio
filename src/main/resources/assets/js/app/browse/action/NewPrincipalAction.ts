@@ -12,20 +12,31 @@ export class NewPrincipalAction
         super(i18n('action.new'), 'alt+n');
         this.setEnabled(false);
         this.onExecuted(() => {
-            const principals: UserTreeGridItem[] = grid.getSelectedDataList();
-            if (principals.length === 1) {
-                if (principals[0].isContentTypes() || principals[0].isContentType()) {
-                    new NewPrincipalEvent(principals).fire();
+            const modelItems: UserTreeGridItem[] = grid.getSelectedDataList();
+            if (modelItems.length === 1) {
+                if (modelItems[0].isParts() || modelItems[0].isPart()) {
+                    new NewPrincipalEvent(modelItems).fire();
                 }
-                if (principals[0].isXDatas() || principals[0].isXData()) {
-                    new NewPrincipalEvent(principals).fire();
+                if (modelItems[0].isLayouts() || modelItems[0].isLayout()) {
+                    new NewPrincipalEvent(modelItems).fire();
                 }
-                if (principals[0].isMixins() || principals[0].isMixin()) {
-                    new NewPrincipalEvent(principals).fire();
+                if (modelItems[0].isPages() || modelItems[0].isPage()) {
+                    new NewPrincipalEvent(modelItems).fire();
                 }
+
+                if (modelItems[0].isContentTypes() || modelItems[0].isContentType()) {
+                    new NewPrincipalEvent(modelItems).fire();
+                }
+                if (modelItems[0].isXDatas() || modelItems[0].isXData()) {
+                    new NewPrincipalEvent(modelItems).fire();
+                }
+                if (modelItems[0].isMixins() || modelItems[0].isMixin()) {
+                    new NewPrincipalEvent(modelItems).fire();
+                }
+
                 return;
             }
-            new ShowNewPrincipalDialogEvent(principals).fire();
+            new ShowNewPrincipalDialogEvent(modelItems).fire();
         });
     }
 }

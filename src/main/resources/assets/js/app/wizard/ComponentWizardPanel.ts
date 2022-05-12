@@ -17,22 +17,29 @@ import {ModelName} from '../schema/ModelName';
 import {DeleteSchemaRequest} from '../../graphql/apps/DeleteSchemaRequest';
 import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
 import {SchemaType} from '../schema/SchemaType';
+import {Component, ComponentBuilder} from '../schema/Component';
+import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
+import {ComponentWizardActions} from './ComponentWizardActions';
+import {CreateComponentRequest} from '../../graphql/apps/CreateComponentRequest';
+import {UpdateComponentRequest} from '../../graphql/apps/UpdateComponentRequest';
+import {DeleteComponentRequest} from '../../graphql/apps/DeleteComponentRequest';
+import {ComponentType} from '../schema/ComponentType';
 
-export class SchemaWizardPanel
-    extends UserItemWizardPanel<Schema> {
+export class ComponentWizardPanel
+    extends UserItemWizardPanel<Component> {
 
     private resourceWizardStepForm: ResourceWizardStepForm;
 
     public static debug: boolean = false;
 
-    constructor(params: SchemaWizardPanelParams) {
+    constructor(params: ComponentWizardPanelParams) {
         super(params);
 
         // this.listenToUserItemEvents();
     }
 
-    protected createWizardActions(): SchemaWizardActions {
-        return new SchemaWizardActions(this);
+    protected createWizardActions(): ComponentWizardActions {
+        return new ComponentWizardActions(this);
     }
 
     protected getPersistedModelId(): string {
@@ -43,9 +50,9 @@ export class SchemaWizardPanel
         return this.getPersistedItem() ? this.getPersistedItem().getName().getName().toString() : null;
     }
 
-    protected doLoadData(): Q.Promise<Schema> {
-        if (SchemaWizardPanel.debug) {
-            console.debug('SchemaWizardPanel.doLoadData');
+    protected doLoadData(): Q.Promise<Component> {
+        if (ComponentWizardPanel.debug) {
+            console.debug('ComponentWizardPanel.doLoadData');
         }
 
         return Q(this.params.persistedItem);
@@ -53,8 +60,8 @@ export class SchemaWizardPanel
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
         return super.doRenderOnDataLoaded(rendered).then((nextRendered) => {
-            if (SchemaWizardPanel.debug) {
-                console.debug('SchemaWizardPanel.doRenderOnDataLoaded');
+            if (ComponentWizardPanel.debug) {
+                console.debug('ComponentWizardPanel.doRenderOnDataLoaded');
             }
 
             this.addClass('principal-wizard-panel id-provider-wizard-panel');
@@ -70,7 +77,7 @@ export class SchemaWizardPanel
         return formIcon;
     }
 
-    createSteps(persistedItem: Schema): WizardStep[] {
+    createSteps(persistedItem: Component): WizardStep[] {
         const steps: WizardStep[] = [];
 
         this.resourceWizardStepForm = new ResourceWizardStepForm();
@@ -85,55 +92,55 @@ export class SchemaWizardPanel
     }
 
     getModelType(): string {
-        return i18n('field.schema');
+        return i18n('field.component');
     }
 
-    doLayout(persistedSchema: Schema): Q.Promise<void> {
-        return super.doLayout(persistedSchema).then(() => {
+    doLayout(persistedComponent: Component): Q.Promise<void> {
+        return super.doLayout(persistedComponent).then(() => {
 
             if (this.isRendered()) {
                 return Q<void>(null);
             } else {
-                return this.doLayoutPersistedItem(persistedSchema ? persistedSchema.clone() : null);
+                return this.doLayoutPersistedItem(persistedComponent ? persistedComponent.clone() : null);
             }
 
         });
     }
 
-    persistNewItem(): Q.Promise<Schema> {
-        // this.lock();
-
-        return new CreateSchemaRequest()
-            .setSchema(this.assembleViewedSchema()).sendAndParse().then((createdSchema: Schema) => {
-                showFeedback('Schema was created');
-                // new UserItemUpdatedEvent(null, updatedSchema).fire();
-
-                return createdSchema;
-            })/*.finally(this.unlock.bind(this))*/;
-    }
-
-    postPersistNewItem(schema: Schema): Q.Promise<Schema> {
-        Router.setHash('edit/' + schema.getName());
-        return Q(schema);
-    }
-
-    updatePersistedItem(): Q.Promise<Schema> {
+    persistNewItem(): Q.Promise<Component> {
         this.lock();
 
-        return new UpdateSchemaRequest()
-            .setSchema(this.assembleViewedSchema()).sendAndParse().then((updatedSchema: Schema) => {
-                showFeedback('Schema was updated');
+        return new CreateComponentRequest()
+            .setComponent(this.assembleViewedComponent()).sendAndParse().then((createdComponent: Component) => {
+                showFeedback('Component was created');
                 // new UserItemUpdatedEvent(null, updatedSchema).fire();
 
-                return updatedSchema;
+                return createdComponent;
             }).finally(this.unlock.bind(this));
     }
 
-    saveChanges(): Q.Promise<Schema> {
+    postPersistNewItem(component: Component): Q.Promise<Component> {
+        Router.setHash('edit/' + component.getName());
+        return Q(component);
+    }
+
+    updatePersistedItem(): Q.Promise<Component> {
+        this.lock();
+
+        return new UpdateComponentRequest()
+            .setComponent(this.assembleViewedComponent()).sendAndParse().then((updatedComponent: Component) => {
+                showFeedback('Component was updated');
+                // new UserItemUpdatedEvent(null, updatedSchema).fire();
+
+                return updatedComponent;
+            }).finally(this.unlock.bind(this));
+    }
+
+    saveChanges(): Q.Promise<Component> {
         if (this.isRendered()) {
             if (!this.resourceWizardStepForm.isValid()) {
                 return Q.fcall(() => {
-                    throw i18n('notify.invalid.schema');
+                    throw i18n('notify.invalid.component');
                 });
             }
         }
@@ -148,11 +155,11 @@ export class SchemaWizardPanel
     }
 
     isPersistedEqualsViewed(): boolean {
-        const viewedSchema: Schema = this.assembleViewedSchema();
-        return viewedSchema.equals(this.getPersistedItem());
+        const viewedComponent: Component = this.assembleViewedComponent();
+        return viewedComponent.equals(this.getPersistedItem());
     }
 
-    protected doLayoutPersistedItem(persistedItem: Schema): Q.Promise<void> {
+    protected doLayoutPersistedItem(persistedItem: Component): Q.Promise<void> {
         if (!!persistedItem) {
             this.getWizardHeader().setDisplayName(persistedItem.getDisplayName() || '');
             this.resourceWizardStepForm.layout(persistedItem.getResource());
@@ -171,10 +178,10 @@ export class SchemaWizardPanel
         }
     }
 
-    private assembleViewedSchema(): Schema {
-        const params = (this.params as SchemaWizardPanelParams);
+    private assembleViewedComponent(): Component {
+        const params = (this.params as ComponentWizardPanelParams);
 
-        return new SchemaBuilder()
+        return new ComponentBuilder()
             .setResource(this.resourceWizardStepForm.getResource())
             .setType(params.type)
             .setName(ModelName.create()
@@ -182,23 +189,23 @@ export class SchemaWizardPanel
                 .setApplicationKey(params.applicationKey)
                 .build())
             .setDisplayName(this.getWizardHeader().getDisplayName())
-            .setModifiedTime(this.getPersistedItem() ? this.getPersistedItem().getModifiedTime() : null)
+            // .setModifiedTime(this.getPersistedItem() ? this.getPersistedItem().getModifiedTime() : null)
             .build();
     }
 
     protected handleSuccessfulDelete(result: DeleteModelResult<any>): void {
         if (result.getResult()) {
             showFeedback(
-                i18n('notify.delete.schema.single', result.getId().toString()));
+                i18n('notify.delete.component.single', result.getId().toString()));
         }
 
         this.close();
         // UserItemDeletedEvent.create().setIdProviders([this.getPersistedItem()]).build().fire();
     }
 
-    protected produceDeleteRequest(): DeleteSchemaRequest {
-        return new DeleteSchemaRequest().setIds([this.getPersistedItem().getName()]).setType(
-            SchemaType[this.getPersistedItem().getType().toString()]) as DeleteSchemaRequest;
+    protected produceDeleteRequest(): DeleteComponentRequest {
+        return new DeleteComponentRequest().setIds([this.getPersistedItem().getName()]).setType(
+            ComponentType[this.getPersistedItem().getType().toString()]) as DeleteComponentRequest;
     }
 
 }

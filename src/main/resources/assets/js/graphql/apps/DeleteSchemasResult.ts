@@ -1,14 +1,14 @@
-import {DeleteSchemaResult} from './DeleteSchemaResult';
+import {DeleteModelResult} from './DeleteModelResult';
 
 export class DeleteSchemasResult<ID_TYPE> {
 
-    private readonly schemas: DeleteSchemaResult<ID_TYPE>[];
+    private readonly schemas: DeleteModelResult<ID_TYPE>[];
 
     constructor(builder: DeleteSchemasResultBuilder<ID_TYPE>) {
         this.schemas = builder.schemas;
     }
 
-    getSchemas(): DeleteSchemaResult<ID_TYPE>[] {
+    getSchemas(): DeleteModelResult<ID_TYPE>[] {
         return this.schemas;
     }
 
@@ -19,9 +19,9 @@ export class DeleteSchemasResult<ID_TYPE> {
 
 export class DeleteSchemasResultBuilder<ID_TYPE> {
 
-    schemas: DeleteSchemaResult<ID_TYPE>[] = [];
+    schemas: DeleteModelResult<ID_TYPE>[] = [];
 
-    addSchema(value: DeleteSchemaResult<ID_TYPE>): DeleteSchemasResultBuilder<ID_TYPE> {
+    addSchema(value: DeleteModelResult<ID_TYPE>): DeleteSchemasResultBuilder<ID_TYPE> {
         if (value) {
             this.schemas.push(value);
         }

@@ -30,7 +30,7 @@ export class UserTreeGridItemViewer
                     return this.isRelativePath ? object.getPrincipal().getKey().getId() :
                            object.getPrincipal().getKey().toPath();
                 default:
-                    return object.getItemDisplayName().toLocaleLowerCase();
+                    return object.getItemDisplayName() ? object.getItemDisplayName().toLocaleLowerCase() : '';
             }
         }
         return '';

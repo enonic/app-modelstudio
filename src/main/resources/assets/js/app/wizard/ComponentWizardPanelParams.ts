@@ -5,10 +5,10 @@ import {ComponentType} from '../schema/ComponentType';
 export class ComponentWizardPanelParams
     extends DynamicWizardPanelParams<Component> {
 
-    component: Component;
+    type: ComponentType;
 
-    setComponent(value: Component): ComponentWizardPanelParams {
-        this.component = value;
+    setType(value: ComponentType): ComponentWizardPanelParams {
+        this.type = value;
         return this;
     }
 }

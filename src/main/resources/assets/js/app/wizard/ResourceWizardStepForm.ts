@@ -29,19 +29,16 @@ export class ResourceWizardStepForm
         return [resourceFormItem];
     }
 
-    layout(schema: Schema): void {
-        if (!schema) {
-            return;
-        }
+    layout(resource: string): void {
 
-        const resource: string = !!schema.getResource() ? schema.getResource() : '';
+        const value = resource || '';
 
         if (this.resource.isDirty()) {
-            if (ObjectHelper.stringEquals(this.resource.getValue(), resource)) {
+            if (ObjectHelper.stringEquals(this.resource.getValue(), value)) {
                 this.resource.resetBaseValues();
             }
         } else {
-            this.resource.setValue(resource);
+            this.resource.setValue(value);
         }
     }
 

@@ -4,19 +4,19 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 
-export class SchemaName
+export class ModelName
     implements Cloneable, Equitable {
 
     private readonly applicationKey: ApplicationKey;
 
-    private readonly localName: string;
+    private readonly name: string;
 
     constructor(builder: SchemaNameBuilder) {
         this.applicationKey = builder.applicationKey;
-        this.localName = builder.localName;
+        this.name = builder.name;
     }
 
-    static fromString(value: string): SchemaName {
+    static fromString(value: string): ModelName {
         return SchemaNameBuilder.fromString(value).build();
     }
 
@@ -24,16 +24,16 @@ export class SchemaName
         return this.applicationKey;
     }
 
-    getLocalName(): string {
-        return this.localName;
+    getName(): string {
+        return this.name;
     }
 
-    clone(): SchemaName {
+    clone(): ModelName {
         return new SchemaNameBuilder(this).build();
     }
 
     toString(): string {
-        return this.applicationKey + ':' + this.localName;
+        return this.applicationKey + ':' + this.name;
     }
 
     static create(): SchemaNameBuilder {
@@ -41,26 +41,26 @@ export class SchemaName
     }
 
     equals(o: Equitable): boolean {
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, SchemaName)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ModelName)) {
             return false;
         }
 
-        let other = <SchemaName>o;
+        let other = <ModelName>o;
 
-        return this.localName === other.getLocalName() &&
+        return this.name === other.getName() &&
                ObjectHelper.objectEquals(this.applicationKey, other.getApplicationKey());
     }
 }
 
 export class SchemaNameBuilder {
 
-    localName: string;
+    name: string;
 
     applicationKey: ApplicationKey;
 
-    constructor(source?: SchemaName) {
+    constructor(source?: ModelName) {
         if (source) {
-            this.localName = source.getLocalName();
+            this.name = source.getName();
             this.applicationKey = source.getApplicationKey();
         }
     }
@@ -70,7 +70,7 @@ export class SchemaNameBuilder {
 
         return new SchemaNameBuilder()
             .setApplicationKey(ApplicationKey.fromString(elements[0]))
-            .setLocalName(elements[1]);
+            .setName(elements[1]);
     }
 
     public setApplicationKey(value: ApplicationKey): SchemaNameBuilder {
@@ -78,12 +78,12 @@ export class SchemaNameBuilder {
         return this;
     }
 
-    public setLocalName(value: string): SchemaNameBuilder {
-        this.localName = value;
+    public setName(value: string): SchemaNameBuilder {
+        this.name = value;
         return this;
     }
 
-    public build(): SchemaName {
-        return new SchemaName(this);
+    public build(): ModelName {
+        return new ModelName(this);
     }
 }
