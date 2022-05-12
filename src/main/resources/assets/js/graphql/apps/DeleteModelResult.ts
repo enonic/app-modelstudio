@@ -1,6 +1,6 @@
 import {UserItemKey} from 'lib-admin-ui/security/UserItemKey';
 
-export class DeleteSchemaResult<ID_TYPE> {
+export class DeleteModelResult<ID_TYPE> {
 
     private id: ID_TYPE;
 

@@ -329,17 +329,17 @@ exports.listComponents = function listComponents(params) {
     return queryResult;
 };
 
-exports.listSchemas = function listSchemas(params) {
-    var applicationKey = params.key;
-    var schemaType = params.type;
-
-    var queryResult = schemaLib.listSchemas({
-        key: applicationKey,
-        type: schemaType
-    });
-
-    return queryResult;
-};
+// exports.listSchemas = function listSchemas(params) {
+//     var applicationKey = params.key;
+//     var schemaType = params.type;
+//
+//     var queryResult = schemaLib.listSchemas({
+//         key: applicationKey,
+//         type: schemaType
+//     });
+//
+//     return queryResult;
+// };
 
 exports.getSite = function getSite(params) {
     var applicationKey = params.key;

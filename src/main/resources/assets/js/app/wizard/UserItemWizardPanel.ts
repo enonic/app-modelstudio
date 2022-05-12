@@ -23,7 +23,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {UserItemNamedEvent} from '../event/UserItemNamedEvent';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {BaseDeleteRequest} from '../../graphql/apps/BaseDeleteRequest';
-import {DeleteSchemaResult} from '../../graphql/apps/DeleteSchemaResult';
+import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
 
 
 export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
@@ -212,12 +212,12 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
         }
     }
 
-    getUserItemType(): string {
+    getModelType(): string {
         throw new Error('Must be implemented by inheritors');
     }
 
     getPersistedDisplayName(): string {
-        return this.getParams().persistedDisplayName;
+        return this.getParams().persistedDisplayName ? this.getParams().persistedDisplayName : '';
     }
 
     lock(): void {
@@ -340,7 +340,7 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
 
                 this.produceDeleteRequest()
                     .sendAndParse()
-                    .done((results: DeleteSchemaResult<any>[]) => {
+                    .done((results: DeleteModelResult<any>[]) => {
                         this.handleDeletedResult(results);
                     });
 
@@ -349,7 +349,7 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
 
     protected abstract produceDeleteRequest(): BaseDeleteRequest<any>;
 
-    protected handleDeletedResult(results: DeleteSchemaResult<any>[]): void {
+    protected handleDeletedResult(results: DeleteModelResult<any>[]): void {
         if (!results || results.length === 0) {
             return;
         }
@@ -361,7 +361,7 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
         // }
     }
 
-    protected abstract handleSuccessfulDelete(result: DeleteSchemaResult<any>);
+    protected abstract handleSuccessfulDelete(result: DeleteModelResult<any>);
 
     onLockChanged(listener: (value: boolean) => void): void {
         this.lockChangedListeners.push(listener);

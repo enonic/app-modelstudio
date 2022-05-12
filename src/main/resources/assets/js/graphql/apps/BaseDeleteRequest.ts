@@ -1,8 +1,8 @@
 import {GraphQlRequest} from '../GraphQlRequest';
-import {DeleteSchemaResult} from './DeleteSchemaResult';
+import {DeleteModelResult} from './DeleteModelResult';
 
 export abstract class BaseDeleteRequest<ID_TYPE>
-    extends GraphQlRequest<DeleteSchemaResult<ID_TYPE>[]> {
+    extends GraphQlRequest<DeleteModelResult<ID_TYPE>[]> {
 
     private ids: ID_TYPE[];
 
@@ -36,14 +36,14 @@ export abstract class BaseDeleteRequest<ID_TYPE>
 
     protected abstract getMutationName(): string;
 
-    sendAndParse(): Q.Promise<DeleteSchemaResult<ID_TYPE>[]> {
+    sendAndParse(): Q.Promise<DeleteModelResult<ID_TYPE>[]> {
         return this.mutate().then((json) => {
             return json[this.getMutationName()].map(this.jsonToResult.bind(this));
         });
     }
 
-    private jsonToResult(json: { id, result }): DeleteSchemaResult<ID_TYPE> {
-        return new DeleteSchemaResult<ID_TYPE>(json.id, json.result);
+    private jsonToResult(json: { id, result }): DeleteModelResult<ID_TYPE> {
+        return new DeleteModelResult<ID_TYPE>(json.id, json.result);
     }
 
     protected abstract convertId(value: string): ID_TYPE;

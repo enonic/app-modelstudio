@@ -3,11 +3,11 @@ import {DeleteUserItemRequest} from '../useritem/DeleteUserItemRequest';
 import {BaseDeleteRequest} from './BaseDeleteRequest';
 import {ModelName} from '../../app/schema/ModelName';
 
-export class DeleteSchemaRequest
+export class DeleteComponentRequest
     extends BaseDeleteRequest<ModelName> {
 
     protected getMutationName(): string {
-        return 'deleteSchemas';
+        return 'deleteComponents';
     }
 
     protected convertId(value: string): ModelName {
