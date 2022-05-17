@@ -78,4 +78,24 @@ exports.ApplicationType = schemaGenerator.createObjectType({
     }
 });
 
+exports.ApplicationDeleteType = schemaGenerator.createObjectType({
+    name: 'ApplicationDelete',
+    description: 'Result of a Application delete operation',
+    fields: {
+        id: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.id;
+            }
+        },
+        result: {
+            type: graphQl.GraphQLBoolean,
+            resolve: function (env) {
+                return env.source.result;
+            }
+        }
+    }
+});
+
 graphQlUserItem.typeResolverMap.applicationType = exports.ApplicationType;
+graphQlUserItem.typeResolverMap.applicationDeleteType = exports.ApplicationDeleteType;

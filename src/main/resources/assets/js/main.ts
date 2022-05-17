@@ -2,7 +2,6 @@ import {UserAppPanel} from './app/UserAppPanel';
 import {ChangeUserPasswordDialog} from './app/wizard/ChangeUserPasswordDialog';
 import {Router} from './app/Router';
 import {ShowNewPrincipalDialogEvent} from './app/browse/ShowNewPrincipalDialogEvent';
-import {NewPrincipalDialog} from './app/create/NewPrincipalDialog';
 import {PrincipalServerEventsHandler} from './app/event/PrincipalServerEventsHandler';
 import {UsersServerEventsListener} from './app/event/UsersServerEventsListener';
 import {Body} from 'lib-admin-ui/dom/Body';
@@ -54,7 +53,7 @@ function startApplication() {
     const appBar = new TabbedAppBar(application);
     appBar.setHomeIconAction();
 
-    const newPrincipalDialog = new NewPrincipalDialog();
+    // const newPrincipalDialog = new NewPrincipalDialog();
     const appPanel = new UserAppPanel(appBar, application.getPath());
 
     body.appendChild(appBar);
@@ -72,9 +71,9 @@ function startApplication() {
 
     PrincipalServerEventsHandler.getInstance().start();
 
-    ShowNewPrincipalDialogEvent.on((event) => {
-        newPrincipalDialog.setSelection(event.getSelection()).open();
-    });
+    // ShowNewPrincipalDialogEvent.on((event) => {
+    //     newPrincipalDialog.setSelection(event.getSelection()).open();
+    // });
 }
 
 (async () => {

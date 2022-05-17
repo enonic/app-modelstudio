@@ -1,4 +1,4 @@
-import {UserItemWizardPanel} from '../UserItemWizardPanel';
+import {ModelWizardPanel} from '../ModelWizardPanel';
 import {DeleteUserItemAction} from './DeleteUserItemAction';
 import {UserItem} from 'lib-admin-ui/security/UserItem';
 import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
@@ -16,7 +16,7 @@ export class UserItemWizardActions<USER_ITEM_TYPE extends Equitable>
 
     protected delete: Action;
 
-    constructor(wizardPanel: UserItemWizardPanel<USER_ITEM_TYPE>) {
+    constructor(wizardPanel: ModelWizardPanel<USER_ITEM_TYPE>) {
         super();
 
         this.save = new SaveAction(wizardPanel);

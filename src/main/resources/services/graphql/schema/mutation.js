@@ -8,6 +8,7 @@ var roles = require('/lib/roles');
 
 var schemas = require('/lib/schemas');
 var components = require('/lib/components');
+var applications = require('/lib/applications');
 
 var schemaGenerator = require('../schemaUtil').schemaGenerator;
 
@@ -49,6 +50,17 @@ module.exports = schemaGenerator.createObjectType({
                 });
             }
         },
+        createApplication: {
+            type: graphQlObjectTypes.ApplicationType,
+            args: {
+                key: graphQl.nonNull(graphQl.GraphQLString)
+            },
+            resolve: function (env) {
+                return applications.create({
+                    key: env.args.key
+                });
+            }
+        },
         updateSchema: {
             type: graphQlObjectTypes.SchemaType,
             args: {
@@ -81,6 +93,20 @@ module.exports = schemaGenerator.createObjectType({
                 });
             }
         },
+        // updateApplication: {
+        //     type: graphQlObjectTypes.ApplicationType,
+        //     args: {
+        //         key: graphQl.nonNull(graphQl.GraphQLString),
+        //         displayName: graphQl.nonNull(graphQl.GraphQLString)
+        //
+        //     },
+        //     resolve: function (env) {
+        //         return applications.update({
+        //             key: env.args.key,
+        //             displayName: env.args.displayName
+        //         });
+        //     }
+        // },
         deleteSchemas: {
             type: graphQl.list(graphQlObjectTypes.SchemaDeleteType),
             args: {
@@ -99,6 +125,15 @@ module.exports = schemaGenerator.createObjectType({
             },
             resolve: function (env) {
                 return components.delete({names: env.args.ids, type: env.args.type});
+            }
+        },
+        deleteApplication: {
+            type: graphQlObjectTypes.ApplicationDeleteType,
+            args: {
+                key: graphQl.nonNull(graphQl.GraphQLString)
+            },
+            resolve: function (env) {
+                return applications.delete({key: env.args.key});
             }
         },
         // Principal

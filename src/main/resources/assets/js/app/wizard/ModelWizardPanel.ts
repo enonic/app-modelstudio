@@ -24,9 +24,10 @@ import {UserItemNamedEvent} from '../event/UserItemNamedEvent';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {BaseDeleteRequest} from '../../graphql/apps/BaseDeleteRequest';
 import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
+import {GraphQlRequest} from '../../graphql/GraphQlRequest';
 
 
-export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
+export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
     extends WizardPanel<USER_ITEM_TYPE> {
 
     protected wizardActions: UserItemWizardActions<USER_ITEM_TYPE>;
@@ -88,14 +89,14 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
     }
 
     protected getWizardNameValue(): string {
-        return this.getPersistedItem() ? this.getPersistedModelName() : '';
+        return this.getPersistedItem() ? this.getPersistedName() : '';
     }
 
     protected getPersistedModelId(): string {
         throw Error('Must be implemented in inheritors');
     }
 
-    protected getPersistedModelName(): string {
+    protected getPersistedName(): string {
         throw Error('Must be implemented in inheritors');
     }
 
@@ -212,7 +213,7 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
         }
     }
 
-    getModelType(): string {
+    getType(): string {
         throw new Error('Must be implemented by inheritors');
     }
 
@@ -340,28 +341,24 @@ export abstract class UserItemWizardPanel<USER_ITEM_TYPE extends Equitable>
 
                 this.produceDeleteRequest()
                     .sendAndParse()
-                    .done((results: DeleteModelResult<any>[]) => {
-                        this.handleDeletedResult(results);
+                    .done((result) => {
+                        this.handleDeletedResult(result);
                     });
 
             }).open();
     }
 
-    protected abstract produceDeleteRequest(): BaseDeleteRequest<any>;
+    protected abstract produceDeleteRequest(): GraphQlRequest<any>;
 
-    protected handleDeletedResult(results: DeleteModelResult<any>[]): void {
-        if (!results || results.length === 0) {
-            return;
-        }
-
-            this.handleSuccessfulDelete(results[0]);
+    protected handleDeletedResult(result): void {
+            this.handleSuccessfulDelete(result);
         //
         // if (results[0].getReason()) {
         //     DefaultErrorHandler.handle(results[0].getReason());
         // }
     }
 
-    protected abstract handleSuccessfulDelete(result: DeleteModelResult<any>);
+    protected abstract handleSuccessfulDelete(result);
 
     onLockChanged(listener: (value: boolean) => void): void {
         this.lockChangedListeners.push(listener);

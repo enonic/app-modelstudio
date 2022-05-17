@@ -2,7 +2,7 @@ import {DynamicWizardPanelParams} from './DynamicWizardPanelParams';
 import {Component} from '../schema/Component';
 import {ComponentType} from '../schema/ComponentType';
 
-export class ComponentWizardPanelParams
+export class    ComponentWizardPanelParams
     extends DynamicWizardPanelParams<Component> {
 
     type: ComponentType;

@@ -116,6 +116,21 @@ export class ApplicationBuilder {
         return this;
     }
 
+    setApplicationKey(value: ApplicationKey): ApplicationBuilder {
+        this.applicationKey = value;
+        return this;
+    }
+
+    setDisplayName(value: string): ApplicationBuilder {
+        this.displayName = value;
+        return this;
+    }
+
+    setIcon(value: string): ApplicationBuilder {
+        this.icon = value;
+        return this;
+    }
+
     build(): Application {
         return new Application(this);
     }

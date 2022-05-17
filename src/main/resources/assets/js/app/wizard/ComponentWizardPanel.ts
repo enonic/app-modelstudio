@@ -1,6 +1,6 @@
 import * as Q from 'q';
 import {Router} from '../Router';
-import {UserItemWizardPanel} from './UserItemWizardPanel';
+import {ModelWizardPanel} from './ModelWizardPanel';
 import {SchemaWizardPanelParams} from './SchemaWizardPanelParams';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
@@ -26,7 +26,7 @@ import {DeleteComponentRequest} from '../../graphql/apps/DeleteComponentRequest'
 import {ComponentType} from '../schema/ComponentType';
 
 export class ComponentWizardPanel
-    extends UserItemWizardPanel<Component> {
+    extends ModelWizardPanel<Component> {
 
     private resourceWizardStepForm: ResourceWizardStepForm;
 
@@ -46,7 +46,7 @@ export class ComponentWizardPanel
         return this.getPersistedItem() ? this.getPersistedItem().getName().toString() : null;
     }
 
-    protected getPersistedModelName(): string {
+    protected getPersistedName(): string {
         return this.getPersistedItem() ? this.getPersistedItem().getName().getName().toString() : null;
     }
 
@@ -91,7 +91,7 @@ export class ComponentWizardPanel
         return `/${this.getPersistedItem().getName().toString()}`;
     }
 
-    getModelType(): string {
+    getType(): string {
         return i18n('field.component');
     }
 
@@ -193,10 +193,14 @@ export class ComponentWizardPanel
             .build();
     }
 
-    protected handleSuccessfulDelete(result: DeleteModelResult<any>): void {
-        if (result.getResult()) {
+    protected handleSuccessfulDelete(result: DeleteModelResult<ModelName>[]): void {
+        if (result) {
+            let id;
+
+            id = result[0].getId();
+
             showFeedback(
-                i18n('notify.delete.component.single', result.getId().toString()));
+                i18n('notify.delete.component.single', id.toString()));
         }
 
         this.close();

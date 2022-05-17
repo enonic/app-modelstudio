@@ -17,6 +17,7 @@ module.exports = {
     ComponentType: graphQlComponent.ComponentType,
     ComponentDeleteType: graphQlSchema.SchemaDeleteType,
     ApplicationType: graphQlApplication.ApplicationType,
+    ApplicationDeleteType: graphQlApplication.ApplicationDeleteType,
     SiteType: graphQlSite.SiteType,
     StylesType: graphQlStyles.StylesType,
     IdProviderType: graphQlIdProvider.IdProviderType,
