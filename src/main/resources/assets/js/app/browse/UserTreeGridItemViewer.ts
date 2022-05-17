@@ -3,6 +3,7 @@ import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 
 export class UserTreeGridItemViewer
     extends NamesAndIconViewer<UserTreeGridItem> {
@@ -51,11 +52,11 @@ export class UserTreeGridItemViewer
         switch (object.getType()) {
 
         case UserTreeGridItemType.PART:
-            return iconClass + 'icon-part';
+            return iconClass + StyleHelper.getCommonIconCls('part');
         case UserTreeGridItemType.LAYOUT:
-            return iconClass + 'icon-layout';
+            return iconClass + StyleHelper.getCommonIconCls('layout');
         case UserTreeGridItemType.PAGE:
-            return iconClass + 'icon-page';
+            return iconClass + StyleHelper.getCommonIconCls('page');
 
         case UserTreeGridItemType.CONTENT_TYPE:
         case UserTreeGridItemType.MIXIN:

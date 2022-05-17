@@ -1,5 +1,5 @@
 import * as Q from 'q';
-import {UserItemWizardPanel} from './UserItemWizardPanel';
+import {ModelWizardPanel} from './ModelWizardPanel';
 import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {Router} from '../Router';
 import {PrincipalWizardDataLoader} from './PrincipalWizardDataLoader';
