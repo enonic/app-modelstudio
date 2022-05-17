@@ -1,7 +1,7 @@
 import * as Q from 'q';
 import {PrincipalDescriptionWizardStepForm} from './PrincipalDescriptionWizardStepForm';
 import {PrincipalWizardPanel} from './PrincipalWizardPanel';
-import {PrincipalWizardPanelParams} from './PrincipalWizardPanelParams';
+import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {MembersWizardStepForm} from './MembersWizardStepForm';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -10,12 +10,12 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Principal} from 'lib-admin-ui/security/Principal';
 
-export class MembersWizardPanel extends PrincipalWizardPanel {
+export class MembersWizardPanel {}/*extends PrincipalWizardPanel {
 
     private readonly descriptionWizardStepForm: PrincipalDescriptionWizardStepForm;
     private readonly membersWizardStepForm: MembersWizardStepForm;
 
-    constructor(params: PrincipalWizardPanelParams) {
+    constructor(params: ComponentWizardPanelParams) {
         super(params);
 
         this.descriptionWizardStepForm = new PrincipalDescriptionWizardStepForm();
@@ -47,7 +47,7 @@ export class MembersWizardPanel extends PrincipalWizardPanel {
                         .setYesCallback(() => {
                             void this.doLayoutPersistedItem(persistedPrincipal ? persistedPrincipal.clone() : null);
                         })
-                        .setNoCallback(() => { /* empty */ })
+                        .setNoCallback(() => { /!* empty *!/ })
                         .show();
                 }
 
@@ -82,3 +82,4 @@ export class MembersWizardPanel extends PrincipalWizardPanel {
         return a.getId().localeCompare(b.getId());
     }
 }
+*/

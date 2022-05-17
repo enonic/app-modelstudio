@@ -1,16 +1,12 @@
 import * as Q from 'q';
 import {UserTreeGridItem, UserTreeGridItemBuilder, UserTreeGridItemType} from './browse/UserTreeGridItem';
-import {UserItemWizardPanel} from './wizard/UserItemWizardPanel';
-import {IdProviderWizardPanel} from './wizard/IdProviderWizardPanel';
-import {PrincipalWizardPanel} from './wizard/PrincipalWizardPanel';
-import {NewPrincipalEvent} from './browse/NewPrincipalEvent';
+import {ModelWizardPanel} from './wizard/ModelWizardPanel';
+import {SchemaWizardPanel} from './wizard/SchemaWizardPanel';
+import {NewModelEvent} from './browse/NewModelEvent';
 import {EditPrincipalEvent} from './browse/EditPrincipalEvent';
 import {UserBrowsePanel} from './browse/UserBrowsePanel';
-import {IdProviderWizardPanelParams} from './wizard/IdProviderWizardPanelParams';
-import {PrincipalWizardPanelParams} from './wizard/PrincipalWizardPanelParams';
-import {RoleWizardPanel} from './wizard/RoleWizardPanel';
-import {UserWizardPanel} from './wizard/UserWizardPanel';
-import {GroupWizardPanel} from './wizard/GroupWizardPanel';
+import {SchemaWizardPanelParams} from './wizard/SchemaWizardPanelParams';
+import {ComponentWizardPanelParams} from './wizard/ComponentWizardPanelParams';
 import {GetIdProviderByKeyRequest} from '../graphql/idprovider/GetIdProviderByKeyRequest';
 import {GetPrincipalByKeyRequest} from '../graphql/principal/GetPrincipalByKeyRequest';
 import {UserItemNamedEvent} from './event/UserItemNamedEvent';
@@ -35,6 +31,22 @@ import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {IdProviderMode} from 'lib-admin-ui/security/IdProviderMode';
 import {Exception} from 'lib-admin-ui/Exception';
+import {Schema} from './schema/Schema';
+import {SchemaType} from './schema/SchemaType';
+import {ModelWizardData} from './ModelWizardData';
+import {SchemaWizardData} from './SchemaWizardData';
+import {ComponentWizardData} from './ComponentWizardData';
+import {ComponentWizardPanel} from './wizard/ComponentWizardPanel';
+import {ComponentType} from './schema/ComponentType';
+import {ModelName} from './schema/ModelName';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {Component} from './schema/Component';
+import {NewApplicationEvent} from './browse/NewApplicationEvent';
+import {ApplicationWizardPanelParams} from './wizard/ApplicationWizardPanelParams';
+import {ApplicationWizardPanel} from './wizard/ApplicationWizardPanel';
+import {Application} from './application/Application';
+import {RenderableApplication} from './application/RenderableApplication';
+
 
 interface PrincipalData {
 
@@ -111,7 +123,7 @@ export class UserAppPanel
         }
     }
 
-    addWizardPanel(tabMenuItem: AppBarTabMenuItem, wizardPanel: UserItemWizardPanel<UserItem>): void {
+    addWizardPanel(tabMenuItem: AppBarTabMenuItem, wizardPanel: ModelWizardPanel<any>): void {
         super.addWizardPanel(tabMenuItem, wizardPanel);
 
         wizardPanel.onRendered(() => {
@@ -139,12 +151,16 @@ export class UserAppPanel
     protected handleGlobalEvents(): void {
         super.handleGlobalEvents();
 
-        NewPrincipalEvent.on((event) => {
-            this.handleNew(event);
+        NewModelEvent.on((event) => {
+            this.handleNewModel(event);
+        });
+
+        NewApplicationEvent.on(() => {
+            this.handleNewApplication();
         });
 
         EditPrincipalEvent.on((event) => {
-            this.handleEdit(event);
+            this.handleEditModel(event);
         });
     }
 
@@ -158,7 +174,7 @@ export class UserAppPanel
         return new UserBrowsePanel();
     }
 
-    private handleWizardCreated(wizard: UserItemWizardPanel<UserItem>, tabName: string) {
+    private handleWizardCreated(wizard: ModelWizardPanel<any>, tabName: string) {
         wizard.onUserItemNamed((event: UserItemNamedEvent) => {
             this.handleUserItemNamedEvent(event);
         });
@@ -173,7 +189,7 @@ export class UserAppPanel
 
     }
 
-    private getWizardPanelItemDisplayName(wizardPanel: UserItemWizardPanel<UserItem>): string {
+    private getWizardPanelItemDisplayName(wizardPanel: ModelWizardPanel<any>): string {
         if (wizardPanel.getPersistedItem()) {
             return wizardPanel.getPersistedItem().getDisplayName();
         }
@@ -181,11 +197,11 @@ export class UserAppPanel
         return this.getPrettyNameForWizardPanel(wizardPanel);
     }
 
-    private getPrettyNameForWizardPanel(wizard: UserItemWizardPanel<UserItem>): string {
-        return NamePrettyfier.prettifyUnnamed((wizard).getUserItemType());
+    private getPrettyNameForWizardPanel(wizard: ModelWizardPanel<UserItem>): string {
+        return NamePrettyfier.prettifyUnnamed((wizard).getType());
     }
 
-    private handleWizardUpdated(wizard: UserItemWizardPanel<UserItem>, tabMenuItem: AppBarTabMenuItem) {
+    private handleWizardUpdated(wizard: ModelWizardPanel<any>, tabMenuItem: AppBarTabMenuItem) {
 
         if (tabMenuItem != null) {
             this.getAppBarTabMenu().deselectNavigationItem();
@@ -205,22 +221,53 @@ export class UserAppPanel
          }*/
     }
 
-    private handleNew(event: NewPrincipalEvent) {
-        let userItem = event.getPrincipals()[0];
-        let data: PrincipalData = this.resolvePrincipalData(userItem);
-        let tabId = AppBarTabId.forNew(data.principalPath);
+    private handleNewApplication() {
+        let tabId = AppBarTabId.forNew('new-application');
         let tabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
+
+        let tabName = i18n('field.application');
 
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
-            if (!userItem || userItem.getType() === UserTreeGridItemType.ID_PROVIDER) {
-                this.handleIdProviderNew(tabId, data.tabName);
-            } else {
-                this.loadIdProviderIfNeeded(userItem).then((idProvider: IdProvider) => {
-                    this.handlePrincipalNew(tabId, data, idProvider, userItem);
-                });
+
+            this.createWizardForNewApplication(tabId, tabName);
+        }
+    }
+
+    private handleNewModel(event: NewModelEvent) {
+        let modelItem = event.getPrincipals()[0];
+        const application = modelItem.getApplication();
+
+        let tabId = AppBarTabId.forNew(application.getApplicationKey().toString());
+        let tabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
+
+        let tabName = i18n('field.xdata');
+
+        if (tabMenuItem != null) {
+            this.selectPanel(tabMenuItem);
+        } else {
+
+            let data: ModelWizardData<any>;
+            const key: ApplicationKey = modelItem.getApplication().getApplicationKey();
+
+            if (modelItem.isContentType() || modelItem.isContentTypes()) {
+                data = new SchemaWizardData(SchemaType.CONTENT_TYPE, key);
+            } else if (modelItem.isMixin() || modelItem.isMixins()) {
+                data = new SchemaWizardData(SchemaType.MIXIN, key);
+            } else if (modelItem.isXData() || modelItem.isXDatas()) {
+                data = new SchemaWizardData(SchemaType.XDATA, key);
             }
+
+            if (modelItem.isPart() || modelItem.isParts()) {
+                data = new ComponentWizardData(ComponentType.PART, key);
+            } else if (modelItem.isLayout() || modelItem.isLayouts()) {
+                data = new ComponentWizardData(ComponentType.LAYOUT, key);
+            } else if (modelItem.isPage() || modelItem.isPages()) {
+                data = new ComponentWizardData(ComponentType.PAGE, key);
+            }
+
+            this.createWizardForNewModel(tabId, tabName, data);
         }
 
     }
@@ -301,6 +348,18 @@ export class UserAppPanel
             });
     }
 
+    // private handleSchemaNew(tabId: AppBarTabId) {
+    //     let wizardParams: SchemaWizardPanelParams = <SchemaWizardPanelParams> new SchemaWizardPanelParams()
+    //         // .setPersistedItem(schema)
+    //         .setTabId(tabId)
+    //         // .setPersistedDisplayName(schema.getDisplayName());
+    //
+    //     let wizard = new SchemaWizardPanel(wizardParams);
+    //
+    //     //
+    //     // this.handleWizardCreated(wizard, data.tabName);
+    // }
+
     private handlePrincipalNew(tabId: AppBarTabId, data: PrincipalData, idProvider: IdProvider, userItem: UserTreeGridItem) {
         if (data.principalType === PrincipalType.USER && !this.areUsersEditable(idProvider)) {
             showError(i18n('notify.invalid.application', i18n('action.create').toLowerCase(),
@@ -313,24 +372,53 @@ export class UserAppPanel
             return;
         }
 
-        let wizardParams = <PrincipalWizardPanelParams> new PrincipalWizardPanelParams()
-            .setIdProvider(idProvider)
-            .setParentOfSameType(userItem.getType() === UserTreeGridItemType.PRINCIPAL)
-            .setPersistedType(data.principalType)
-            .setPersistedPath(data.principalPath)
+        //TODO: new
+        // let wizardParams = <ComponentWizardPanelParams> new ComponentWizardPanelParams()
+        //     .setIdProvider(idProvider)
+        //     .setParentOfSameType(userItem.getType() === UserTreeGridItemType.PRINCIPAL)
+        //     .setPersistedType(data.principalType)
+        //     .setPersistedPath(data.principalPath)
+        //     .setTabId(tabId);
+
+        // const wizard = this.resolvePrincipalWizardPanel(wizardParams);
+        //
+        // this.handleWizardCreated(wizard, data.tabName);
+    }
+
+    private createWizardForNewApplication(tabId: AppBarTabId, tabName: string) {
+        const wizardParams = new ApplicationWizardPanelParams()
+            // .setApplicationKey(modelData.getApplicationKey())
+            // .setPersistedPath(modelData.getApplicationKey().toString())
             .setTabId(tabId);
 
-        const wizard = this.resolvePrincipalWizardPanel(wizardParams);
-
-        this.handleWizardCreated(wizard, data.tabName);
+        this.handleWizardCreated(new ApplicationWizardPanel(wizardParams), tabName);
     }
 
-    private handleIdProviderNew(tabId: AppBarTabId, tabName: string) {
-        const wizardParams = new IdProviderWizardPanelParams().setTabId(tabId) as IdProviderWizardPanelParams;
-        this.handleWizardCreated(new IdProviderWizardPanel(wizardParams), tabName);
+    private createWizardForNewModel(tabId: AppBarTabId, tabName: string, modelData: ModelWizardData<any>) {
+        let wizardParams;
+
+        if(modelData instanceof SchemaWizardData) {
+            wizardParams = new SchemaWizardPanelParams()
+                .setType(<SchemaType>modelData.getType())
+                .setApplicationKey(modelData.getApplicationKey())
+                .setPersistedPath(modelData.getApplicationKey().toString())
+                .setTabId(tabId);
+
+            this.handleWizardCreated(new SchemaWizardPanel(wizardParams), tabName);
+        }
+
+        if(modelData instanceof ComponentWizardData) {
+            wizardParams = new ComponentWizardPanelParams()
+                .setType(<ComponentType>modelData.getType())
+                .setApplicationKey(modelData.getApplicationKey())
+                .setPersistedPath(modelData.getApplicationKey().toString())
+                .setTabId(tabId);
+
+            this.handleWizardCreated(new ComponentWizardPanel(wizardParams), tabName);
+        }
     }
 
-    private handleEdit(event: EditPrincipalEvent) {
+    private handleEditModel(event: EditPrincipalEvent) {
         let userItems: UserTreeGridItem[] = event.getPrincipals();
 
         userItems.forEach((userItem: UserTreeGridItem) => {
@@ -344,80 +432,123 @@ export class UserAppPanel
                 this.selectPanel(tabMenuItem);
             } else {
                 let tabId = this.getTabIdForUserItem(userItem);
-                if (userItem.getType() === UserTreeGridItemType.ID_PROVIDER) {
-                    this.handleIdProviderEdit(userItem.getIdProvider(), tabId, tabMenuItem);
-                } else if (userItem.getType() === UserTreeGridItemType.PRINCIPAL) {
-                    this.loadIdProviderIfNeeded(userItem).then((idProvider) => {
-                        this.handlePrincipalEdit(userItem.getPrincipal(), idProvider, tabId, tabMenuItem);
-                    });
+                if (userItem.isComponent()) {
+                    this.handleComponentEdit(userItem.getComponent(), tabId, tabMenuItem);
+                } else if (userItem.isSchema()) {
+                    this.handleSchemaEdit(userItem.getSchema(), tabId, tabMenuItem);
+                } else if (userItem.isApplication()) {
+                    this.handleApplicationEdit(userItem.getApplication(), tabId, tabMenuItem);
                 }
             }
         });
     }
 
-    private handleIdProviderEdit(idProvider: IdProvider, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
+    private handleApplicationEdit(application: RenderableApplication, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
 
-        let wizardParams = new IdProviderWizardPanelParams()
-            .setIdProviderKey(idProvider.getKey()) // use key to load persisted item
+        const wizardParams: ApplicationWizardPanelParams = new ApplicationWizardPanelParams()
+            .setApplicationKey(application.getApplicationKey())
+            .setPersistedItem(application.getApplication())
             .setTabId(tabId)
-            .setPersistedDisplayName(idProvider.getDisplayName());
+            .setPersistedPath(application.getApplicationKey().toString())
+            .setPersistedDisplayName(application.getDisplayName()) as ApplicationWizardPanelParams;
 
-        let wizard = new IdProviderWizardPanel(wizardParams);
+        let wizard = new ApplicationWizardPanel(wizardParams);
 
         this.handleWizardUpdated(wizard, tabMenuItem);
     }
 
-    private handlePrincipalEdit(principal: Principal, idProvider: IdProvider, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
+    private handleSchemaEdit(schema: Schema, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
 
-        let principalType = principal.getType();
-
-        if (PrincipalType.USER === principalType && !this.areUsersEditable(idProvider)) {
-            showError(i18n('notify.invalid.application', i18n('action.edit').toLowerCase(), i18n('field.users').toLowerCase()));
-            return;
-
-        } else if (PrincipalType.GROUP === principalType && !this.areGroupsEditable(idProvider)) {
-            showError(i18n('notify.invalid.application', i18n('action.edit').toLowerCase(), i18n('field.groups').toLowerCase()));
-            return;
-
-        } else {
-            this.createPrincipalWizardPanelForEdit(principal, idProvider, tabId, tabMenuItem);
-
-        }
-    }
-
-    private createPrincipalWizardPanelForEdit(principal: Principal, idProvider: IdProvider, tabId: AppBarTabId,
-                                              tabMenuItem: AppBarTabMenuItem) {
-
-        const wizardParams: PrincipalWizardPanelParams = <PrincipalWizardPanelParams> new PrincipalWizardPanelParams()
-            .setIdProvider(idProvider)
-            .setPrincipalKey(principal.getKey()) // user principal key to load persisted item
-            .setPersistedType(principal.getType())
-            .setPersistedPath(principal.getKey().toPath(true))
+        const wizardParams: SchemaWizardPanelParams = new SchemaWizardPanelParams()
+            .setType(schema.getType())
+            .setApplicationKey(schema.getName().getApplicationKey())
+            .setPersistedItem(schema)
             .setTabId(tabId)
-            .setPersistedDisplayName(principal.getDisplayName());
+            .setPersistedPath(schema.getName().getApplicationKey().toString())
+            .setPersistedDisplayName(schema.getDisplayName()) as SchemaWizardPanelParams;
 
-        let wizard = this.resolvePrincipalWizardPanel(wizardParams);
+        let wizard = new SchemaWizardPanel(wizardParams);
 
         this.handleWizardUpdated(wizard, tabMenuItem);
     }
 
-    private resolvePrincipalWizardPanel(wizardParams: PrincipalWizardPanelParams): PrincipalWizardPanel {
-        let wizard: PrincipalWizardPanel;
-        switch (wizardParams.persistedType) {
-        case PrincipalType.ROLE:
-            wizard = new RoleWizardPanel(wizardParams);
-            break;
-        case PrincipalType.USER:
-            wizard = new UserWizardPanel(wizardParams);
-            break;
-        case PrincipalType.GROUP:
-            wizard = new GroupWizardPanel(wizardParams);
-            break;
-        default:
-            wizard = new PrincipalWizardPanel(wizardParams);
-        }
-        return wizard;
+    private handleComponentEdit(component: Component, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
+
+        const wizardParams: ComponentWizardPanelParams = new ComponentWizardPanelParams()
+            .setType(component.getType())
+            .setApplicationKey(component.getName().getApplicationKey())
+            .setPersistedItem(component)
+            .setTabId(tabId)
+            .setPersistedPath(component.getName().getApplicationKey().toString())
+            .setPersistedDisplayName(component.getDisplayName()) as ComponentWizardPanelParams;
+
+        let wizard = new ComponentWizardPanel(wizardParams);
+
+        this.handleWizardUpdated(wizard, tabMenuItem);
     }
+
+    // private handleComponentEdit(component: Component, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
+    //
+    //     let wizardParams = new ComponentWizardPanelParams()
+    //         .setComponent(component)
+    //         .setTabId(tabId)
+    //         // .setPersistedPath(modelData.applicationKey.toString())
+    //         .setPersistedDisplayName(component.getDisplayName());
+    //
+    //     // TODO: component wizard panel
+    //     // let wizard = new ComponentWizardPanel(wizardParams);
+    //
+    //     // this.handleWizardUpdated(wizard, tabMenuItem);
+    // }
+
+    // private handlePrincipalEdit(principal: Principal, idProvider: IdProvider, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
+    //
+    //     let principalType = principal.getType();
+    //
+    //     if (PrincipalType.USER === principalType && !this.areUsersEditable(idProvider)) {
+    //         showError(i18n('notify.invalid.application', i18n('action.edit').toLowerCase(), i18n('field.users').toLowerCase()));
+    //         return;
+    //
+    //     } else if (PrincipalType.GROUP === principalType && !this.areGroupsEditable(idProvider)) {
+    //         showError(i18n('notify.invalid.application', i18n('action.edit').toLowerCase(), i18n('field.groups').toLowerCase()));
+    //         return;
+    //
+    //     } else {
+    //         this.createPrincipalWizardPanelForEdit(principal, idProvider, tabId, tabMenuItem);
+    //
+    //     }
+    // }
+
+    // private createComponentWizardPanelForEdit(component: Component, tabId: AppBarTabId,
+    //                                           tabMenuItem: AppBarTabMenuItem) {
+    //
+    //     const wizardParams: ComponentWizardPanelParams = <ComponentWizardPanelParams>new ComponentWizardPanelParams()
+    //         .setComponent(component)
+    //         .setTabId(tabId)
+    //         .setPersistedDisplayName(component.getDisplayName());
+    //
+    //     // let wizard = this.resolveComponentWizardPanel(wizardParams);
+    //     //
+    //     // this.handleWizardUpdated(wizard, tabMenuItem);
+    // }
+
+    // private resolveComponentWizardPanel(wizardParams: ComponentWizardPanelParams): UserItemWizardPanel<Component> {
+    //     let wizard: PrincipalWizardPanel;
+    //     switch (wizardParams.persistedType) {
+    //     case PrincipalType.ROLE:
+    //         wizard = new RoleWizardPanel(wizardParams);
+    //         break;
+    //     case PrincipalType.USER:
+    //         wizard = new UserWizardPanel(wizardParams);
+    //         break;
+    //     case PrincipalType.GROUP:
+    //         wizard = new GroupWizardPanel(wizardParams);
+    //         break;
+    //     default:
+    //         wizard = new PrincipalWizardPanel(wizardParams);
+    //     }
+    //     return wizard;
+    // }
 
     private handleUserItemNamedEvent(event: UserItemNamedEvent) {
         const wizard = event.getWizard();
@@ -441,11 +572,20 @@ export class UserAppPanel
 
     private getTabIdForUserItem(userItem: UserTreeGridItem): AppBarTabId {
         let appBarTabId: AppBarTabId;
-        if (UserTreeGridItemType.PRINCIPAL === userItem.getType()) {
-            appBarTabId = AppBarTabId.forEdit(userItem.getPrincipal().getKey().toString());
-        } else if (UserTreeGridItemType.ID_PROVIDER === userItem.getType()) {
-            appBarTabId = AppBarTabId.forEdit(userItem.getIdProvider().getKey().toString());
+        //TODO: check on unique: works for components and schemas
+        if (userItem.isComponent()) {
+            appBarTabId = AppBarTabId.forEdit(userItem.getComponent().getName().toString());
+        } else if (userItem.isSchema()) {
+            appBarTabId = AppBarTabId.forEdit(userItem.getSchema().getName().toString());
+        } else if (userItem.isApplication()) {
+            appBarTabId = AppBarTabId.forEdit(userItem.getApplication().getApplicationKey().toString());
         }
+
+        // if (UserTreeGridItemType.PRINCIPAL === userItem.getType()) {
+        //     appBarTabId = AppBarTabId.forEdit(userItem.getPrincipal().getKey().toString());
+        // } else if (UserTreeGridItemType.ID_PROVIDER === userItem.getType()) {
+        //     appBarTabId = AppBarTabId.forEdit(userItem.getIdProvider().getKey().toString());
+        // }
         return appBarTabId;
     }
 

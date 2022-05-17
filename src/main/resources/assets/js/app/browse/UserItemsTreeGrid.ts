@@ -22,7 +22,6 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ListPrincipalsKeysResult, ListPrincipalsNamesRequest} from '../../graphql/principal/ListPrincipalsNamesRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {GetPrincipalsTotalRequest} from '../../graphql/principal/GetPrincipalsTotalRequest';
 import {ListApplicationsRequest} from '../../graphql/apps/ListApplicationsRequest';
 import {Application} from '../application/Application';
@@ -36,6 +35,7 @@ import {GetSiteRequest} from '../../graphql/apps/GetSiteRequest';
 import {Site} from '../schema/Site';
 import {Styles} from '../schema/Styles';
 import {GetStylesRequest} from '../../graphql/apps/GetStylesRequest';
+import {RenderableApplication} from '../application/RenderableApplication';
 
 export class UserItemsTreeGrid
     extends TreeGrid<UserTreeGridItem> {
@@ -285,8 +285,16 @@ export class UserItemsTreeGrid
 
 
             return Q.all(sitePromises).then((sites: Site[]) => {
-                const appNamesToShow: string[] = sites.filter(key => key != null).map(site => site.getKey().getName());
-                const appsToShow: Application[] = apps.filter(app => appNamesToShow.indexOf(app.getApplicationKey().getName()) >= 0);
+                const sitesToShow = sites.filter(key => key != null);
+
+                const appsToShow: RenderableApplication[] = [];
+                apps.forEach(app => {
+                    sitesToShow.forEach(site => {
+                        if (site.getKey().equals(app.getApplicationKey())) {
+                            appsToShow.push(RenderableApplication.create().setApplication(app).setSite(site).build());
+                        }
+                    });
+                })
 
 
                 return appsToShow.map(application => new UserTreeGridItemBuilder().setApplication(application).setType(
@@ -342,7 +350,7 @@ export class UserItemsTreeGrid
     }
 
     private addFoldersToApplication(parentItem: UserTreeGridItem): UserTreeGridItem[]/*Q.Promise<UserTreeGridItem[]>*/ {
-        const application: Application = parentItem.getApplication();
+        const application: RenderableApplication = parentItem.getApplication();
         // const promises: Q.Promise<number>[] = [];
 
         // promises.push(this.getTotalPrincipals(idProvider.getKey(), PrincipalType.USER));
@@ -478,20 +486,11 @@ export class UserItemsTreeGrid
         }
 
         if (parentNode.getData().isApplication()) {
-            const promises: Q.Promise<Site | Styles>[] = [];
+            const style: Q.Promise<Styles> = new GetStylesRequest().setApplicationKey(
+                parentNode.getData().getApplication().getApplicationKey()).sendAndParse();
 
-            promises.push(new GetSiteRequest().setApplicationKey(
-                parentNode.getData().getApplication().getApplicationKey()).sendAndParse());
-            promises.push(new GetStylesRequest().setApplicationKey(
-                parentNode.getData().getApplication().getApplicationKey()).sendAndParse());
-
-            return Q.all(promises).spread((site, styles) => {
+            return style.then((styles) => {
                 const result = [];
-                if (site) {
-                    const siteItem: UserTreeGridItem = new UserTreeGridItemBuilder().setSite(site).setType(
-                        UserTreeGridItemType.SITE).build();
-                    result.push(siteItem);
-                }
                 if (styles) {
                     const stylesItem: UserTreeGridItem = new UserTreeGridItemBuilder().setStyles(styles).setType(
                         UserTreeGridItemType.STYLES).build();

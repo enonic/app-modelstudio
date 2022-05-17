@@ -1,13 +1,9 @@
-import * as Q from 'q';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {UserItemKey} from 'lib-admin-ui/security/UserItemKey';
 import {ApplicationJson} from './ApplicationJson';
-import {UserItem, UserItemBuilder} from 'lib-admin-ui/security/UserItem';
 
-export class Application
-    /*extends UserItem*/ {
+export class Application {
 
     private readonly applicationKey: ApplicationKey;
 
@@ -21,7 +17,6 @@ export class Application
 
 
     constructor(builder: ApplicationBuilder) {
-        // super(builder);
         this.applicationKey = builder.applicationKey;
         this.displayName = builder.displayName;
         this.modifiedTime = builder.modifiedTime;
@@ -36,42 +31,32 @@ export class Application
         return this.modifiedTime;
     }
 
-    getDisplayName() :string {
+    getDisplayName(): string {
         return this.displayName;
     }
 
-    getDescription() :string {
+    getDescription(): string {
         return this.description;
     }
 
-    getIcon() :string {
+    getIcon(): string {
         return this.icon;
-    }
-
-
-    //
-    // getDisplayName(): string {
-    //     return this.displayName;
-    // }
-
-    isDeletable(): Q.Promise<boolean> {
-        return Q(false);
     }
 
     static create(): ApplicationBuilder {
         return new ApplicationBuilder();
     }
 
-    static fromJson(json: ApplicationJson ): Application {
+    static fromJson(json: ApplicationJson): Application {
         return new ApplicationBuilder().fromJson(json).build();
     }
 
-    equals(o: Equitable, ignoreEmptyValues: boolean = false): boolean {
+    equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Application)) {
             return false;
         }
 
-        let other = <Application> o;
+        let other = <Application>o;
 
         if (!ObjectHelper.equals(this.applicationKey, other.applicationKey)) {
             return false;
@@ -85,7 +70,6 @@ export class Application
         if (!ObjectHelper.stringEquals(this.description, other.description)) {
             return false;
         }
-
         if (!ObjectHelper.stringEquals(this.icon, other.icon)) {
             return false;
         }
@@ -101,8 +85,7 @@ export class Application
     }
 }
 
-export class ApplicationBuilder
-    /*extends UserItemBuilder*/ {
+export class ApplicationBuilder {
 
     applicationKey: ApplicationKey;
 
@@ -116,7 +99,6 @@ export class ApplicationBuilder
 
     constructor(source?: Application) {
         if (source) {
-            // super(source);
             this.applicationKey = source.getApplicationKey();
             this.displayName = source.getDisplayName();
             this.modifiedTime = source.getModifiedTime();
@@ -126,7 +108,6 @@ export class ApplicationBuilder
     }
 
     fromJson(json: ApplicationJson): ApplicationBuilder {
-        // super.fromJson(json);
         this.applicationKey = new ApplicationKey(json.key);
         this.displayName = json.displayName;
         this.modifiedTime = json.modifiedTime;
@@ -135,10 +116,20 @@ export class ApplicationBuilder
         return this;
     }
 
-    // setKey(key: string): ApplicationBuilder {
-    //     this.applicationKey = ApplicationKey.fromString(key);
-    //     return this;
-    // }
+    setApplicationKey(value: ApplicationKey): ApplicationBuilder {
+        this.applicationKey = value;
+        return this;
+    }
+
+    setDisplayName(value: string): ApplicationBuilder {
+        this.displayName = value;
+        return this;
+    }
+
+    setIcon(value: string): ApplicationBuilder {
+        this.icon = value;
+        return this;
+    }
 
     build(): Application {
         return new Application(this);

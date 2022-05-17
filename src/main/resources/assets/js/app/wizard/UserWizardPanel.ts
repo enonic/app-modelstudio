@@ -3,7 +3,7 @@ import {PrincipalWizardPanel} from './PrincipalWizardPanel';
 import {UserEmailWizardStepForm} from './UserEmailWizardStepForm';
 import {UserPasswordWizardStepForm} from './UserPasswordWizardStepForm';
 import {UserMembershipsWizardStepForm} from './UserMembershipsWizardStepForm';
-import {PrincipalWizardPanelParams} from './PrincipalWizardPanelParams';
+import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {CreateUserRequest} from '../../graphql/principal/user/CreateUserRequest';
 import {UpdateUserRequest} from '../../graphql/principal/user/UpdateUserRequest';
 import {UserItemCreatedEvent} from '../event/UserItemCreatedEvent';
@@ -18,14 +18,14 @@ import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 
-export class UserWizardPanel
-    extends PrincipalWizardPanel {
+export class UserWizardPanel {}
+    /*extends PrincipalWizardPanel {
 
     private userEmailWizardStepForm: UserEmailWizardStepForm;
     private userPasswordWizardStepForm: UserPasswordWizardStepForm;
     private userMembershipsWizardStepForm: UserMembershipsWizardStepForm;
 
-    constructor(params: PrincipalWizardPanelParams) {
+    constructor(params: ComponentWizardPanelParams) {
         super(params);
         this.addClass('user-wizard-panel');
     }
@@ -74,7 +74,7 @@ export class UserWizardPanel
                         .setYesCallback(() => {
                             void this.doLayoutPersistedItem(persistedPrincipal.clone());
                         })
-                        .setNoCallback(() => { /* empty */ })
+                        .setNoCallback(() => { /!* empty *!/ })
                         .show();
                 }
 
@@ -241,3 +241,4 @@ export class UserWizardPanel
         return a.getKey().getId().localeCompare(b.getKey().getId());
     }
 }
+*/

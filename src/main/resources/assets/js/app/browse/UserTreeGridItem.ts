@@ -6,13 +6,13 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
-import {Application} from '../application/Application';
 import {Component} from '../schema/Component';
 import {ComponentType} from '../schema/ComponentType';
 import {Schema} from '../schema/Schema';
 import {SchemaType} from '../schema/SchemaType';
 import {Site} from '../schema/Site';
 import {Styles} from '../schema/Styles';
+import {RenderableApplication} from '../application/RenderableApplication';
 
 export enum UserTreeGridItemType {
     ID_PROVIDER,
@@ -40,7 +40,7 @@ export enum UserTreeGridItemType {
 export class UserTreeGridItem
     implements ViewItem {
 
-    private application: Application;
+    private application: RenderableApplication;
 
     private component: Component;
 
@@ -88,7 +88,7 @@ export class UserTreeGridItem
         this.principal = principal;
     }
 
-    setApplication(application: Application): void {
+    setApplication(application: RenderableApplication): void {
         this.application = application;
     }
 
@@ -187,12 +187,12 @@ export class UserTreeGridItem
         case UserTreeGridItemType.PART:
         case UserTreeGridItemType.LAYOUT:
         case UserTreeGridItemType.PAGE:
-            return this.component.getKey();
+            return this.component.getName().toString();
 
         case UserTreeGridItemType.CONTENT_TYPE:
         case UserTreeGridItemType.MIXIN:
         case UserTreeGridItemType.XDATA:
-            return this.schema.getName();
+            return this.schema.getName().toString();
 
         case UserTreeGridItemType.SITE:
             return this.site.getKey().toString() + '/site.xml';
@@ -294,6 +294,16 @@ export class UserTreeGridItem
         return this.type === UserTreeGridItemType.SITE;
     }
 
+    isSchema(): boolean {
+        return this.type === UserTreeGridItemType.CONTENT_TYPE || this.type === UserTreeGridItemType.MIXIN || this.type ===
+               UserTreeGridItemType.XDATA;
+    }
+
+    isComponent(): boolean {
+        return this.type === UserTreeGridItemType.PART || this.type === UserTreeGridItemType.LAYOUT || this.type ===
+               UserTreeGridItemType.PAGE;
+    }
+
     isStyles(): boolean {
         return this.type === UserTreeGridItemType.STYLES;
     }
@@ -341,7 +351,7 @@ export class UserTreeGridItem
         return this.idProvider;
     }
 
-    getApplication(): Application {
+    getApplication(): RenderableApplication {
         return this.application;
     }
 
@@ -469,7 +479,7 @@ export class UserTreeGridItem
 }
 
 export class UserTreeGridItemBuilder {
-    application: Application;
+    application: RenderableApplication;
     component: Component;
     schema: Schema;
     site: Site;
@@ -479,7 +489,7 @@ export class UserTreeGridItemBuilder {
     type: UserTreeGridItemType;
     children: boolean;
 
-    setApplication(application: Application): UserTreeGridItemBuilder {
+    setApplication(application: RenderableApplication): UserTreeGridItemBuilder {
         this.application = application;
         return this;
     }
@@ -525,7 +535,7 @@ export class UserTreeGridItemBuilder {
     }
 
     setAny(userItem: UserItem): UserTreeGridItemBuilder {
-        if (userItem instanceof Application) {
+        if (userItem instanceof RenderableApplication) {
             return this.setApplication(userItem).setType(UserTreeGridItemType.APPLICATION);
         }
         if (userItem instanceof Component) {

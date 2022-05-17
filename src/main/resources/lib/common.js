@@ -317,29 +317,29 @@ exports.queryAll = function queryAll(params, repo) {
     };
 };
 
-exports.listComponents = function listComponents(params) {
-    var applicationKey = params.key;
-    var componentType = params.type;
+// exports.listComponents = function listComponents(params) {
+//     var applicationKey = params.key;
+//     var componentType = params.type;
+//
+//     var queryResult = schemaLib.listComponents({
+//         key: applicationKey,
+//         type: componentType
+//     });
+//
+//     return queryResult;
+// };
 
-    var queryResult = schemaLib.listComponents({
-        key: applicationKey,
-        type: componentType
-    });
-
-    return queryResult;
-};
-
-exports.listSchemas = function listSchemas(params) {
-    var applicationKey = params.key;
-    var schemaType = params.type;
-
-    var queryResult = schemaLib.listSchemas({
-        key: applicationKey,
-        type: schemaType
-    });
-
-    return queryResult;
-};
+// exports.listSchemas = function listSchemas(params) {
+//     var applicationKey = params.key;
+//     var schemaType = params.type;
+//
+//     var queryResult = schemaLib.listSchemas({
+//         key: applicationKey,
+//         type: schemaType
+//     });
+//
+//     return queryResult;
+// };
 
 exports.getSite = function getSite(params) {
     var applicationKey = params.key;
@@ -357,11 +357,11 @@ exports.getStyles = function getStyles(params) {
     });
 };
 
-exports.listApps = function listApps() {
-
-    return appLib.list(
-    );
-};
+// exports.listApps = function listApps() {
+//
+//     return appLib.list(
+//     );
+// };
 
 function newConnection(repo, branch) {
     return nodeLib.connect({

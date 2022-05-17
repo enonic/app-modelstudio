@@ -1,12 +1,13 @@
-import {UserItemWizardPanel} from '../UserItemWizardPanel';
+import {ModelWizardPanel} from '../ModelWizardPanel';
 import {DeleteUserItemAction} from './DeleteUserItemAction';
 import {UserItem} from 'lib-admin-ui/security/UserItem';
 import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
 import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
+import {Equitable} from 'lib-admin-ui/Equitable';
 
-export class UserItemWizardActions<USER_ITEM_TYPE extends UserItem>
+export class UserItemWizardActions<USER_ITEM_TYPE extends Equitable>
     extends WizardActions<USER_ITEM_TYPE> {
 
     protected save: Action;
@@ -15,7 +16,7 @@ export class UserItemWizardActions<USER_ITEM_TYPE extends UserItem>
 
     protected delete: Action;
 
-    constructor(wizardPanel: UserItemWizardPanel<USER_ITEM_TYPE>) {
+    constructor(wizardPanel: ModelWizardPanel<USER_ITEM_TYPE>) {
         super();
 
         this.save = new SaveAction(wizardPanel);
@@ -30,9 +31,9 @@ export class UserItemWizardActions<USER_ITEM_TYPE extends UserItem>
         this.delete.setEnabled(false);
     }
 
-    enableActionsForExisting(userItem: UserItem): void {
+    enableActionsForExisting(userItem: USER_ITEM_TYPE): void {
         this.save.setEnabled(false);
-        this.delete.setEnabled(!userItem.getKey().isSystem());
+        // this.delete.setEnabled(!userItem.getKey().isSystem());
     }
 
     getDeleteAction(): Action {

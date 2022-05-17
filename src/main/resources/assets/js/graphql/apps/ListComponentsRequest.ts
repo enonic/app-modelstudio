@@ -53,7 +53,7 @@ export class ListComponentsRequest
     getQuery(): string {
         return `query($key: String, $type: ComponentType) {
                   components(key: $key, type: $type) {
-                        key,
+                        name,
                         description,
                         displayName,
                         resource,

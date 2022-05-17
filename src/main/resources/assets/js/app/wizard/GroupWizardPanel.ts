@@ -1,6 +1,6 @@
 import * as Q from 'q';
 import {MembersWizardPanel} from './MembersWizardPanel';
-import {PrincipalWizardPanelParams} from './PrincipalWizardPanelParams';
+import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {CreateGroupRequest} from '../../graphql/principal/group/CreateGroupRequest';
 import {UpdateGroupRequest} from '../../graphql/principal/group/UpdateGroupRequest';
 import {UserItemCreatedEvent} from '../event/UserItemCreatedEvent';
@@ -15,12 +15,12 @@ import {Members} from '../principal/Members';
 import {RolesWizardStepForm} from './RolesWizardStepForm';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 
-export class GroupWizardPanel
-    extends MembersWizardPanel {
+export class GroupWizardPanel {}
+  /*  extends MembersWizardPanel {
 
     private rolesWizardStepForm: RolesWizardStepForm;
 
-    constructor(params: PrincipalWizardPanelParams) {
+    constructor(params: ComponentWizardPanelParams) {
         super(params);
 
         this.addClass('group-wizard-panel');
@@ -147,3 +147,4 @@ export class GroupWizardPanel
         return a.getKey().getId().localeCompare(b.getKey().getId());
     }
 }
+*/

@@ -4,13 +4,12 @@ import {Form} from 'lib-admin-ui/form/Form';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ComponentType} from './ComponentType';
 import {ComponentJson} from './ComponentJson';
+import {ModelName} from './ModelName';
 
 export class Component
     implements Cloneable, Equitable {
 
-    private readonly key: string;
-
-    private readonly name: string;
+    private readonly name: ModelName;
 
     private readonly displayName: string;
 
@@ -20,17 +19,16 @@ export class Component
 
     private readonly type: ComponentType;
 
-    // private readonly config: Form;
-
     private readonly icon: string;
-
-    // private readonly regions: RegionDescriptor[];
 
     private iconCls: string;
 
+    // private readonly config: Form;
+
+    // private readonly regions: RegionDescriptor[];
+
     constructor(builder: ComponentBuilder) {
         this.name = builder.name;
-        this.key = builder.key;
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.type = builder.type;
@@ -44,11 +42,7 @@ export class Component
         return ComponentBuilder.fromJson(json).build();
     }
 
-    getKey(): string {
-        return this.key;
-    }
-
-    getName(): string {
+    getName(): ModelName {
         return this.name;
     }
 
@@ -100,8 +94,7 @@ export class Component
 
         let other = <Component>o;
 
-        return this.name.toString() === other.getName().toString() &&
-                this.key===other.getKey() &&
+        return ObjectHelper.objectEquals(this.name,other.getName()) &&
                 this.displayName === other.getDisplayName() &&
                 this.description === other.getDescription() &&
                 this.type === other.getType() &&
@@ -114,9 +107,9 @@ export class Component
 
 export class ComponentBuilder {
 
-    key: string;
+    // key: string;
 
-    name: string;
+    name: ModelName;
 
     displayName: string;
 
@@ -134,7 +127,6 @@ export class ComponentBuilder {
 
     constructor(source?: Component) {
         if (source) {
-            this.key = source.getKey();
             this.name = source.getName();
             this.displayName = source.getDisplayName();
             this.description = source.getDescription();
@@ -149,8 +141,7 @@ export class ComponentBuilder {
     static fromJson(json: ComponentJson): ComponentBuilder {
         // const descriptorKey: DescriptorKey = DescriptorKey.fromString(json.key);
         return new ComponentBuilder()
-            .setKey(json.key)
-            .setName(json.name)
+            .setName(ModelName.fromString(json.name))
             .setDisplayName(json.displayName)
             .setDescription(json.description)
             .setType(ComponentType[json.type.toUpperCase()])
@@ -161,12 +152,7 @@ export class ComponentBuilder {
             // .setRegions(json.regions?.map(regionJson => RegionDescriptor.fromJson(regionJson)));
     }
 
-    public setKey(value: string): ComponentBuilder {
-        this.key = value;
-        return this;
-    }
-
-    public setName(value: string): ComponentBuilder {
+    public setName(value: ModelName): ComponentBuilder {
         this.name = value;
         return this;
     }

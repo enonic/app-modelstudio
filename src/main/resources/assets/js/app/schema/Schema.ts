@@ -3,11 +3,12 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {SchemaType} from './SchemaType';
 import {SchemaJson} from './SchemaJson';
+import {ModelName} from './ModelName';
 
 export class Schema
     implements Cloneable, Equitable {
 
-    private readonly name: string;
+    private readonly name: ModelName;
 
     private readonly displayName: string;
 
@@ -42,7 +43,7 @@ export class Schema
         return SchemaBuilder.fromJson(json).build();
     }
 
-    getName(): string {
+     getName(): ModelName {
         return this.name;
     }
 
@@ -85,7 +86,7 @@ export class Schema
 
         let other = <Schema>o;
 
-        return this.name === other.getName() &&
+        return ObjectHelper.objectEquals(this.name, other.getName()) &&
                this.displayName === other.getDisplayName() &&
                this.description === other.getDescription() &&
                this.type === other.getType() &&
@@ -100,7 +101,7 @@ export class Schema
 
 export class SchemaBuilder {
 
-    name: string;
+    name: ModelName;
 
     displayName: string;
 
@@ -132,17 +133,17 @@ export class SchemaBuilder {
     static fromJson(json: SchemaJson): SchemaBuilder {
         // const descriptorKey: DescriptorKey = DescriptorKey.fromString(json.key);
         return new SchemaBuilder()
-            .setName(json.name)
+            .setName(ModelName.fromString(json.name))
             .setDisplayName(json.displayName)
             .setDescription(json.description)
             .setType(SchemaType[json.type.toUpperCase()])
             .setResource(json.resource)
             .setIcon(json.icon)
-            .setModifiedTime(json.modifiedTime)
-            .setCreatedTime(json.createdTime);
+            .setModifiedTime(json.modifiedTime ? new Date(json.modifiedTime) : null)
+            .setCreatedTime(json.createdTime ? new Date(json.createdTime) : null);
     }
 
-    public setName(value: string): SchemaBuilder {
+    public setName(value: ModelName): SchemaBuilder {
         this.name = value;
         return this;
     }
@@ -172,13 +173,13 @@ export class SchemaBuilder {
         return this;
     }
 
-    public setModifiedTime(value: string): SchemaBuilder {
-        this.modifiedTime = new Date(value);
+    public setModifiedTime(value: Date): SchemaBuilder {
+        this.modifiedTime = value;
         return this;
     }
 
-    public setCreatedTime(value: string): SchemaBuilder {
-        this.createdTime = new Date(value);
+    public setCreatedTime(value: Date): SchemaBuilder {
+        this.createdTime = value;
         return this;
     }
 

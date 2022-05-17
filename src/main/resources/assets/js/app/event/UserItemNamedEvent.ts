@@ -1,22 +1,22 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {UserItemWizardPanel} from '../wizard/UserItemWizardPanel';
+import {ModelWizardPanel} from '../wizard/ModelWizardPanel';
 import {UserItem} from 'lib-admin-ui/security/UserItem';
 
 export class UserItemNamedEvent
     extends Event {
 
-    private readonly wizard: UserItemWizardPanel<UserItem>;
+    private readonly wizard: ModelWizardPanel<UserItem>;
 
     private readonly userItem: UserItem;
 
-    constructor(wizard: UserItemWizardPanel<UserItem>, userItem: UserItem) {
+    constructor(wizard: ModelWizardPanel<UserItem>, userItem: UserItem) {
         super();
         this.wizard = wizard;
         this.userItem = userItem;
     }
 
-    public getWizard(): UserItemWizardPanel<UserItem> {
+    public getWizard(): ModelWizardPanel<UserItem> {
         return this.wizard;
     }
 
