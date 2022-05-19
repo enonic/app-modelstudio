@@ -26,21 +26,25 @@ export class UserTreeGridItemViewer
         if (object.getType() != null) {
             switch (object.getType()) {
             case UserTreeGridItemType.ID_PROVIDER:
-                    return ('/' + object.getIdProvider().getKey().toString());
-                case UserTreeGridItemType.PRINCIPAL:
-                    return this.isRelativePath ? object.getPrincipal().getKey().getId() :
-                           object.getPrincipal().getKey().toPath();
-                default:
-                    return object.getItemDisplayName() ? object.getItemDisplayName().toLocaleLowerCase() : '';
+                return ('/' + object.getIdProvider().getKey().toString());
+            case UserTreeGridItemType.PRINCIPAL:
+                return this.isRelativePath ? object.getPrincipal().getKey().getId() :
+                       object.getPrincipal().getKey().toPath();
+            default:
+                return object.getItemDisplayName() ? object.getItemDisplayName().toLocaleLowerCase() : '';
             }
         }
         return '';
     }
 
     resolveIconEl(object: UserTreeGridItem): Element {
-        if(object.isApplication()) {
+        if (object.isApplication()) {
             if (object.getApplication().getIcon()) {
                 return new ImgEl(object.getApplication().getIcon());
+            }
+        } else if (object.isSchema()) {
+            if (object.getSchema().getIcon()) {
+                return new ImgEl(object.getSchema().getIcon());
             }
         }
         return null;
@@ -86,8 +90,8 @@ export class UserTreeGridItemViewer
             }
             return iconClass + 'icon-user';
 
-            default:
-                return iconClass + 'icon-folder';
+        default:
+            return iconClass + 'icon-folder';
         }
     }
 }
