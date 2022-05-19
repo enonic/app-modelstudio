@@ -2,8 +2,6 @@ var graphQl = require('/lib/graphql');
 
 var schemaGenerator = require('../../schemaUtil').schemaGenerator;
 
-var form = require('./form');
-
 var graphQlUserItem = require('./userItem');
 
 exports.SchemaType = schemaGenerator.createInterfaceType({
@@ -42,6 +40,9 @@ exports.SchemaType = schemaGenerator.createInterfaceType({
         },
         createdTime: {
             type: graphQl.DateTime
+        },
+        icon: {
+            type: graphQl.GraphQLString
         }
     }
 });
@@ -105,6 +106,12 @@ exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
                 return env.source.createdTime;
             }
         },
+        icon: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.icon;
+            }
+        }
     }
 });
 exports.MixinSchemaType = schemaGenerator.createObjectType({
@@ -166,6 +173,12 @@ exports.MixinSchemaType = schemaGenerator.createObjectType({
                 return env.source.createdTime;
             }
         },
+        icon: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.icon;
+            }
+        }
     }
 });
 
@@ -228,6 +241,12 @@ exports.XDataSchemaType = schemaGenerator.createObjectType({
                 return env.source.createdTime;
             }
         },
+        icon: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.icon;
+            }
+        }
     }
 });
 
