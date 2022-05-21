@@ -1,8 +1,9 @@
 var graphQl = require('/lib/graphql');
 
 var schemaGenerator = require('../../schemaUtil').schemaGenerator;
-
 var graphQlUserItem = require('./userItem');
+
+var iconResolver = __.newBean('com.enonic.xp.app.users.icon.IconResourceResolver');
 
 exports.SchemaType = schemaGenerator.createInterfaceType({
     name: 'Schema',
@@ -50,7 +51,7 @@ exports.SchemaType = schemaGenerator.createInterfaceType({
 exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
     name: 'ContentType',
     description: 'Domain representation of a content type schema',
-    interfaces:[exports.SchemaType],
+    interfaces: [exports.SchemaType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
@@ -109,7 +110,8 @@ exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
         icon: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.icon;
+                var elements = env.source.name.split(':');
+                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/content-types');
             }
         }
     }
@@ -117,7 +119,7 @@ exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
 exports.MixinSchemaType = schemaGenerator.createObjectType({
     name: 'Mixin',
     description: 'Domain representation of a mixin schema',
-    interfaces:[exports.SchemaType],
+    interfaces: [exports.SchemaType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
@@ -176,7 +178,8 @@ exports.MixinSchemaType = schemaGenerator.createObjectType({
         icon: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.icon;
+                var elements = env.source.name.split(':');
+                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/mixins');
             }
         }
     }
@@ -185,7 +188,7 @@ exports.MixinSchemaType = schemaGenerator.createObjectType({
 exports.XDataSchemaType = schemaGenerator.createObjectType({
     name: 'XData',
     description: 'Domain representation of a xdata schema',
-    interfaces:[exports.SchemaType],
+    interfaces: [exports.SchemaType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
@@ -244,7 +247,8 @@ exports.XDataSchemaType = schemaGenerator.createObjectType({
         icon: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.icon;
+                var elements = env.source.name.split(':');
+                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/x-data');
             }
         }
     }
