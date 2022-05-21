@@ -4,6 +4,8 @@ var schemaGenerator = require('../../schemaUtil').schemaGenerator;
 
 var graphQlUserItem = require('./userItem');
 
+var iconResolver = __.newBean('com.enonic.xp.app.users.icon.IconResourceResolver');
+
 exports.ApplicationType = schemaGenerator.createObjectType({
     name: 'Application',
     description: 'Domain representation of an application',
@@ -72,7 +74,7 @@ exports.ApplicationType = schemaGenerator.createObjectType({
         icon: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.icon;
+                return iconResolver.getAppIcon(env.source.key);
             }
         }
     }
