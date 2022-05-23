@@ -1,4 +1,4 @@
-package com.enonic.xp.app.users.icon;
+package com.enonic.xp.app.users.lib;
 
 import java.time.Instant;
 import java.util.Base64;

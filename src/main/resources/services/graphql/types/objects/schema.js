@@ -3,7 +3,7 @@ var graphQl = require('/lib/graphql');
 var schemaGenerator = require('../../schemaUtil').schemaGenerator;
 var graphQlUserItem = require('./userItem');
 
-var iconResolver = __.newBean('com.enonic.xp.app.users.icon.IconResourceResolver');
+var iconResolver = __.newBean('com.enonic.xp.app.users.lib.IconResourceResolver');
 
 exports.SchemaType = schemaGenerator.createInterfaceType({
     name: 'Schema',
