@@ -105,7 +105,6 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
 
         wizardHeader.setDisplayName(displayName);
 
-        debugger;
         wizardHeader.setPath(this.getParams().persistedPath);
         wizardHeader.setName(name);
 

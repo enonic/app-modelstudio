@@ -10,18 +10,18 @@ import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilte
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ListApplicationsRequest} from '../../graphql/apps/ListApplicationsRequest';
+import {ListApplicationsRequest} from '../../graphql/application/ListApplicationsRequest';
 import {Application} from '../application/Application';
 import {ComponentType} from '../schema/ComponentType';
-import {ListComponentsRequest} from '../../graphql/apps/ListComponentsRequest';
+import {ListComponentsRequest} from '../../graphql/schema/ListComponentsRequest';
 import {Component} from '../schema/Component';
 import {SchemaType} from '../schema/SchemaType';
-import {ListSchemasRequest} from '../../graphql/apps/ListSchemasRequest';
+import {ListSchemasRequest} from '../../graphql/schema/ListSchemasRequest';
 import {Schema} from '../schema/Schema';
-import {GetSiteRequest} from '../../graphql/apps/GetSiteRequest';
+import {GetSiteRequest} from '../../graphql/schema/GetSiteRequest';
 import {Site} from '../schema/Site';
 import {Styles} from '../schema/Styles';
-import {GetStylesRequest} from '../../graphql/apps/GetStylesRequest';
+import {GetStylesRequest} from '../../graphql/schema/GetStylesRequest';
 import {RenderableApplication} from '../application/RenderableApplication';
 
 export class ModelItemsTreeGrid

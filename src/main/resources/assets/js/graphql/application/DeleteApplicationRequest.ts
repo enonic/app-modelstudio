@@ -3,8 +3,7 @@ import {Component} from '../../app/schema/Component';
 import {ComponentType} from '../../app/schema/ComponentType';
 import {ComponentJson} from '../../app/schema/ComponentJson';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {DeleteModelResult} from './DeleteModelResult';
-
+import {DeleteModelResult} from '../schema/DeleteModelResult';
 
 export class DeleteApplicationRequest
     extends GraphQlRequest<DeleteModelResult<ApplicationKey>> {

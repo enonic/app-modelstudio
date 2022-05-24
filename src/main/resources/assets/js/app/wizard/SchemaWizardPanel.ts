@@ -11,11 +11,11 @@ import {SchemaWizardActions} from './SchemaWizardActions';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Schema, SchemaBuilder} from '../schema/Schema';
 import {ResourceWizardStepForm} from './ResourceWizardStepForm';
-import {UpdateSchemaRequest} from '../../graphql/apps/UpdateSchemaRequest';
-import {CreateSchemaRequest} from '../../graphql/apps/CreateSchemaRequest';
+import {UpdateSchemaRequest} from '../../graphql/schema/UpdateSchemaRequest';
+import {CreateSchemaRequest} from '../../graphql/schema/CreateSchemaRequest';
 import {ModelName} from '../schema/ModelName';
-import {DeleteSchemaRequest} from '../../graphql/apps/DeleteSchemaRequest';
-import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
+import {DeleteSchemaRequest} from '../../graphql/schema/DeleteSchemaRequest';
+import {DeleteModelResult} from '../../graphql/schema/DeleteModelResult';
 import {SchemaType} from '../schema/SchemaType';
 
 export class SchemaWizardPanel

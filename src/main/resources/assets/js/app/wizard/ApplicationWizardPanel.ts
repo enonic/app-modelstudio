@@ -11,9 +11,9 @@ import {Application, ApplicationBuilder} from '../application/Application';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationWizardPanelParams} from './ApplicationWizardPanelParams';
 import {ApplicationWizardActions} from './ApplicationWizardActions';
-import {CreateApplicationRequest} from '../../graphql/apps/CreateApplicationRequest';
-import {DeleteApplicationRequest} from '../../graphql/apps/DeleteApplicationRequest';
-import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
+import {CreateApplicationRequest} from '../../graphql/application/CreateApplicationRequest';
+import {DeleteApplicationRequest} from '../../graphql/application/DeleteApplicationRequest';
+import {DeleteModelResult} from '../../graphql/schema/DeleteModelResult';
 
 
 export class ApplicationWizardPanel

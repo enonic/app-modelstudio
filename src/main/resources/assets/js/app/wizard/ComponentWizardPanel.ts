@@ -9,13 +9,13 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ResourceWizardStepForm} from './ResourceWizardStepForm';
 import {ModelName} from '../schema/ModelName';
-import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
+import {DeleteModelResult} from '../../graphql/schema/DeleteModelResult';
 import {Component, ComponentBuilder} from '../schema/Component';
 import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {ComponentWizardActions} from './ComponentWizardActions';
-import {CreateComponentRequest} from '../../graphql/apps/CreateComponentRequest';
-import {UpdateComponentRequest} from '../../graphql/apps/UpdateComponentRequest';
-import {DeleteComponentRequest} from '../../graphql/apps/DeleteComponentRequest';
+import {CreateComponentRequest} from '../../graphql/schema/CreateComponentRequest';
+import {UpdateComponentRequest} from '../../graphql/schema/UpdateComponentRequest';
+import {DeleteComponentRequest} from '../../graphql/schema/DeleteComponentRequest';
 import {ComponentType} from '../schema/ComponentType';
 
 export class ComponentWizardPanel

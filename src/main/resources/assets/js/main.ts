@@ -40,7 +40,6 @@ function startApplication() {
     const appBar = new TabbedAppBar(application);
     appBar.setHomeIconAction();
 
-    // const newPrincipalDialog = new NewPrincipalDialog();
     const appPanel = new ModelAppPanel(appBar, application.getPath());
 
     body.appendChild(appBar);

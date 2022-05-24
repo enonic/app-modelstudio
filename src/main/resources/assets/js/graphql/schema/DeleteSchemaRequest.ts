@@ -1,5 +1,3 @@
-import {IdProviderKey} from 'lib-admin-ui/security/IdProviderKey';
-import {DeleteUserItemRequest} from '../useritem/DeleteUserItemRequest';
 import {BaseDeleteRequest} from './BaseDeleteRequest';
 import {ModelName} from '../../app/schema/ModelName';
 
