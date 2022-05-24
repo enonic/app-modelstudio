@@ -182,7 +182,6 @@ export class SchemaWizardPanel
                 .setApplicationKey(params.applicationKey)
                 .build())
             .setDisplayName(this.getWizardHeader().getDisplayName())
-            .setModifiedTime(this.getPersistedItem() ? this.getPersistedItem().getModifiedTime() : null)
             .build();
     }
 

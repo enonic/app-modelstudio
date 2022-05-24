@@ -1,22 +1,15 @@
 import * as Q from 'q';
 import {Router} from '../Router';
 import {ModelWizardPanel} from './ModelWizardPanel';
-import {SchemaWizardPanelParams} from './SchemaWizardPanelParams';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {SchemaWizardActions} from './SchemaWizardActions';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {Schema, SchemaBuilder} from '../schema/Schema';
 import {ResourceWizardStepForm} from './ResourceWizardStepForm';
-import {UpdateSchemaRequest} from '../../graphql/apps/UpdateSchemaRequest';
-import {CreateSchemaRequest} from '../../graphql/apps/CreateSchemaRequest';
 import {ModelName} from '../schema/ModelName';
-import {DeleteSchemaRequest} from '../../graphql/apps/DeleteSchemaRequest';
 import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
-import {SchemaType} from '../schema/SchemaType';
 import {Component, ComponentBuilder} from '../schema/Component';
 import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
 import {ComponentWizardActions} from './ComponentWizardActions';
@@ -189,7 +182,6 @@ export class ComponentWizardPanel
                 .setApplicationKey(params.applicationKey)
                 .build())
             .setDisplayName(this.getWizardHeader().getDisplayName())
-            // .setModifiedTime(this.getPersistedItem() ? this.getPersistedItem().getModifiedTime() : null)
             .build();
     }
 
@@ -204,7 +196,6 @@ export class ComponentWizardPanel
         }
 
         this.close();
-        // UserItemDeletedEvent.create().setIdProviders([this.getPersistedItem()]).build().fire();
     }
 
     protected produceDeleteRequest(): DeleteComponentRequest {

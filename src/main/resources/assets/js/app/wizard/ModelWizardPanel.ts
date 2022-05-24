@@ -1,14 +1,12 @@
 import * as Q from 'q';
-import {UserItemWizardActions} from './action/UserItemWizardActions';
+import {ModelWizardActions} from './action/ModelWizardActions';
 import {DynamicWizardPanelParams} from './DynamicWizardPanelParams';
-import {PrincipalServerEventsHandler} from '../event/PrincipalServerEventsHandler';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
-import {UserItem} from 'lib-admin-ui/security/UserItem';
 import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ElementShownEvent} from 'lib-admin-ui/dom/ElementShownEvent';
@@ -16,21 +14,14 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {DeleteUserItemRequest} from '../../graphql/useritem/DeleteUserItemRequest';
-import {DeleteUserItemResult} from '../../graphql/useritem/DeleteUserItemResult';
-import {IdProvider} from '../principal/IdProvider';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {UserItemNamedEvent} from '../event/UserItemNamedEvent';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {BaseDeleteRequest} from '../../graphql/apps/BaseDeleteRequest';
-import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
 import {GraphQlRequest} from '../../graphql/GraphQlRequest';
 
 
 export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
     extends WizardPanel<USER_ITEM_TYPE> {
 
-    protected wizardActions: UserItemWizardActions<USER_ITEM_TYPE>;
+    protected wizardActions: ModelWizardActions<USER_ITEM_TYPE>;
 
     protected params: DynamicWizardPanelParams<USER_ITEM_TYPE>;
 
@@ -38,13 +29,10 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
 
     private lockChangedListeners: { (value: boolean): void }[];
 
-    private userItemNamedListeners: { (event: UserItemNamedEvent): void }[];
-
     protected constructor(params: DynamicWizardPanelParams<USER_ITEM_TYPE>) {
         super(params);
 
         this.lockChangedListeners = [];
-        this.userItemNamedListeners = [];
 
         this.initListeners();
     }
@@ -75,8 +63,8 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
         return this.params;
     }
 
-    protected createWizardActions(): UserItemWizardActions<USER_ITEM_TYPE> {
-        return new UserItemWizardActions(this);
+    protected createWizardActions(): ModelWizardActions<USER_ITEM_TYPE> {
+        return new ModelWizardActions(this);
     }
 
     protected createMainToolbar(): Toolbar {
@@ -128,18 +116,11 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
         return <WizardHeaderWithDisplayNameAndName> super.getWizardHeader();
     }
 
-    // isSystemUserItem(): boolean {
-    //     return this.getParams().isSystemKey();
-    // }
-
     protected createFormIcon(): FormIcon {
         let iconUrl = ImgEl.PLACEHOLDER;
         let formIcon = new FormIcon(iconUrl, 'icon');
         formIcon.addClass('icon icon-xlarge');
 
-        // if (this.isSystemUserItem()) {
-        //     formIcon.addClass('icon-system');
-        // }
         return formIcon;
     }
 
@@ -178,27 +159,6 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
             }
         };
 
-        const handler = PrincipalServerEventsHandler.getInstance();
-        handler.onUserItemDeleted(deleteHandler);
-
-        const updateHandler = (principal: Principal, idProvider: IdProvider) => {
-            if (!this.isItemPersisted() || !this.isDataLoaded()) {
-                return;
-            }
-
-            this.handleServerUpdate(principal, idProvider);
-        };
-
-        handler.onUserItemUpdated(updateHandler);
-
-        this.onRemoved(() => {
-            handler.unUserItemDeleted(deleteHandler);
-            handler.unUserItemUpdated(updateHandler);
-        });
-    }
-
-    protected handleServerUpdate(principal: Principal, idProvider: IdProvider) {
-        // TODO ?
     }
 
     protected getPersistedItemPath(): string {
@@ -352,10 +312,6 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
 
     protected handleDeletedResult(result): void {
             this.handleSuccessfulDelete(result);
-        //
-        // if (results[0].getReason()) {
-        //     DefaultErrorHandler.handle(results[0].getReason());
-        // }
     }
 
     protected abstract handleSuccessfulDelete(result);
@@ -375,14 +331,4 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
             listener(value);
         });
     }
-
-    onUserItemNamed(listener: (event: UserItemNamedEvent) => void): void {
-        this.userItemNamedListeners.push(listener);
-    }
-
-    // protected notifyUserItemNamed(userItem: UserItem): void {
-    //     this.userItemNamedListeners.forEach((listener: (event: UserItemNamedEvent) => void) => {
-    //         listener.call(this, new UserItemNamedEvent(this, userItem));
-    //     });
-    // }
 }

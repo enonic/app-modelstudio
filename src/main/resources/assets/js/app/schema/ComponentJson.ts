@@ -1,5 +1,3 @@
-import {FormJson} from 'lib-admin-ui/form/json/FormJson';
-
 export interface ComponentJson {
 
     name: string;
@@ -12,9 +10,5 @@ export interface ComponentJson {
 
     type: string;
 
-    // config: FormJson;
-
     icon: string;
-
-    // regions: RegionsDescriptorJson[];
 }

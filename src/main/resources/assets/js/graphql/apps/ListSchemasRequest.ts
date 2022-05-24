@@ -1,15 +1,5 @@
 import {ListGraphQlProperties, ListGraphQlRequest} from '../ListGraphQlRequest';
-import {User} from '../../app/principal/User';
-import {Group} from '../../app/principal/Group';
-import {Role} from '../../app/principal/Role';
-import {UserJson} from '../../app/principal/UserJson';
-import {GroupJson} from '../../app/principal/GroupJson';
-import {RoleJson} from '../../app/principal/RoleJson';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {ComponentType} from '../../app/schema/ComponentType';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ComponentJson} from '../../app/schema/ComponentJson';
-import {Component} from '../../app/schema/Component';
 import {SchemaJson} from '../../app/schema/SchemaJson';
 import {Schema} from '../../app/schema/Schema';
 import {SchemaType} from '../../app/schema/SchemaType';

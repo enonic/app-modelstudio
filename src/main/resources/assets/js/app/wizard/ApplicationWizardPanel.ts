@@ -13,9 +13,6 @@ import {ApplicationWizardPanelParams} from './ApplicationWizardPanelParams';
 import {ApplicationWizardActions} from './ApplicationWizardActions';
 import {CreateApplicationRequest} from '../../graphql/apps/CreateApplicationRequest';
 import {DeleteApplicationRequest} from '../../graphql/apps/DeleteApplicationRequest';
-import {Component, ComponentBuilder} from '../schema/Component';
-import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
-import {ModelName} from '../schema/ModelName';
 import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
 
 
@@ -26,8 +23,6 @@ export class ApplicationWizardPanel
 
     constructor(params: ApplicationWizardPanelParams) {
         super(params);
-
-        // this.listenToUserItemEvents();
     }
 
     protected createWizardActions(): ApplicationWizardActions {
@@ -163,7 +158,6 @@ export class ApplicationWizardPanel
         }
 
         this.close();
-        // UserItemDeletedEvent.create().setIdProviders([this.getPersistedItem()]).build().fire();
     }
 
     protected produceDeleteRequest(): DeleteApplicationRequest {
