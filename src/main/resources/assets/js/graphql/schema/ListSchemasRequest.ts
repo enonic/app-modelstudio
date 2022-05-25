@@ -50,8 +50,7 @@ export class ListSchemasRequest
                         description,
                         displayName,
                         resource,
-                        type,
-                        icon
+                        type
                     }
                 }`;
     }
