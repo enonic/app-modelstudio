@@ -1,0 +1,52 @@
+.model-item-statistics-panel {
+  overflow-x: auto;
+  overflow-y: scroll;
+
+  .header {
+    padding: 35px;
+    color: @admin-font-gray3;
+    margin: 0;
+
+    .font-icon-default {
+      img {
+        height: 128px;
+        width: 128px;
+        margin-right: 20px;
+      }
+
+      &::before {
+        font-size: 128px;
+      }
+
+      min-width: 128px;
+      min-height: 128px;
+      margin-right: 20px;
+      float: left;
+    }
+
+    .title {
+      min-height: 42px;
+      margin: 32px 0 0 0;
+    }
+
+    .path {
+      padding: 4px 0 0 0;
+      font-size: 18px;
+      line-height: 24px;
+
+      .parent-path {
+        color: @admin-font-gray1;
+      }
+    }
+
+    .title,
+    .path {
+      .ellipsis();
+    }
+  }
+
+  .text-area[name='descriptor-area'] {
+    width: inherit;
+    height: inherit;
+  }
+}

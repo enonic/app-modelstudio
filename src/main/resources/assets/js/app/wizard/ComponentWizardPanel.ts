@@ -57,7 +57,7 @@ export class ComponentWizardPanel
                 console.debug('ComponentWizardPanel.doRenderOnDataLoaded');
             }
 
-            this.addClass('principal-wizard-panel id-provider-wizard-panel');
+            this.addClass('model-wizard-panel');
             this.getFormIcon().addClass('icon-address-book');
 
             return nextRendered;

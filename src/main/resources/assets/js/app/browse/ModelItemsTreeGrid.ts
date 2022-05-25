@@ -37,7 +37,7 @@ export class ModelItemsTreeGrid
             field: 'displayName',
             formatter: ModelItemsRowFormatter.nameFormatter,
             style: {minWidth: 200}
-        }]).setPartialLoadEnabled(true).setLoadBufferSize(20).prependClasses('user-tree-grid');
+        }]).setPartialLoadEnabled(true).setLoadBufferSize(20).prependClasses('model-tree-grid');
 
         const columns = builder.getColumns().slice(0);
         const [nameColumn] = columns;

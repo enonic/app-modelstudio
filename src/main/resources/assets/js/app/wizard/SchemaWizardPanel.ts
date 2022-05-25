@@ -57,7 +57,7 @@ export class SchemaWizardPanel
                 console.debug('SchemaWizardPanel.doRenderOnDataLoaded');
             }
 
-            this.addClass('principal-wizard-panel id-provider-wizard-panel');
+            this.addClass('model-wizard-panel');
             this.getFormIcon().addClass('icon-address-book');
 
             return nextRendered;
@@ -144,7 +144,8 @@ export class SchemaWizardPanel
         const wizardHeader: WizardHeaderWithDisplayNameAndName = this.getWizardHeader();
         return wizardHeader.getName() !== '' ||
                wizardHeader.getDisplayName() !== '' ||
-               (this.getPersistedItem() ? !ObjectHelper.stringEquals(this.resourceWizardStepForm.getResource(), this.getPersistedItem().getResource()) : !!this.resourceWizardStepForm.getResource()) ;
+               (this.getPersistedItem() ? !ObjectHelper.stringEquals(this.resourceWizardStepForm.getResource(),
+                   this.getPersistedItem().getResource()) : !!this.resourceWizardStepForm.getResource());
     }
 
     isPersistedEqualsViewed(): boolean {

@@ -17,7 +17,7 @@ export class ModelItemStatisticsPanel
     private readonly textArea: TextArea;
 
     constructor() {
-        super('principal-item-statistics-panel');
+        super('model-item-statistics-panel');
 
         this.header = new ModelItemStatisticsHeader();
         this.textArea = new TextArea("descriptor-area");
