@@ -1,4 +1,4 @@
-import {UserItemJson} from 'lib-admin-ui/security/UserItemJson';
+import {UserItemJson} from '@enonic/lib-admin-ui/security/UserItemJson';
 
 export interface ApplicationJson
     extends UserItemJson {

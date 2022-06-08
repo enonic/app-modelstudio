@@ -1,9 +1,9 @@
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {UserItem} from 'lib-admin-ui/security/UserItem';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {UserItem} from '@enonic/lib-admin-ui/security/UserItem';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 import {Component} from '../schema/Component';
 import {ComponentType} from '../schema/ComponentType';
 import {Schema} from '../schema/Schema';
@@ -102,10 +102,10 @@ export class ModelTreeGridItem
             return this.schema.getDisplayName();
 
         case UserTreeGridItemType.SITE:
-            return "site.xml";
+            return 'site.xml';
 
         case UserTreeGridItemType.STYLES:
-            return "styles.xml";
+            return 'styles.xml';
 
         case UserTreeGridItemType.PARTS:
             return i18n('field.parts');

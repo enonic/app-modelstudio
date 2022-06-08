@@ -1,6 +1,6 @@
 import {ListGraphQlProperties, ListGraphQlRequest} from '../ListGraphQlRequest';
 import {ComponentType} from '../../app/schema/ComponentType';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ComponentJson} from '../../app/schema/ComponentJson';
 import {Component} from '../../app/schema/Component';
 

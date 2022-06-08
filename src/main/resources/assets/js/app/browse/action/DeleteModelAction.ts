@@ -1,7 +1,7 @@
 import {ModelItemsTreeGrid} from '../ModelItemsTreeGrid';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class DeleteModelAction
     extends Action {

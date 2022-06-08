@@ -2,14 +2,14 @@ import * as Q from 'q';
 import {ModelTreeGridItem, UserTreeGridItemBuilder, UserTreeGridItemType} from './ModelTreeGridItem';
 import {ModelTreeGridActions} from './ModelTreeGridActions';
 import {ModelItemsRowFormatter} from './ModelItemsRowFormatter';
-import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {TreeGridContextMenu} from 'lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
-import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
+import {BrowseFilterResetEvent} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
+import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ListApplicationsRequest} from '../../graphql/application/ListApplicationsRequest';
 import {Application} from '../application/Application';
 import {ComponentType} from '../schema/ComponentType';
@@ -135,12 +135,12 @@ export class ModelItemsTreeGrid
                             appsToShow.push(RenderableApplication.create().setApplication(app).setSite(site).build());
                         }
                     });
-                })
+                });
 
 
                 return appsToShow.map(application => new UserTreeGridItemBuilder().setApplication(application).setType(
                     UserTreeGridItemType.APPLICATION).setHasChildren(true).build());
-            })
+            });
         });
 
     }

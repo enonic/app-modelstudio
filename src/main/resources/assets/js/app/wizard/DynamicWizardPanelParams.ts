@@ -1,5 +1,5 @@
-import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 
 export class DynamicWizardPanelParams<USER_ITEM_TYPE> {

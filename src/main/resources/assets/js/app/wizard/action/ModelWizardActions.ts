@@ -1,11 +1,10 @@
 import {ModelWizardPanel} from '../ModelWizardPanel';
 import {DeleteModelAction} from './DeleteModelAction';
-import {UserItem} from 'lib-admin-ui/security/UserItem';
-import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
-import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
+import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 
 export class ModelWizardActions<USER_ITEM_TYPE extends Equitable>
     extends WizardActions<USER_ITEM_TYPE> {

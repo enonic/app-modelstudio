@@ -1,9 +1,9 @@
 import * as Q from 'q';
 import {ModelTreeGridItem, UserTreeGridItemType} from '../browse/ModelTreeGridItem';
-import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
+import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
 import {ModelItemStatisticsHeader} from './ModelItemStatisticsHeader';
 import {Component} from '../schema/Component';
-import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
+import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {Schema} from '../schema/Schema';
 import {Site} from '../schema/Site';
 import {Styles} from '../schema/Styles';
@@ -20,7 +20,7 @@ export class ModelItemStatisticsPanel
         super('model-item-statistics-panel');
 
         this.header = new ModelItemStatisticsHeader();
-        this.textArea = new TextArea("descriptor-area");
+        this.textArea = new TextArea('descriptor-area');
         this.textArea.hide();
     }
 
@@ -57,7 +57,7 @@ export class ModelItemStatisticsPanel
 
 
         if (item.isComponent() || item.isSchema() || item.isSite() || item.isStyles() || item.isApplication()) {
-            this.setResource( component || schema || site || styles || application );
+            this.setResource(component || schema || site || styles || application);
             this.textArea.show();
         } else {
             this.textArea.hide();

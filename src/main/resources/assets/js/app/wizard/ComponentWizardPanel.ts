@@ -1,12 +1,12 @@
 import * as Q from 'q';
 import {Router} from '../Router';
 import {ModelWizardPanel} from './ModelWizardPanel';
-import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
-import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ResourceWizardStepForm} from './ResourceWizardStepForm';
 import {ModelName} from '../schema/ModelName';
 import {DeleteModelResult} from '../../graphql/schema/DeleteModelResult';
@@ -143,8 +143,10 @@ export class ComponentWizardPanel
     isNewChanged(): boolean {
         const wizardHeader: WizardHeaderWithDisplayNameAndName = this.getWizardHeader();
         return wizardHeader.getName() !== '' ||
-               wizardHeader.getDisplayName() !== '' ||
-               (this.getPersistedItem() ? !ObjectHelper.stringEquals(this.resourceWizardStepForm.getResource(), this.getPersistedItem().getResource()) : !!this.resourceWizardStepForm.getResource()) ;
+            wizardHeader.getDisplayName() !== '' ||
+            (this.getPersistedItem() ?
+                !ObjectHelper.stringEquals(this.resourceWizardStepForm.getResource(), this.getPersistedItem().getResource()) :
+                !!this.resourceWizardStepForm.getResource());
     }
 
     isPersistedEqualsViewed(): boolean {

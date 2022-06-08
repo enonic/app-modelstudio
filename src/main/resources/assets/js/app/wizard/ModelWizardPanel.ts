@@ -1,20 +1,20 @@
 import * as Q from 'q';
 import {ModelWizardActions} from './action/ModelWizardActions';
 import {DynamicWizardPanelParams} from './DynamicWizardPanelParams';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
-import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
-import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
-import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
-import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
-import {ElementShownEvent} from 'lib-admin-ui/dom/ElementShownEvent';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
+import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
+import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
+import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
+import {ElementShownEvent} from '@enonic/lib-admin-ui/dom/ElementShownEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {GraphQlRequest} from '../../graphql/GraphQlRequest';
 
 

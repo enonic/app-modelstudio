@@ -4,8 +4,8 @@ import {DeleteModelAction} from './action/DeleteModelAction';
 import {EditModelAction} from './action/EditModelAction';
 import {NewModelAction} from './action/NewModelAction';
 import {ModelItemsTreeGrid} from './ModelItemsTreeGrid';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {TreeGridActions} from 'lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
 
 export class ModelTreeGridActions
     implements TreeGridActions<ModelTreeGridItem> {

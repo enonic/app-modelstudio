@@ -1,6 +1,6 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {SiteJson} from './SiteJson';
 
 
