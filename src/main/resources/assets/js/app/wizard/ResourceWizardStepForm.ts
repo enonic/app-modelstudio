@@ -2,11 +2,10 @@ import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {UserItemWizardStepForm} from './UserItemWizardStepForm';
-import {Schema} from '../schema/Schema';
+import {ModelItemWizardStepForm} from './ModelItemWizardStepForm';
 
 export class ResourceWizardStepForm
-    extends UserItemWizardStepForm {
+    extends ModelItemWizardStepForm {
 
     private resource: TextArea;
 

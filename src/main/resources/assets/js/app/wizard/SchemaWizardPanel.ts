@@ -11,11 +11,11 @@ import {SchemaWizardActions} from './SchemaWizardActions';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Schema, SchemaBuilder} from '../schema/Schema';
 import {ResourceWizardStepForm} from './ResourceWizardStepForm';
-import {UpdateSchemaRequest} from '../../graphql/apps/UpdateSchemaRequest';
-import {CreateSchemaRequest} from '../../graphql/apps/CreateSchemaRequest';
+import {UpdateSchemaRequest} from '../../graphql/schema/UpdateSchemaRequest';
+import {CreateSchemaRequest} from '../../graphql/schema/CreateSchemaRequest';
 import {ModelName} from '../schema/ModelName';
-import {DeleteSchemaRequest} from '../../graphql/apps/DeleteSchemaRequest';
-import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
+import {DeleteSchemaRequest} from '../../graphql/schema/DeleteSchemaRequest';
+import {DeleteModelResult} from '../../graphql/schema/DeleteModelResult';
 import {SchemaType} from '../schema/SchemaType';
 
 export class SchemaWizardPanel
@@ -57,7 +57,7 @@ export class SchemaWizardPanel
                 console.debug('SchemaWizardPanel.doRenderOnDataLoaded');
             }
 
-            this.addClass('principal-wizard-panel id-provider-wizard-panel');
+            this.addClass('model-wizard-panel');
             this.getFormIcon().addClass('icon-address-book');
 
             return nextRendered;
@@ -144,7 +144,8 @@ export class SchemaWizardPanel
         const wizardHeader: WizardHeaderWithDisplayNameAndName = this.getWizardHeader();
         return wizardHeader.getName() !== '' ||
                wizardHeader.getDisplayName() !== '' ||
-               (this.getPersistedItem() ? !ObjectHelper.stringEquals(this.resourceWizardStepForm.getResource(), this.getPersistedItem().getResource()) : !!this.resourceWizardStepForm.getResource()) ;
+               (this.getPersistedItem() ? !ObjectHelper.stringEquals(this.resourceWizardStepForm.getResource(),
+                   this.getPersistedItem().getResource()) : !!this.resourceWizardStepForm.getResource());
     }
 
     isPersistedEqualsViewed(): boolean {
@@ -182,7 +183,6 @@ export class SchemaWizardPanel
                 .setApplicationKey(params.applicationKey)
                 .build())
             .setDisplayName(this.getWizardHeader().getDisplayName())
-            .setModifiedTime(this.getPersistedItem() ? this.getPersistedItem().getModifiedTime() : null)
             .build();
     }
 

@@ -2,9 +2,7 @@ var graphQl = require('/lib/graphql');
 
 var schemaGenerator = require('../../schemaUtil').schemaGenerator;
 
-var graphQlUserItem = require('./userItem');
-
-var iconResolver = __.newBean('com.enonic.xp.app.users.icon.IconResourceResolver');
+var iconResolver = __.newBean('com.enonic.xp.app.users.lib.IconResourceResolver');
 
 exports.ApplicationType = schemaGenerator.createObjectType({
     name: 'Application',
@@ -98,6 +96,3 @@ exports.ApplicationDeleteType = schemaGenerator.createObjectType({
         }
     }
 });
-
-graphQlUserItem.typeResolverMap.applicationType = exports.ApplicationType;
-graphQlUserItem.typeResolverMap.applicationDeleteType = exports.ApplicationDeleteType;

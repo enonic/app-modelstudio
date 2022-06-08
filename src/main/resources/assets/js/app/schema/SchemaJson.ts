@@ -12,7 +12,4 @@ export interface SchemaJson {
 
     icon: string;
 
-    modifiedTime: string;
-
-    createdTime: string;
 }

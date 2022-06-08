@@ -1,5 +1,3 @@
-//TODO Remove GraphQLSchemaSynchronizer for Enonic XP 6.13
-
 var graphQl = require('/lib/graphql');
 var schemaGenerator = require('./schemaUtil').schemaGenerator;
 

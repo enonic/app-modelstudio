@@ -1,0 +1,31 @@
+.model-tree-grid {
+  .grid {
+    .slick-row {
+      &.non-selectable {
+        .slick-cell-checkboxsel {
+          label {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .slick-cell:not(.slick-cell-checkboxsel) {
+      flex-grow: 1;
+    }
+
+    .slick-cell.r1.slick-cell-checkboxsel {
+      padding-right: 2px;
+    }
+
+    .names-and-icon-viewer {
+      .names-and-icon-view {
+        img {
+          max-width: 100%;
+          max-height: 100%;
+          width: 100%;
+        }
+      }
+    }
+  }
+}

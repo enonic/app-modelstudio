@@ -1,12 +1,10 @@
-import {UserItemWizardActions} from './action/UserItemWizardActions';
-import {IdProvider} from '../principal/IdProvider';
+import {ModelWizardActions} from './action/ModelWizardActions';
 import {Schema} from '../schema/Schema';
 
 export class SchemaWizardActions
-    extends UserItemWizardActions<Schema> {
+    extends ModelWizardActions<Schema> {
 
     enableActionsForExisting(schema: Schema) {
         this.save.setEnabled(false);
     }
-
 }
