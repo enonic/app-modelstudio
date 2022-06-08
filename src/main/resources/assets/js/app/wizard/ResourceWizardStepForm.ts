@@ -1,7 +1,7 @@
-import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ModelItemWizardStepForm} from './ModelItemWizardStepForm';
 
 export class ResourceWizardStepForm

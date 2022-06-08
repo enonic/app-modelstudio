@@ -1,12 +1,9 @@
 import {Router} from '../Router';
-import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
 import {ModelItemsTreeGrid} from './ModelItemsTreeGrid';
 import {ModelBrowseItemPanel} from './ModelBrowseItemPanel';
 import {ModelBrowseFilterPanel} from './filter/ModelBrowseFilterPanel';
 import {ModelBrowseToolbar} from './ModelBrowseToolbar';
-import {ModelTreeGridItem} from './ModelTreeGridItem';
 
 export class ModelBrowsePanel
     extends BrowsePanel {

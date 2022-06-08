@@ -1,5 +1,5 @@
 import {ModelTreeGridItem} from '../ModelTreeGridItem';
-import {Event} from 'lib-admin-ui/event/Event';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 
 export class BaseModelEvent
     extends Event {

@@ -1,14 +1,14 @@
 import {ModelAppPanel} from './app/ModelAppPanel';
 import {Router} from './app/Router';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {Application} from 'lib-admin-ui/app/Application';
-import {Path} from 'lib-admin-ui/rest/Path';
-import {ConnectionDetector} from 'lib-admin-ui/system/ConnectionDetector';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TabbedAppBar} from 'lib-admin-ui/app/bar/TabbedAppBar';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {Application} from '@enonic/lib-admin-ui/app/Application';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 const body = Body.get();
 

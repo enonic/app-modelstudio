@@ -1,10 +1,8 @@
-import {UserItemKey} from 'lib-admin-ui/security/UserItemKey';
-
 export class DeleteModelResult<ID_TYPE> {
 
-    private id: ID_TYPE;
+    private readonly id: ID_TYPE;
 
-    private result: boolean;
+    private readonly result: boolean;
 
     constructor(id: ID_TYPE, result: boolean) {
         this.id = id;

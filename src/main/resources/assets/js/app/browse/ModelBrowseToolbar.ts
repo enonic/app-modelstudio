@@ -1,5 +1,5 @@
 import {ModelTreeGridActions} from './ModelTreeGridActions';
-import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 
 export class ModelBrowseToolbar
     extends Toolbar {

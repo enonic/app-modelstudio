@@ -1,8 +1,8 @@
 import {ModelTreeGridItem, UserTreeGridItemType} from './ModelTreeGridItem';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 
 export class ModelTreeGridItemViewer
     extends NamesAndIconViewer<ModelTreeGridItem> {

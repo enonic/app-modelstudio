@@ -1,5 +1,5 @@
-import {ItemStatisticsHeader} from 'lib-admin-ui/app/view/ItemStatisticsHeader';
-import {ModelTreeGridItem, UserTreeGridItemType} from '../browse/ModelTreeGridItem';
+import {ItemStatisticsHeader} from '@enonic/lib-admin-ui/app/view/ItemStatisticsHeader';
+import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 
 export class ModelItemStatisticsHeader
     extends ItemStatisticsHeader {

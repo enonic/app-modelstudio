@@ -6,23 +6,23 @@ import {EditModelEvent} from './browse/event/EditModelEvent';
 import {ModelBrowsePanel} from './browse/ModelBrowsePanel';
 import {SchemaWizardPanelParams} from './wizard/SchemaWizardPanelParams';
 import {ComponentWizardPanelParams} from './wizard/ComponentWizardPanelParams';
-import {NavigatedAppPanel} from 'lib-admin-ui/app/NavigatedAppPanel';
-import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from 'lib-admin-ui/app/bar/AppBarTabMenuItem';
-import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
-import {UserItem} from 'lib-admin-ui/security/UserItem';
-import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
-import {TabbedAppBar} from 'lib-admin-ui/app/bar/TabbedAppBar';
-import {Path} from 'lib-admin-ui/rest/Path';
-import {ShowBrowsePanelEvent} from 'lib-admin-ui/app/ShowBrowsePanelEvent';
-import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
-import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {NavigatedAppPanel} from '@enonic/lib-admin-ui/app/NavigatedAppPanel';
+import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from '@enonic/lib-admin-ui/app/bar/AppBarTabMenuItem';
+import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
+import {UserItem} from '@enonic/lib-admin-ui/security/UserItem';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {ShowBrowsePanelEvent} from '@enonic/lib-admin-ui/app/ShowBrowsePanelEvent';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import {ValidityChangedEvent} from '@enonic/lib-admin-ui/ValidityChangedEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {Schema} from './schema/Schema';
 import {SchemaType} from './schema/SchemaType';
 import {ComponentWizardPanel} from './wizard/ComponentWizardPanel';
 import {ComponentType} from './schema/ComponentType';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {Component} from './schema/Component';
 import {NewApplicationEvent} from './browse/event/NewApplicationEvent';
 import {ApplicationWizardPanelParams} from './wizard/ApplicationWizardPanelParams';
@@ -48,13 +48,13 @@ export class ModelAppPanel
         const action = path ? path.getElement(0) : null;
 
         switch (action) {
-        case 'edit':
-            break;
-        case 'view':
-            break;
-        default:
-            new ShowBrowsePanelEvent().fire();
-            break;
+            case 'edit':
+                break;
+            case 'view':
+                break;
+            default:
+                new ShowBrowsePanelEvent().fire();
+                break;
         }
     }
 
@@ -180,19 +180,19 @@ export class ModelAppPanel
             const key: ApplicationKey = modelItem.getApplication().getApplicationKey();
 
             if (modelItem.isContentType() || modelItem.isContentTypes()) {
-                this.handleSchemaNew( key, SchemaType.CONTENT_TYPE, tabId, i18n('field.contentType'));
+                this.handleSchemaNew(key, SchemaType.CONTENT_TYPE, tabId, i18n('field.contentType'));
             } else if (modelItem.isMixin() || modelItem.isMixins()) {
-                this.handleSchemaNew( key, SchemaType.MIXIN, tabId, i18n('field.mixin'));
+                this.handleSchemaNew(key, SchemaType.MIXIN, tabId, i18n('field.mixin'));
             } else if (modelItem.isXData() || modelItem.isXDatas()) {
-                this.handleSchemaNew( key, SchemaType.XDATA, tabId, i18n('field.xdata'));
+                this.handleSchemaNew(key, SchemaType.XDATA, tabId, i18n('field.xdata'));
             }
 
             if (modelItem.isPart() || modelItem.isParts()) {
-                this.handleComponentNew( key, ComponentType.PART, tabId, i18n('field.part'));
+                this.handleComponentNew(key, ComponentType.PART, tabId, i18n('field.part'));
             } else if (modelItem.isLayout() || modelItem.isLayouts()) {
-                this.handleComponentNew( key, ComponentType.LAYOUT, tabId, i18n('field.layout'));
+                this.handleComponentNew(key, ComponentType.LAYOUT, tabId, i18n('field.layout'));
             } else if (modelItem.isPage() || modelItem.isPages()) {
-                this.handleComponentNew( key, ComponentType.PAGE, tabId, i18n('field.page'));
+                this.handleComponentNew(key, ComponentType.PAGE, tabId, i18n('field.page'));
             }
         }
 
@@ -268,7 +268,7 @@ export class ModelAppPanel
         this.handleWizardUpdated(wizard, tabMenuItem);
     }
 
-    private handleSchemaNew(appKey:ApplicationKey, schemaType: SchemaType, tabId: AppBarTabId, tabName: string) {
+    private handleSchemaNew(appKey: ApplicationKey, schemaType: SchemaType, tabId: AppBarTabId, tabName: string) {
 
         let wizardParams = new SchemaWizardPanelParams()
             .setType(schemaType)
