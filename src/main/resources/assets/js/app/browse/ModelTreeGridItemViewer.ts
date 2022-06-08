@@ -47,25 +47,28 @@ export class ModelTreeGridItemViewer
         let iconClass = 'icon-large ';
 
         switch (object.getType()) {
+            case UserTreeGridItemType.PART:
+                return iconClass + StyleHelper.getCommonIconCls('part');
+            case UserTreeGridItemType.LAYOUT:
+                return iconClass + StyleHelper.getCommonIconCls('layout');
+            case UserTreeGridItemType.PAGE:
+                return iconClass + StyleHelper.getCommonIconCls('page');
 
-        case UserTreeGridItemType.PART:
-            return iconClass + StyleHelper.getCommonIconCls('part');
-        case UserTreeGridItemType.LAYOUT:
-            return iconClass + StyleHelper.getCommonIconCls('layout');
-        case UserTreeGridItemType.PAGE:
-            return iconClass + StyleHelper.getCommonIconCls('page');
+            case UserTreeGridItemType.CONTENT_TYPE:
+            case UserTreeGridItemType.MIXIN:
+            case UserTreeGridItemType.XDATA:
+                return iconClass + 'icon-file-text2';
 
-        case UserTreeGridItemType.CONTENT_TYPE:
-        case UserTreeGridItemType.MIXIN:
-        case UserTreeGridItemType.XDATA:
-            return iconClass + 'icon-file-text2';
+            case UserTreeGridItemType.SITE:
+            case UserTreeGridItemType.STYLES:
+                return iconClass + 'icon-file-text2';
 
-        case UserTreeGridItemType.SITE:
-        case UserTreeGridItemType.STYLES:
-            return iconClass + 'icon-file-text2';
+            case UserTreeGridItemType.APPLICATION:
+                return 'icon-application';
 
-        default:
-            return iconClass + 'icon-folder';
+
+            default:
+                return iconClass + 'icon-folder';
         }
     }
 }
