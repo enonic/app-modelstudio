@@ -9,8 +9,6 @@ export class Application {
 
     private readonly displayName: string;
 
-    private readonly modifiedTime: Date;
-
     private readonly description: string;
 
     private readonly icon: string;
@@ -19,16 +17,11 @@ export class Application {
     constructor(builder: ApplicationBuilder) {
         this.applicationKey = builder.applicationKey;
         this.displayName = builder.displayName;
-        this.modifiedTime = builder.modifiedTime;
         this.icon = builder.icon;
     }
 
     getApplicationKey(): ApplicationKey {
         return this.applicationKey;
-    }
-
-    getModifiedTime(): Date {
-        return this.modifiedTime;
     }
 
     getDisplayName(): string {
@@ -64,9 +57,6 @@ export class Application {
         if (!ObjectHelper.stringEquals(this.displayName, other.displayName)) {
             return false;
         }
-        if (!ObjectHelper.dateEquals(this.modifiedTime, other.modifiedTime)) {
-            return false;
-        }
         if (!ObjectHelper.stringEquals(this.description, other.description)) {
             return false;
         }
@@ -91,8 +81,6 @@ export class ApplicationBuilder {
 
     displayName: string;
 
-    modifiedTime: Date;
-
     description: string;
 
     icon: string;
@@ -101,7 +89,6 @@ export class ApplicationBuilder {
         if (source) {
             this.applicationKey = source.getApplicationKey();
             this.displayName = source.getDisplayName();
-            this.modifiedTime = source.getModifiedTime();
             this.description = source.getDescription();
             this.icon = source.getIcon();
         }
@@ -110,7 +97,6 @@ export class ApplicationBuilder {
     fromJson(json: ApplicationJson): ApplicationBuilder {
         this.applicationKey = new ApplicationKey(json.key);
         this.displayName = json.displayName;
-        this.modifiedTime = json.modifiedTime;
         this.description = json.description;
         this.icon = json.icon;
         return this;

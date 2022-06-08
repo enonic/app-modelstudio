@@ -2,10 +2,6 @@ var graphQl = require('/lib/graphql');
 
 var schemaGenerator = require('../../schemaUtil').schemaGenerator;
 
-var form = require('./form');
-
-var graphQlUserItem = require('./userItem');
-
 exports.ComponentType = schemaGenerator.createInterfaceType({
     name: 'Component',
     description: 'Domain representation of a component descriptor',
@@ -24,9 +20,6 @@ exports.ComponentType = schemaGenerator.createInterfaceType({
         return null;
     },
     fields: {
-        // key: {
-        //     type: graphQl.GraphQLString
-        // },
         name: {
             type: graphQl.GraphQLString
         },
@@ -50,9 +43,6 @@ exports.ComponentType = schemaGenerator.createInterfaceType({
         },
         resource: {
             type: graphQl.GraphQLString
-        },
-        config: {
-            type: form.FormType
         }
     }
 });
@@ -62,12 +52,6 @@ exports.PartComponentType = schemaGenerator.createObjectType({
     description: 'Domain representation of a part component descriptor',
     interfaces: [exports.ComponentType],
     fields: {
-        // key: {
-        //     type: graphQl.GraphQLString,
-        //     resolve: function (env) {
-        //         return env.source.key;
-        //     }
-        // },
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
@@ -114,12 +98,6 @@ exports.PartComponentType = schemaGenerator.createObjectType({
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.componentPath;
-            }
-        },
-        config: {
-            type: form.FormType,
-            resolve: function (env) {
-                return null;
             }
         }
     }
@@ -130,12 +108,6 @@ exports.LayoutComponentType = schemaGenerator.createObjectType({
     description: 'Domain representation of a layout component descriptor',
     interfaces: [exports.ComponentType],
     fields: {
-        // key: {
-        //     type: graphQl.GraphQLString,
-        //     resolve: function (env) {
-        //         return env.source.key;
-        //     }
-        // },
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
@@ -182,12 +154,6 @@ exports.LayoutComponentType = schemaGenerator.createObjectType({
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.componentPath;
-            }
-        },
-        config: {
-            type: form.FormType,
-            resolve: function (env) {
-                return null;
             }
         }
     }
@@ -198,12 +164,6 @@ exports.PageComponentType = schemaGenerator.createObjectType({
     description: 'Domain representation of a page component descriptor',
     interfaces: [exports.ComponentType],
     fields: {
-        // key: {
-        //     type: graphQl.GraphQLString,
-        //     resolve: function (env) {
-        //         return env.source.key;
-        //     }
-        // },
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
@@ -250,12 +210,6 @@ exports.PageComponentType = schemaGenerator.createObjectType({
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.componentPath;
-            }
-        },
-        config: {
-            type: form.FormType,
-            resolve: function (env) {
-                return null;
             }
         }
     }
@@ -280,6 +234,3 @@ exports.ComponentDeleteType = schemaGenerator.createObjectType({
     }
 });
 
-// graphQlUserItem.typeResolverMap.partComponentType = exports.PartComponentType;
-// graphQlUserItem.typeResolverMap.layoutComponentType = exports.LayoutComponentType;
-// graphQlUserItem.typeResolverMap.componentType = exports.ComponentType;

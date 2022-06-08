@@ -20,14 +20,6 @@ export class Schema
 
     private readonly icon: string;
 
-    private readonly createdTime: Date;
-
-    private readonly modifiedTime: Date;
-
-
-    // private readonly regions: RegionDescriptor[];
-
-
     constructor(builder: SchemaBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
@@ -35,8 +27,6 @@ export class Schema
         this.type = builder.type;
         this.resource = builder.resource;
         this.icon = builder.icon;
-        this.createdTime = builder.createdTime;
-        this.modifiedTime = builder.modifiedTime;
     }
 
     static fromJson(json: SchemaJson): Schema {
@@ -67,14 +57,6 @@ export class Schema
         return this.icon;
     }
 
-    getCreatedTime(): Date {
-        return this.createdTime;
-    }
-
-    getModifiedTime(): Date {
-        return this.modifiedTime;
-    }
-
     clone(): Schema {
         return new SchemaBuilder(this).build();
     }
@@ -91,11 +73,7 @@ export class Schema
                this.description === other.getDescription() &&
                this.type === other.getType() &&
                this.icon === other.getIcon() &&
-               ObjectHelper.dateEquals(this.createdTime, other.createdTime) &&
-               ObjectHelper.dateEquals(this.modifiedTime, other.modifiedTime) &&
                this.resource === other.getResource();
-        // && this.config.equals(other.getConfig()) &&
-        // ObjectHelper.arrayEquals(this.regions, other.getRegions());
     }
 }
 
@@ -113,10 +91,6 @@ export class SchemaBuilder {
 
     icon: string;
 
-    modifiedTime: Date;
-
-    createdTime: Date;
-
     constructor(source?: Schema) {
         if (source) {
             this.name = source.getName();
@@ -125,8 +99,6 @@ export class SchemaBuilder {
             this.type = source.getType();
             this.resource = source.getResource();
             this.icon = source.getIcon();
-            this.modifiedTime = source.getModifiedTime();
-            this.createdTime = source.getCreatedTime();
         }
     }
 
@@ -138,9 +110,7 @@ export class SchemaBuilder {
             .setDescription(json.description)
             .setType(SchemaType[json.type.toUpperCase()])
             .setResource(json.resource)
-            .setIcon(json.icon)
-            .setModifiedTime(json.modifiedTime ? new Date(json.modifiedTime) : null)
-            .setCreatedTime(json.createdTime ? new Date(json.createdTime) : null);
+            .setIcon(json.icon);
     }
 
     public setName(value: ModelName): SchemaBuilder {
@@ -170,16 +140,6 @@ export class SchemaBuilder {
 
     public setIcon(value: string): SchemaBuilder {
         this.icon = value;
-        return this;
-    }
-
-    public setModifiedTime(value: Date): SchemaBuilder {
-        this.modifiedTime = value;
-        return this;
-    }
-
-    public setCreatedTime(value: Date): SchemaBuilder {
-        this.createdTime = value;
         return this;
     }
 

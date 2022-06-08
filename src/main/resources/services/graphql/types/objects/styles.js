@@ -1,4 +1,5 @@
 var graphQl = require('/lib/graphql');
+
 var schemaGenerator = require('../../schemaUtil').schemaGenerator;
 
 exports.StylesType = schemaGenerator.createObjectType({

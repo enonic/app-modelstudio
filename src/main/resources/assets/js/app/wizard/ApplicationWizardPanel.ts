@@ -11,12 +11,9 @@ import {Application, ApplicationBuilder} from '../application/Application';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationWizardPanelParams} from './ApplicationWizardPanelParams';
 import {ApplicationWizardActions} from './ApplicationWizardActions';
-import {CreateApplicationRequest} from '../../graphql/apps/CreateApplicationRequest';
-import {DeleteApplicationRequest} from '../../graphql/apps/DeleteApplicationRequest';
-import {Component, ComponentBuilder} from '../schema/Component';
-import {ComponentWizardPanelParams} from './ComponentWizardPanelParams';
-import {ModelName} from '../schema/ModelName';
-import {DeleteModelResult} from '../../graphql/apps/DeleteModelResult';
+import {CreateApplicationRequest} from '../../graphql/application/CreateApplicationRequest';
+import {DeleteApplicationRequest} from '../../graphql/application/DeleteApplicationRequest';
+import {DeleteModelResult} from '../../graphql/schema/DeleteModelResult';
 
 
 export class ApplicationWizardPanel
@@ -26,8 +23,6 @@ export class ApplicationWizardPanel
 
     constructor(params: ApplicationWizardPanelParams) {
         super(params);
-
-        // this.listenToUserItemEvents();
     }
 
     protected createWizardActions(): ApplicationWizardActions {
@@ -56,7 +51,7 @@ export class ApplicationWizardPanel
                 console.debug('ApplicationWizardPanel.doRenderOnDataLoaded');
             }
 
-            this.addClass('principal-wizard-panel id-provider-wizard-panel');
+            this.addClass('model-wizard-panel');
             this.getFormIcon().addClass('icon-address-book');
 
             return nextRendered;
@@ -163,7 +158,6 @@ export class ApplicationWizardPanel
         }
 
         this.close();
-        // UserItemDeletedEvent.create().setIdProviders([this.getPersistedItem()]).build().fire();
     }
 
     protected produceDeleteRequest(): DeleteApplicationRequest {

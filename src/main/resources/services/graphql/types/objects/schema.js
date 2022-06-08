@@ -1,9 +1,8 @@
 var graphQl = require('/lib/graphql');
 
 var schemaGenerator = require('../../schemaUtil').schemaGenerator;
-var graphQlUserItem = require('./userItem');
 
-var iconResolver = __.newBean('com.enonic.xp.app.users.icon.IconResourceResolver');
+var iconResolver = __.newBean('com.enonic.xp.app.users.lib.IconResourceResolver');
 
 exports.SchemaType = schemaGenerator.createInterfaceType({
     name: 'Schema',
@@ -21,13 +20,7 @@ exports.SchemaType = schemaGenerator.createInterfaceType({
         displayName: {
             type: graphQl.GraphQLString
         },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString
-        },
         description: {
-            type: graphQl.GraphQLString
-        },
-        descriptionI18nKey: {
             type: graphQl.GraphQLString
         },
         type: {
@@ -35,16 +28,10 @@ exports.SchemaType = schemaGenerator.createInterfaceType({
         },
         resource: {
             type: graphQl.GraphQLString
-        },
-        modifiedTime: {
-            type: graphQl.DateTime
-        },
-        createdTime: {
-            type: graphQl.DateTime
-        },
+        }/*,
         icon: {
             type: graphQl.GraphQLString
-        }
+        }*/
     }
 });
 
@@ -65,22 +52,10 @@ exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
                 return env.source.displayName;
             }
         },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.displayNameI18nKey;
-            }
-        },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
-            }
-        },
-        descriptionI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -93,18 +68,6 @@ exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.type;
-            }
-        },
-        createdTime: {
-            type: graphQl.DateTime,
-            resolve: function (env) {
-                return env.source.createdTime;
-            }
-        },
-        modifiedTime: {
-            type: graphQl.DateTime,
-            resolve: function (env) {
-                return env.source.createdTime;
             }
         },
         icon: {
@@ -133,22 +96,10 @@ exports.MixinSchemaType = schemaGenerator.createObjectType({
                 return env.source.displayName;
             }
         },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.displayNameI18nKey;
-            }
-        },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
-            }
-        },
-        descriptionI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -161,18 +112,6 @@ exports.MixinSchemaType = schemaGenerator.createObjectType({
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.type;
-            }
-        },
-        createdTime: {
-            type: graphQl.DateTime,
-            resolve: function (env) {
-                return env.source.createdTime;
-            }
-        },
-        modifiedTime: {
-            type: graphQl.DateTime,
-            resolve: function (env) {
-                return env.source.createdTime;
             }
         },
         icon: {
@@ -202,22 +141,10 @@ exports.XDataSchemaType = schemaGenerator.createObjectType({
                 return env.source.displayName;
             }
         },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.displayNameI18nKey;
-            }
-        },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
-            }
-        },
-        descriptionI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -230,18 +157,6 @@ exports.XDataSchemaType = schemaGenerator.createObjectType({
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.type;
-            }
-        },
-        createdTime: {
-            type: graphQl.DateTime,
-            resolve: function (env) {
-                return env.source.createdTime;
-            }
-        },
-        modifiedTime: {
-            type: graphQl.DateTime,
-            resolve: function (env) {
-                return env.source.createdTime;
             }
         },
         icon: {
@@ -272,9 +187,3 @@ exports.SchemaDeleteType = schemaGenerator.createObjectType({
         }
     }
 });
-
-
-graphQlUserItem.typeResolverMap.contentTypeSchemaType = exports.ContentTypeSchemaType;
-graphQlUserItem.typeResolverMap.mixinSchemaType = exports.MixinSchemaType;
-graphQlUserItem.typeResolverMap.xdataSchemaType = exports.XDataSchemaType;
-graphQlUserItem.typeResolverMap.schemaDeleteType = exports.SchemaDeleteType;
