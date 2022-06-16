@@ -6,60 +6,57 @@ import {NewModelAction} from './action/NewModelAction';
 import {ModelItemsTreeGrid} from './ModelItemsTreeGrid';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import {ActionState} from './ActionState';
+import {ActionStateHelper} from './ActionStateHelper';
+import {ModelAction} from './ModelAction';
 
 export class ModelTreeGridActions
     implements TreeGridActions<ModelTreeGridItem> {
 
-    public NEW: Action;
-    public EDIT: Action;
-    public DELETE: Action;
-
-    private actions: Action[] = [];
+    private actions: Map<ModelAction, Action> = new Map<ModelAction, Action>();
 
     constructor(grid: ModelItemsTreeGrid) {
-        this.NEW = new NewModelAction(grid);
-        this.EDIT = new EditModelAction(grid);
-        this.DELETE = new DeleteModelAction(grid);
-
-        this.NEW.setEnabled(true);
-        this.actions.push(this.NEW, this.EDIT, this.DELETE);
+        this.actions.set(ModelAction.NEW, new NewModelAction(grid));
+        this.actions.set(ModelAction.EDIT, new EditModelAction(grid));
+        this.actions.set(ModelAction.DELETE, new DeleteModelAction(grid));
+        this.actions.get(ModelAction.NEW).setEnabled(true);
     }
 
     getAllActions(): Action[] {
-        return this.actions;
+        return Array.from(this.actions.values());
     }
 
     updateActionsEnabledState(items: ModelTreeGridItem[]): Q.Promise<void> {
         return Q(true).then(() => {
-
-            if (items.length > 1) {
-                this.NEW.setEnabled(false);
-                this.EDIT.setEnabled(false);
-                this.DELETE.setEnabled(false);
-                return;
-            }
-
-            if (items.length === 0) {
-                this.NEW.setEnabled(true);
-                this.EDIT.setEnabled(false);
-                this.DELETE.setEnabled(false);
-                return;
-            }
-
-            const item = items[0];
-
-            if (item.isComponent() || item.isSchema()) {
-                this.NEW.setEnabled(true);
-                this.EDIT.setEnabled(true);
-                this.DELETE.setEnabled(true);
-                return;
-            }
-
-            if (item.isApplication()) {
-                this.NEW.setEnabled(false);
-                this.EDIT.setEnabled(false);
-                this.DELETE.setEnabled(true);
-            }
+            this.getActionsState(items).forEach((state: ActionState) => {
+                this.actions.get(state.key).setEnabled(state.enabled);
+            });
         });
+    }
+
+    private getActionsState(items: ModelTreeGridItem[]): ActionState[] {
+        if (items.length > 1) {
+            return ActionStateHelper.getStateForMultiSelect();
+        }
+
+        if (items.length === 0) {
+            return ActionStateHelper.getStateNoSelection();
+        }
+
+        const item: ModelTreeGridItem = items[0];
+
+        if (item.isComponent() || item.isSchema()) {
+            return ActionStateHelper.getStateForComponentAndSchema();
+        }
+
+        if (item.isComponentFolder() || item.isSchemaFolder()) {
+            return ActionStateHelper.getStateForComponentAndSchemaFolders();
+        }
+
+        if (item.isApplication()) {
+            return ActionStateHelper.getStateForApplication();
+        }
+
+        return [];
     }
 }
