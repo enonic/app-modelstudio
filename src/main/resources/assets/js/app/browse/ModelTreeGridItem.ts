@@ -234,9 +234,19 @@ export class ModelTreeGridItem
                UserTreeGridItemType.XDATA;
     }
 
+    isSchemaFolder(): boolean {
+        return this.type === UserTreeGridItemType.CONTENT_TYPES || this.type === UserTreeGridItemType.MIXINS || this.type ===
+            UserTreeGridItemType.XDATAS;
+    }
+
     isComponent(): boolean {
         return this.type === UserTreeGridItemType.PART || this.type === UserTreeGridItemType.LAYOUT || this.type ===
                UserTreeGridItemType.PAGE;
+    }
+
+    isComponentFolder(): boolean {
+        return this.type === UserTreeGridItemType.PARTS || this.type === UserTreeGridItemType.LAYOUTS || this.type ===
+            UserTreeGridItemType.PAGES;
     }
 
     isStyles(): boolean {
