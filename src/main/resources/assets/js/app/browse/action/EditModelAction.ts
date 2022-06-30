@@ -1,18 +1,17 @@
 import {EditModelEvent} from '../event/EditModelEvent';
-import {ModelTreeGridItem} from '../ModelTreeGridItem';
 import {ModelItemsTreeGrid} from '../ModelItemsTreeGrid';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {BrowseAction} from './BrowseAction';
 
 export class EditModelAction
-    extends Action {
+    extends BrowseAction {
 
     constructor(grid: ModelItemsTreeGrid) {
-        super(i18n('action.edit'), 'mod+e');
+        super(grid, i18n('action.edit'), 'mod+e');
         this.setEnabled(false);
-        this.onExecuted(() => {
-            let principals: ModelTreeGridItem[] = grid.getSelectedDataList();
-            new EditModelEvent(principals).fire();
-        });
+    }
+
+    protected handleExecuted() {
+        new EditModelEvent(this.grid.getSelectedDataList()).fire();
     }
 }
