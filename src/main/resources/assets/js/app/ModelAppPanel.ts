@@ -62,8 +62,6 @@ export class ModelAppPanel
         super.addWizardPanel(tabMenuItem, wizardPanel);
 
         wizardPanel.onRendered(() => {
-            tabMenuItem.setLabel(this.getWizardPanelItemDisplayName(wizardPanel));
-
             wizardPanel.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
                 if (event.getPropertyName() === 'displayName') {
                     let name = <string>event.getNewValue() || this.getPrettyNameForWizardPanel(wizardPanel);
@@ -120,7 +118,7 @@ export class ModelAppPanel
 
     }
 
-    private getWizardPanelItemDisplayName(wizardPanel: ModelWizardPanel<any>): string {
+    private getTabLabel(wizardPanel: ModelWizardPanel<any>): string {
         if (wizardPanel.getPersistedItem()) {
             return wizardPanel.getPersistedItem().getDisplayName();
         }
@@ -308,16 +306,15 @@ export class ModelAppPanel
     }
 
     private handleComponentEdit(component: Component, tabId: AppBarTabId, tabMenuItem: AppBarTabMenuItem) {
-
-        const wizardParams: ComponentWizardPanelParams = new ComponentWizardPanelParams()
+        const wizardParams: ComponentWizardPanelParams = <ComponentWizardPanelParams>new ComponentWizardPanelParams()
             .setType(component.getType())
             .setApplicationKey(component.getName().getApplicationKey())
             .setPersistedItem(component)
             .setTabId(tabId)
             .setPersistedPath(component.getName().getApplicationKey().toString())
-            .setPersistedDisplayName(component.getDisplayName()) as ComponentWizardPanelParams;
+            .setPersistedDisplayName(component.getDisplayName());
 
-        let wizard = new ComponentWizardPanel(wizardParams);
+        const wizard: ComponentWizardPanel = new ComponentWizardPanel(wizardParams);
 
         this.handleWizardUpdated(wizard, tabMenuItem);
     }

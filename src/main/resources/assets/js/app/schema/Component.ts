@@ -103,9 +103,11 @@ export class ComponentBuilder {
     }
 
     static fromJson(json: ComponentJson): ComponentBuilder {
+        const modelName: ModelName = ModelName.fromString(json.name);
+
         return new ComponentBuilder()
-            .setName(ModelName.fromString(json.name))
-            .setDisplayName(json.displayName)
+            .setName(modelName)
+            .setDisplayName(json.displayName || modelName.getName())
             .setDescription(json.description)
             .setType(ComponentType[json.type.toUpperCase()])
             .setResource(json.resource)
