@@ -9,6 +9,7 @@ import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {ModelStudioServerEventsListener} from './app/event/ModelStudioServerEventsListener';
 
 const body = Body.get();
 
@@ -50,6 +51,7 @@ function startApplication() {
     application.setLoaded(true);
 
     startLostConnectionDetector();
+    new ModelStudioServerEventsListener([application]).start();
 }
 
 (async () => {

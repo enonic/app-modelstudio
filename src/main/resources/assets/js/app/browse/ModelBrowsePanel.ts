@@ -4,6 +4,8 @@ import {ModelItemsTreeGrid} from './ModelItemsTreeGrid';
 import {ModelBrowseItemPanel} from './ModelBrowseItemPanel';
 import {ModelBrowseFilterPanel} from './filter/ModelBrowseFilterPanel';
 import {ModelBrowseToolbar} from './ModelBrowseToolbar';
+import {ModelStudioServerEvent} from '../event/ModelStudioServerEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 
 export class ModelBrowsePanel
     extends BrowsePanel {
@@ -44,5 +46,13 @@ export class ModelBrowsePanel
         this.filterPanel.resetConstraints();
         this.hideFilterPanel();
         super.disableSelectionMode();
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        ModelStudioServerEvent.on((event: ModelStudioServerEvent) => {
+            this.treeGrid.reload().catch(DefaultErrorHandler.handle);
+        });
     }
 }
