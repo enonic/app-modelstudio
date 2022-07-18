@@ -13,13 +13,19 @@ import {ModelAction} from './ModelAction';
 export class ModelTreeGridActions
     implements TreeGridActions<ModelTreeGridItem> {
 
-    private actions: Map<ModelAction, Action> = new Map<ModelAction, Action>();
+    private readonly actions: Map<ModelAction, Action> = new Map<ModelAction, Action>();
 
-    constructor(grid: ModelItemsTreeGrid) {
-        this.actions.set(ModelAction.NEW, new NewModelAction(grid));
-        this.actions.set(ModelAction.EDIT, new EditModelAction(grid));
-        this.actions.set(ModelAction.DELETE, new DeleteModelAction(grid));
-        this.actions.get(ModelAction.NEW).setEnabled(true);
+    private readonly isReadonlyMode: boolean;
+
+    constructor(grid: ModelItemsTreeGrid, isReadonlyMode?: boolean) {
+        this.isReadonlyMode = isReadonlyMode;
+
+        if (!isReadonlyMode) {
+            this.actions.set(ModelAction.NEW, new NewModelAction(grid));
+            this.actions.set(ModelAction.EDIT, new EditModelAction(grid));
+            this.actions.set(ModelAction.DELETE, new DeleteModelAction(grid));
+            this.actions.get(ModelAction.NEW).setEnabled(true);
+        }
     }
 
     getAllActions(): Action[] {
@@ -27,11 +33,13 @@ export class ModelTreeGridActions
     }
 
     updateActionsEnabledState(items: ModelTreeGridItem[]): Q.Promise<void> {
-        return Q(true).then(() => {
+        if (!this.isReadonlyMode) {
             this.getActionsState(items).forEach((state: ActionState) => {
                 this.actions.get(state.key).setEnabled(state.enabled);
             });
-        });
+        }
+
+        return Q.resolve();
     }
 
     private getActionsState(items: ModelTreeGridItem[]): ActionState[] {

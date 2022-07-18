@@ -1,33 +1,33 @@
 import * as Q from 'q';
-import {ModelTreeGridItem, UserTreeGridItemType} from '../browse/ModelTreeGridItem';
+import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
 import {ModelItemStatisticsHeader} from './ModelItemStatisticsHeader';
-import {Component} from '../schema/Component';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
-import {Schema} from '../schema/Schema';
-import {Site} from '../schema/Site';
-import {Styles} from '../schema/Styles';
-import {RenderableApplication} from '../application/RenderableApplication';
 
 export class ModelItemStatisticsPanel
     extends ItemStatisticsPanel {
 
-    private readonly header: ModelItemStatisticsHeader;
+    private header: ModelItemStatisticsHeader;
 
-    private readonly textArea: TextArea;
+    private descriptorTextArea: TextArea;
 
     constructor() {
         super('model-item-statistics-panel');
 
+        this.initElements();
+    }
+
+    protected initElements(): void {
         this.header = new ModelItemStatisticsHeader();
-        this.textArea = new TextArea('descriptor-area');
-        this.textArea.hide();
+        this.descriptorTextArea = new TextArea('descriptor-area');
+        this.descriptorTextArea.hide();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.descriptorTextArea.getEl().setAttribute('readonly', '');
             this.appendChild(this.header);
-            this.appendChild(this.textArea);
+            this.appendChild(this.descriptorTextArea);
 
             return rendered;
         });
@@ -49,22 +49,41 @@ export class ModelItemStatisticsPanel
     }
 
     private appendMetadata(item: ModelTreeGridItem): void {
-        const component = item.getComponent();
-        const application = item.getApplication();
-        const schema = item.getSchema();
-        const site = item.getSite();
-        const styles = item.getStyles();
+        const descriptor: string = this.getItemDescriptor(item);
 
-
-        if (item.isComponent() || item.isSchema() || item.isSite() || item.isStyles() || item.isApplication()) {
-            this.setResource(component || schema || site || styles || application);
-            this.textArea.show();
+        if (descriptor) {
+            this.setResource(descriptor);
+            this.descriptorTextArea.show();
         } else {
-            this.textArea.hide();
+            this.descriptorTextArea.hide();
         }
     }
 
-    private setResource(item: Component | Schema | Site | Styles | RenderableApplication): void {
-        this.textArea.setValue(item.getResource());
+    private getItemDescriptor(item: ModelTreeGridItem): string {
+        if (item.isComponent()) {
+            return item.getComponent()?.getResource();
+        }
+
+        if (item.isSchema()) {
+            return item.getSchema()?.getResource();
+        }
+
+        if (item.isSite()) {
+            return item.getSite()?.getResource();
+        }
+
+        if (item.isStyles()) {
+            return item.getStyles()?.getResource();
+        }
+
+        if (item.isApplication()) {
+            return item.getApplication()?.getResource();
+        }
+
+        return '';
+    }
+
+    private setResource(descriptor: string): void {
+        this.descriptorTextArea.setValue(descriptor);
     }
 }

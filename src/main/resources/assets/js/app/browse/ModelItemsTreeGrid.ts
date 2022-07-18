@@ -27,7 +27,7 @@ import {RenderableApplication} from '../application/RenderableApplication';
 export class ModelItemsTreeGrid
     extends TreeGrid<ModelTreeGridItem> {
 
-    private treeGridActions: ModelTreeGridActions;
+    private readonly treeGridActions: ModelTreeGridActions;
 
     constructor() {
 
@@ -60,9 +60,9 @@ export class ModelItemsTreeGrid
 
         super(builder);
 
-        this.treeGridActions = new ModelTreeGridActions(this);
+        this.treeGridActions = new ModelTreeGridActions(this, true); // readonly mode
 
-        this.setContextMenu(new TreeGridContextMenu(this.treeGridActions));
+        // this.setContextMenu(new TreeGridContextMenu(this.treeGridActions)); // readonly mode
 
         this.initEventHandlers();
     }
