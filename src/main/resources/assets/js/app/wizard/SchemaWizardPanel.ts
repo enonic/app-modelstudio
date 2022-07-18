@@ -74,6 +74,7 @@ export class SchemaWizardPanel
         const steps: WizardStep[] = [];
 
         this.resourceWizardStepForm = new ResourceWizardStepForm();
+        this.resourceWizardStepForm.onDataChanged(() => this.updateSaveButtonState());
 
         steps.push(new WizardStep(i18n('field.resource'), this.resourceWizardStepForm));
 
