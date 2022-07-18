@@ -3,6 +3,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ModelItemWizardStepForm} from './ModelItemWizardStepForm';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 
 export class ResourceWizardStepForm
     extends ModelItemWizardStepForm {
@@ -49,6 +50,9 @@ export class ResourceWizardStepForm
         return this.resource.giveFocus();
     }
 
+    onDataChanged(listener: (event: ValueChangedEvent) => void): void {
+        this.resource.onValueChanged(listener);
+    }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {

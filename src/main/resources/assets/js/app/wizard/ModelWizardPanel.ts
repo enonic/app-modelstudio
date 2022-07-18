@@ -45,7 +45,7 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
         this.loadData();
 
         this.onValidityChanged(() => {
-            this.wizardActions.getSaveAction().setEnabled(this.isValid());
+            this.updateSaveButtonState();
         });
 
         this.onShown(() => {
@@ -57,6 +57,10 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
         this.wizardActions.getDeleteAction().onExecuted(this.handleDelete.bind(this));
 
         this.handleServerEvents();
+    }
+
+    protected updateSaveButtonState(): void {
+        this.wizardActions.getSaveAction().setEnabled(this.isValid() && this.hasUnsavedChanges());
     }
 
     protected getParams(): DynamicWizardPanelParams<USER_ITEM_TYPE> {
@@ -255,7 +259,6 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
     }
 
     doLayout(persistedItem: USER_ITEM_TYPE): Q.Promise<void> {
-
         this.setSteps(this.createSteps(this.getPersistedItem()));
 
         return Q<void>(null);
