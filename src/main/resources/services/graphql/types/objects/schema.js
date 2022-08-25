@@ -1,17 +1,15 @@
-var graphQl = require('/lib/graphql');
-
-var schemaGenerator = require('../../schemaUtil').schemaGenerator;
-
-var iconResolver = __.newBean('com.enonic.xp.app.users.lib.IconResourceResolver');
+const graphQl = require('/lib/graphql');
+const schemaGenerator = require('../../schemaUtil').schemaGenerator;
+const iconResolver = __.newBean('com.enonic.xp.app.users.lib.IconResourceResolver');
 
 exports.SchemaType = schemaGenerator.createInterfaceType({
     name: 'Schema',
     description: 'Domain representation of a content schema',
     typeResolver: function(source) {
         //TODO
-        return "Content_Type" === source.type
+        return "CONTENT_TYPE" === source.type
                ? exports.ContentTypeSchemaType
-               : "Mixin" === source.type ? exports.MixinSchemaType : "XData" === source.type ? exports.XDataSchemaType : null;
+               : "MIXIN" === source.type ? exports.MixinSchemaType : "XDATA" === source.type ? exports.XDataSchemaType : null;
     },
     fields: {
         name: {

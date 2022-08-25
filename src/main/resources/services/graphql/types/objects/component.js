@@ -1,20 +1,19 @@
-var graphQl = require('/lib/graphql');
-
-var schemaGenerator = require('../../schemaUtil').schemaGenerator;
+const graphQl = require('/lib/graphql');
+const schemaGenerator = require('../../schemaUtil').schemaGenerator;
 
 exports.ComponentType = schemaGenerator.createInterfaceType({
     name: 'Component',
     description: 'Domain representation of a component descriptor',
     typeResolver: function (source) {
-        if('Part' === source.type) {
+        if('PART' === source.type) {
             return exports.PartComponentType;
         }
 
-        if('Layout' === source.type) {
+        if('LAYOUT' === source.type) {
             return exports.LayoutComponentType;
         }
 
-        if('Page' === source.type) {
+        if('PAGE' === source.type) {
             return exports.PageComponentType;
         }
         return null;
