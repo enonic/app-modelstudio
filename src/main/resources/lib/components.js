@@ -1,19 +1,19 @@
-var common = require('./common');
-var schemaLib = require('/lib/xp/schema');
+const common = require('./common');
+const schemaLib = require('/lib/xp/schema');
 
 module.exports = {
     list: function (params) {
-        var applicationKey = params.key;
-        var schemaType = params.type;
+        const applicationKey = params.key;
+        const schemaType = params.type;
 
         return schemaLib.listComponents({
-            key: applicationKey,
+            application: applicationKey,
             type: schemaType
         });
     },
     create: function (params) {
-        var name = common.required(params, 'name');
-        var type = common.required(params, 'type');
+        const name = common.required(params, 'name');
+        const type = common.required(params, 'type');
 
         return schemaLib.createComponent({
             key: name,
@@ -22,8 +22,8 @@ module.exports = {
         });
     },
     update: function (params) {
-        var name = common.required(params, 'name');
-        var type = common.required(params, 'type');
+        const name = common.required(params, 'name');
+        const type = common.required(params, 'type');
 
         return schemaLib.updateComponent({
             key: name,

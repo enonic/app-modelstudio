@@ -1,6 +1,5 @@
-var graphQl = require('/lib/graphql');
-
-var schemaGenerator = require('../../schemaUtil').schemaGenerator;
+const graphQl = require('/lib/graphql');
+const schemaGenerator = require('../../schemaUtil').schemaGenerator;
 
 exports.SiteType = schemaGenerator.createObjectType({
     name: 'Site',
@@ -9,7 +8,7 @@ exports.SiteType = schemaGenerator.createObjectType({
         key: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.key;
+                return env.source.application;
             }
         },
         resource: {
