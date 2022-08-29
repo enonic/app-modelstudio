@@ -16,6 +16,7 @@ function handleGet() {
                 'main'
             ),
             services: {
+                visualization: portal.serviceUrl({ service: 'visualization'}),
                 graphQlUrl: portal.serviceUrl({ service: 'graphql'}),
                 reportServiceUrl: portal.serviceUrl({service: 'permissionReport'}),
                 i18nUrl: portal.serviceUrl({service: 'i18n'}),
