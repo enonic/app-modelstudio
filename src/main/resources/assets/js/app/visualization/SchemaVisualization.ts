@@ -63,7 +63,7 @@ export class SchemaVisualization extends DivEl{
 
             this.appendChild(this.getHeader());
             this.appendChild(this.createSVGContainer());
-            this.schemaRender.execute(this.createSVG(600, 400));
+            this.schemaRender.execute(this.createSVG(600, 600));
 
             return rendered;
         });
