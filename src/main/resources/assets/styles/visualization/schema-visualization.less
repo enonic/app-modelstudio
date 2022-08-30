@@ -22,13 +22,13 @@
         #Breadcrumbs {
             font-size: 24px;
         }
-    }
 
-    input[type=checkbox] {
-        -webkit-appearance: auto;
-        -moz-appearance: auto;
-        appearance: auto;
-        margin: 0px 5px;
+        input[type=checkbox] {
+            -webkit-appearance: auto;
+            -moz-appearance: auto;
+            appearance: auto;
+            margin: 0px 5px;
+        }
     }
 
     svg {
@@ -37,39 +37,33 @@
         margin: 0 auto;
         display: block;
 
-        text:hover,
-        image:hover,
-        .clickable-group:hover {
+        * {
+            transition: 0.15s;
+        }
+
+        rect {
+            opacity: 0;
+        }
+
+        image {
+            filter: invert(0.5);
+        }
+
+        g:hover, g.hover {
             cursor: pointer;
         }
 
-        #texts-and-icons text+text:hover {
-            font-weight: bold;
-        }
-
-        .clickable-group {
-            >* {
-                transition: 0.15s;
-            }
-
-            &:hover text, &.hover text {
-                fill: white;
-            }
-
-            rect {
-                opacity: 0;
-            }
-
-            &:hover rect, &.hover rect {
+        #TextsAndIcons {
+            g:hover rect, g.hover rect {
                 opacity: 0.7;
-            }           
-
-            image {
-                filter: invert(0.5);
             }
 
-            &:hover image, &.hover image {
+            g:hover image, g.hover image {
                 filter: invert(1);
+            }
+
+            g:hover text, g.hover text {
+                fill: white;
             }
         }
 
