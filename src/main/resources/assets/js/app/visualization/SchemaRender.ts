@@ -14,7 +14,8 @@ import {
     getSvgNodeId,
     getTextRotation,
     getTextXPosition,
-    getTextYPosition
+    getTextYPosition,
+    getTextWidth
 } from './helpers';
 import {Relation, Node, RenderGlobalConfig, D3SVG, RenderOption, D3SVGG} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
@@ -60,7 +61,7 @@ export default class SchemaRender {
                 outerCircle: 'OuterSVG',
             },
             children: {
-                many: 30,
+                many: 25,
             },
         };
 
@@ -78,19 +79,21 @@ export default class SchemaRender {
         const keyUpHandler = (e: Event) => {
             this.clearAllHoveredGroups();
             
-            const typedText = (e.target as HTMLInputElement).value;
+            let typedText = (e.target as HTMLInputElement).value;
 
             if (!typedText) {
                 return;
             }
 
-            const nodeMatches = this.nodes.filter(node => node.id.includes(typedText));
+            typedText = typedText.toLowerCase();
 
-            if (nodeMatches.length === 0) {
+            const nodeIdMatches = this.nodes.map(node => node.id.toLowerCase()).filter(nodeId => nodeId.includes(typedText));
+
+            if (nodeIdMatches.length === 0) {
                 return;
             }
 
-            const svgGroups = nodeMatches.map(node => document.getElementById(node.id)).filter(el => !!el);
+            const svgGroups = nodeIdMatches.map(nodeId => document.getElementById(nodeId)).filter(el => !!el);
             svgGroups.forEach(group => group.classList.add('hover'));
         };
 
@@ -236,6 +239,9 @@ export default class SchemaRender {
     private appendTextAndIcons(svgGroup: D3SVGG, option: RenderOption): void {
         const data = option.data.childrenIds;
         const textFontSize = option.config.text.size;
+        const textFunctions = this.getTextFunctions(option);
+        const imageFunctions = this.getImageFunctions(option);
+        const rectFunctions = this.getRectFunctions(textFunctions, imageFunctions, option);
 
         const group: D3SVGG = svgGroup.append('g')
             .attr('id', this.globalConfig.ids.textsAndIcons)
@@ -244,15 +250,12 @@ export default class SchemaRender {
             .enter()
             .append('g')
             .attr('id', getSvgNodeId)
-            .attr('class', this.tooManyChildren(option) ? 'fade-in' : 'clickable-group fade-in');
+            .attr('class', 'fade-in')
+            .attr('transform', textFunctions.transform);
 
-        const textFunctions = this.getTextFunctions(option);
+        this.appendRectWithFunctions(group, rectFunctions);
 
         if (!this.tooManyChildren(option)) {
-            const imageFunctions = this.getImageFunctions(option);
-            const rectFunctions = this.getRectFunctions(textFunctions, imageFunctions, option);
-
-            this.appendRectWithFunctions(group, rectFunctions);
             this.appendImageWithFunctions(group, imageFunctions);
         }
 
@@ -264,7 +267,6 @@ export default class SchemaRender {
     private updateBreadcrumbs() {
         const lastRenderOption = this.renderOptions[this.renderOptions.length - 1];
 
-        
         if (lastRenderOption.data.node) {
             const nodeId = lastRenderOption.data.node.id;
             this.getBreadcrumbs().innerHTML = this.getBreadcrumbsText(nodeId);
@@ -277,9 +279,7 @@ export default class SchemaRender {
         if (!option.data.node) { return; }
 
         const hideClass = option.data.node.depth > 1 ? this.globalConfig.classnames.hideOnRef : null;
-
         const group = svgGroup.append('g').attr('id', this.globalConfig.ids.centralNode);
-
         const icon = getNodeIcon(this.relations, this.nodes, option.data.node.id);
         
         if (icon) {
@@ -379,11 +379,10 @@ export default class SchemaRender {
             .attr('fill', functions.fill)
             .attr('font-size', textFontSize)
             .attr('text-anchor', 'middle')
-            .attr('transform', functions.transform)
-            .text(functions.text)
+            .text(functions.text);/*
             .clone(true).lower()
             .attr('stroke', 'white')
-            .attr('stroke-width', textFontSize);
+            .attr('stroke-width', textFontSize);*/
     }
 
     private appendRectWithFunctions(svg: D3SVGG, functions: ReturnType<typeof this.getRectFunctions>) {
@@ -405,8 +404,7 @@ export default class SchemaRender {
 
     private appendBackArrow(svg: D3SVGG, size: number, fnClickHandler = () => { }): D3SVGG {
         const group: D3SVGG = svg.append('g')
-            .attr('id', this.globalConfig.ids.backArrow)
-            .attr('class', 'clickable-group');
+            .attr('id', this.globalConfig.ids.backArrow);
         
         group.append('path')
             .attr('class', 'back-arrow')
@@ -485,16 +483,15 @@ export default class SchemaRender {
     }
 
     private getImageFunctions(option: RenderOption) {
-        const fnImageX = (nodeId: string, nodeIndex: number) =>
-            getTextXPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length) -
-            fnImageWidth(nodeId) / 2;
+        const isOuterCircle = option.config.circle.radius === getOuterCircleRadius(this.nodes);
 
-        const fnImageY = (nodeId: string, nodeIndex: number) =>
-            getTextYPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length) -
-            fnImageWidth(nodeId) - 1.75 * this.globalConfig.text.size;
+        const fnImageWidth = () => isOuterCircle && this.renderOptions.length > 1 ? 7.5 : 15;
 
-        const fnImageWidth = (nodeId: string) =>
-            getNodeById(this.nodes, nodeId).depth === 3 ? 15 / 2 : 15;
+        const fnImageX = (_, nodeIndex: number) =>
+            getTextXPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length) - fnImageWidth()/2;
+
+        const fnImageY = (_, nodeIndex: number) =>
+            getTextYPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length) - 2*fnImageWidth();
 
         const fnImageHref = (nodeId: string) =>
             getNodeIcon(this.relations, this.nodes, nodeId) ||
@@ -513,31 +510,37 @@ export default class SchemaRender {
         };
     }
 
-    private getRectFunctions(textFunctions: ReturnType<typeof this.getTextFunctions>,
+    private getRectFunctions(
+        textFunctions: ReturnType<typeof this.getTextFunctions>,
         imageFunctions: ReturnType<typeof this.getImageFunctions>,
         option: RenderOption) {
 
-        const padding = {top: 5, right: 0, bottom: option.config.text.size === this.globalConfig.text.size ? 10 : 0, left: 0};
+        const padding = {
+            top: this.tooManyChildren(option) ? 7.5 : 5, 
+            bottom: this.tooManyChildren(option) ? 5 : 7.5,
+            left: 7.5,
+            right: 7.5,
+        };
 
-        const fnRectWidth = (nodeId: string) =>
-            textFunctions.text(nodeId).length / 1.5 * option.config.text.size + padding.left + padding.right;
+        const fnTextWidth = (nodeId: string) => getTextWidth(textFunctions.text(nodeId), option.config.text.size);
+        
+        const fnRectWidth = (nodeId: string) => fnTextWidth(nodeId);
+        const fnRectHeight = () => this.tooManyChildren(option)
+            ? option.config.text.size
+            : imageFunctions.height() + option.config.text.size;
 
-        const fnRectHeight = (nodeId: string) =>
-            imageFunctions.height(nodeId) + option.config.text.size * 1.5 + padding.top + padding.bottom;
-
-        const fnRectX = (nodeId: string, nodeIndex: number) =>
-            textFunctions.x(nodeId, nodeIndex) - fnRectWidth(nodeId) / 2 - padding.left;
-
-        const fnRectY = (nodeId: string, nodeIndex: number) =>
-            imageFunctions.y(nodeId, nodeIndex) - padding.top;
+        const fnRectX = (nodeId: string, nodeIndex: number) => textFunctions.x(nodeId, nodeIndex) - fnRectWidth(nodeId)/2;
+        const fnRectY = (nodeId: string, nodeIndex: number) => this.tooManyChildren(option)
+            ? textFunctions.y(nodeId, nodeIndex) - fnRectHeight() / 2
+            : imageFunctions.y(nodeId, nodeIndex);
 
         const fnRectFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
 
         return {
-            x: fnRectX,
-            y: fnRectY,
-            width: fnRectWidth,
-            height: fnRectHeight,
+            x: (nodeId: string, nodeIndex: number) => fnRectX(nodeId, nodeIndex) - padding.left,
+            y: (nodeId: string, nodeIndex: number) => fnRectY(nodeId, nodeIndex) - padding.top,
+            width: (nodeId: string) => fnRectWidth(nodeId) + 2*padding.right,
+            height: () => fnRectHeight() + 2*padding.bottom,
             fill: fnRectFill,
         };
     }

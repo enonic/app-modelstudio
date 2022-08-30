@@ -32,7 +32,7 @@ export function getNodeById(nodes: Node[], nodeId: string): Node {
 }
 
 export function getCleanNodeId(nodeId: string): string {
-    return nodeId.split(':').pop();
+    return nodeId.split(':').pop().toLowerCase();
 }
 
 export function getCleanCentralNodeId(centralNodeId: string): string {
@@ -44,7 +44,7 @@ export function getIconKey(key: string): string {
 }
 
 export function getSvgNodeId(nodeId: string): string {
-    return nodeId.toLowerCase().replace(/ /g, '-').replace(/[0-9]/g, '');
+    return nodeId.toLowerCase().replace(/ /g, '');
 }
 
 export function getAllNodesByDepth(nodes: Node[], desiredDepth: number): Node[] {
@@ -52,7 +52,7 @@ export function getAllNodesByDepth(nodes: Node[], desiredDepth: number): Node[] 
 }
 
 export function getOuterTextSize(nodes: Node[]): number {
-    const scale = d3.scaleLinear().domain([0, 250]).range([10, 5]);
+    const scale = d3.scaleLinear().domain([0, 250]).range([12, 7]);
     return Math.floor(scale(getOuterCircleRadius(nodes)));
 }
 
@@ -155,4 +155,13 @@ export function getRelationsPathD(relation: Relation, childrenIds: string[], rad
 
 export function getColors(): string[] {
     return [...d3.schemeCategory10];
+}
+
+// Fix: find a simpler way to do that.
+export function getTextWidth(str: string, fontSize: number): number {
+    // eslint-disable-next-line max-len
+    const widths = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2796875,0.2765625,0.3546875,0.5546875,0.5546875,0.8890625,0.665625,0.190625,0.3328125,0.3328125,0.3890625,0.5828125,0.2765625,0.3328125,0.2765625,0.3015625,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.2765625,0.2765625,0.584375,0.5828125,0.584375,0.5546875,1.0140625,0.665625,0.665625,0.721875,0.721875,0.665625,0.609375,0.7765625,0.721875,0.2765625,0.5,0.665625,0.5546875,0.8328125,0.721875,0.7765625,0.665625,0.7765625,0.721875,0.665625,0.609375,0.721875,0.665625,0.94375,0.665625,0.665625,0.609375,0.2765625,0.3546875,0.2765625,0.4765625,0.5546875,0.3328125,0.5546875,0.5546875,0.5,0.5546875,0.5546875,0.2765625,0.5546875,0.5546875,0.221875,0.240625,0.5,0.221875,0.8328125,0.5546875,0.5546875,0.5546875,0.5546875,0.3328125,0.5,0.2765625,0.5546875,0.5,0.721875,0.5,0.5,0.5,0.3546875,0.259375,0.353125,0.5890625];
+    const avg = 0.5279276315789471;
+
+  return Array.from(str).reduce((acc, cur) => acc + (widths[cur.charCodeAt(0)] ?? avg), 0) * fontSize;
 }
