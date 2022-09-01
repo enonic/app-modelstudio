@@ -1,7 +1,6 @@
 
 import {
     getCleanCentralNodeId,
-    getCleanNodeId,
     getColors,
     getFatherNodeId,
     getNodeById,
@@ -15,19 +14,22 @@ import {
     getTextRotation,
     getTextXPosition,
     getTextYPosition,
-    getTextWidth
+    getTextWidth,
+    getNodeDisplayName
 } from './helpers';
-import {Relation, Node, RenderGlobalConfig, D3SVG, RenderOption, D3SVGG} from './interfaces';
+import {Relation, Node, RenderGlobalConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export default class SchemaRender {
-    relations: Relation[];
-    nodes: Node[];
-    globalConfig: RenderGlobalConfig;
-    renderOptions: RenderOption[];
-    textsAndIconsSVGGroups: D3SVGG[];
-    backArrowSvgGroup: D3SVGG;
+    private relations: Relation[];
+    private nodes: Node[];
+    private globalConfig: RenderGlobalConfig;
+    private renderOptions: RenderOption[];
+    private onNavigationListeners: Function[] = [];
+    private svg: D3SVG;
+    private textsAndIconsSVGGroups: D3SVGG[];
+    private backArrowSvgGroup: D3SVGG;
 
     constructor(relations: Relation[], nodes: Node[], node: Node) {
         this.relations = relations;
@@ -61,7 +63,7 @@ export default class SchemaRender {
                 outerCircle: 'OuterSVG',
             },
             children: {
-                many: 25,
+                many: 20,
             },
         };
 
@@ -117,6 +119,7 @@ export default class SchemaRender {
     private initTextsAndIconsListeners(svg: D3SVG) {
         const clickHandler = (_, nodeId: string): void => {
             this.clickHandler(svg, nodeId);
+            this.executeOnNavigationListener(nodeId);
         };
 
         const mouseOverHandler = (_, nodeId: string): void => {
@@ -166,9 +169,10 @@ export default class SchemaRender {
         }
 
         const clickHandler = () => {
-            const centralNode = this.renderOptions[this.renderOptions.length - 1].data.node;
-            const centralNodeFather = getFatherNodeId(this.relations, this.nodes, centralNode);
-            this.clickHandler(svg, centralNodeFather);
+            const centralNode = this.renderOptions[0].data.node;
+            const centralNodeFatherId = getFatherNodeId(this.relations, this.nodes, centralNode);
+            this.clickHandler(svg, centralNodeFatherId);
+            this.executeOnNavigationListener(centralNodeFatherId, centralNode.id);
         };
 
         this.backArrowSvgGroup.on('click', clickHandler);
@@ -201,6 +205,7 @@ export default class SchemaRender {
         svg.selectAll(pathSelector).attr('opacity', fnPathElementsOpacity);
         svg.selectAll(hideSelector).attr('opacity', fnHideElementsOpacity);
     }
+    
 
     private clickHandler(svg: D3SVG, nodeId: string): void {
         const node = getNodeById(this.nodes, nodeId);
@@ -208,13 +213,30 @@ export default class SchemaRender {
         this.execute(svg);
     }
 
+    public navigateToNode(nodeId: string): void {
+        if(this.svg && getNodeById(this.nodes, nodeId)) {
+            this.clickHandler(this.svg, nodeId);
+        }
+    }
+
     public execute(svg: D3SVG) {
+        this.svg = svg;
+
         this.reset(svg);
         this.renderOptions.forEach(renderOption => this.renderByOption(svg, renderOption));
         this.setSvgDefs(svg);
         this.updateBreadcrumbs();
         this.toggleReferences(svg);
         this.initListeners(svg);
+    }
+
+    public addOnNavigationListener(fn: FnSchemaNavigationListener) {
+        this.onNavigationListeners = [fn, ...this.onNavigationListeners];
+    }
+
+    private executeOnNavigationListener(nodeId: string, prevNodeId?: string) {
+        const appKey = this.nodes[0].id;
+        this.onNavigationListeners.forEach(listener => AppHelper.debounce(listener(appKey, nodeId, prevNodeId), 100));
     }
 
     private reset(svg: D3SVG) {
@@ -379,10 +401,10 @@ export default class SchemaRender {
             .attr('fill', functions.fill)
             .attr('font-size', textFontSize)
             .attr('text-anchor', 'middle')
-            .text(functions.text);/*
-            .clone(true).lower()
-            .attr('stroke', 'white')
-            .attr('stroke-width', textFontSize);*/
+            .text(functions.text);
+            //.clone(true).lower()
+            //.attr('stroke', 'white')
+            //.attr('stroke-width', textFontSize);
     }
 
     private appendRectWithFunctions(svg: D3SVGG, functions: ReturnType<typeof this.getRectFunctions>) {
@@ -467,7 +489,7 @@ export default class SchemaRender {
 
         const fnTextFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
 
-        const fnText = (nodeId: string) => getCleanNodeId(nodeId);
+        const fnText = (nodeId: string) => getNodeDisplayName(nodeId);
 
         const fnTextTransform = (_, nodeIndex: number) => this.tooManyChildren(option)
             ? getTextRotation(nodeIndex, option.data.childrenIds.length, option.config.circle.radius)
