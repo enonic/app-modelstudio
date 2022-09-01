@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {Relation, Node, Icons} from './interfaces';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export function getDepth(relations: Relation[], nodeId: string, acc: number = 1): number {  
     const targets = getRelationsFromTarget(relations, nodeId);
@@ -29,22 +30,6 @@ export function getRelationsByNodeDepth(relations: Relation[], nodes: Node[], de
 
 export function getNodeById(nodes: Node[], nodeId: string): Node {
     return nodes.find(({id}) => id === nodeId);
-}
-
-export function getCleanNodeId(nodeId: string): string {
-    return nodeId.split(':').pop().toLowerCase();
-}
-
-export function getCleanCentralNodeId(centralNodeId: string): string {
-    return getCleanNodeId(centralNodeId.split('.').pop());
-}
-
-export function getIconKey(key: string): string {
-    return key.toUpperCase().replace(/ |-/g, '_').replace(/[0-9]/g, '');
-}
-
-export function getSvgNodeId(nodeId: string): string {
-    return nodeId.toLowerCase().replace(/ /g, '');
 }
 
 export function getAllNodesByDepth(nodes: Node[], desiredDepth: number): Node[] {
@@ -164,4 +149,76 @@ export function getTextWidth(str: string, fontSize: number): number {
     const avg = 0.5279276315789471;
 
   return Array.from(str).reduce((acc, cur) => acc + (widths[cur.charCodeAt(0)] ?? avg), 0) * fontSize;
+}
+
+export function buildNodeId(type: string, appKey: string, schemaName: string): string {
+    return `${type}@${appKey}:${schemaName}`;
+}
+
+export function getNodeIdDetails(nodeId: string): NodeIdDetails {
+    let appKey = '', type = '', schemaName = '';
+
+    if (nodeId.indexOf('@') >= 0 && nodeId.indexOf(':') >= 0) {
+        appKey = nodeId.replace(/.*@|:.*/g,'');
+        type = nodeId.replace(/@.*/,'');
+        schemaName = nodeId.replace(/.*:/,'');
+    }
+
+    if (nodeId.indexOf('.') >= 0) {
+        appKey = nodeId.replace(/.*@|:.*/g,'');
+    }
+
+    type = nodeId.replace(/@.*/,'');
+
+    return {appKey, type, schemaName};   
+}
+
+export function getCleanNodeId(nodeId: string): string {
+    return nodeId.split(':').pop().toLowerCase();
+}
+
+export function getNodeDisplayName(nodeId: string): string {
+
+    const nodeDetails = getNodeIdDetails(nodeId);
+    const displayName = nodeDetails.schemaName || nodeDetails.type || nodeDetails.appKey;
+
+    switch (displayName) {
+        case 'PART':
+            return i18n('field.parts');
+
+        case 'LAYOUT':
+            return i18n('field.layouts');
+
+        case 'PAGE':
+            return i18n('field.pages');
+
+        case 'CONTENT_TYPE':
+            return i18n('field.contentTypes');
+
+        case 'MIXIN':
+            return i18n('field.mixins');
+
+        case 'XDATA':
+            return i18n('field.xdatas');
+    }    
+
+    return displayName;
+}
+
+export function getCleanCentralNodeId(centralNodeId: string): string {
+    return getCleanNodeId(centralNodeId.split('.').pop());
+}
+
+export function getIconKey(key: string): string {
+    return key.toUpperCase().replace(/ |-/g, '_').replace(/[0-9]/g, '');
+}
+
+export function getSvgNodeId(nodeId: string): string {
+    return nodeId.toLowerCase().replace(/ /g, '');
+}
+
+interface NodeIdDetails {
+    appKey: string,
+    type: string,
+    schemaName: string
 }

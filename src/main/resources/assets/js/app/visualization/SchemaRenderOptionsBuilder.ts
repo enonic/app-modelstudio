@@ -10,10 +10,10 @@ import {
 import {Relation, Node, RenderGlobalConfig, RenderOption} from './interfaces';
 
 export class SchemaRenderOptionsBuilder {
-    globalConfig: RenderGlobalConfig;
-    relations: Relation[];
-    nodes: Node[];
-    node: Node;
+    private globalConfig: RenderGlobalConfig;
+    private relations: Relation[];
+    private nodes: Node[];
+    private node: Node;
 
     constructor(globalConfig: RenderGlobalConfig, relations: Relation[], nodes: Node[], node: Node) {
         this.globalConfig = globalConfig;

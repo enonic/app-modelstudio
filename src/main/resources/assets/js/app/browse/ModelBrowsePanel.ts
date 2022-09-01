@@ -34,7 +34,7 @@ export class ModelBrowsePanel
     }
 
     protected createBrowseItemPanel(): ModelBrowseItemPanel {
-        return new ModelBrowseItemPanel();
+        return new ModelBrowseItemPanel(this.treeGrid);
     }
 
     protected createFilterPanel(): ModelBrowseFilterPanel {

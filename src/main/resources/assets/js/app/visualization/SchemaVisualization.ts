@@ -1,39 +1,29 @@
 import * as Q from 'q';
 import * as d3 from 'd3';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {D3SVG, Relation} from './interfaces';
+import {D3SVG, FnSchemaNavigationListener, Relation} from './interfaces';
 import SchemaData from './SchemaData';
 import SchemaRender from './SchemaRender';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
+import {ReferencesRequest} from './ReferencesRequest';
 
 export class SchemaVisualization extends DivEl{
+    private appKey: string;
+    private svgContainerId: string = 'SvgContainer';
+    private schemaRender: SchemaRender;
+    private searchInput: DivEl;
+    private referencesCheckbox: DivEl;
+    private breadcrumbs: DivEl;
 
-    svgContainerId: string = 'SvgContainer';
-    schemaRender: SchemaRender;
-
-    searchInput: DivEl;
-    referencesCheckbox: DivEl;
-    breadcrumbs: DivEl;
-
-    constructor(relations: Relation[], className?: string) {
+    constructor(appKey: string, className?: string) {
         super('schema-visualization' + (className ? ' ' + className : ''));
 
-        const schemaData = new SchemaData(relations);
-
-        this.schemaRender = new SchemaRender(schemaData.getRelations(), schemaData.getNodes(), schemaData.getFirstNode());
-        this.referencesCheckbox = this.createInput('ShowReferencesCheckbox', 'checkbox', 'Show References');
-        this.searchInput = this.createInput('SearchInput', 'text');
+        this.appKey = appKey;
+        this.referencesCheckbox = createInput('ShowReferencesCheckbox', 'checkbox', 'Show References');
+        this.searchInput = createInput('SearchInput', 'text');
         this.breadcrumbs = this.createBreadcrumbs();
-    }
-
-    private createInput(id: string, type: string, label: string = ''): DivEl {
-        const inputEl = new InputEl('', type).setId(id);
-        const labelEL = new LabelEl(label);
-        labelEL.getHTMLElement().setAttribute('for', id);
-
-        return new DivEl().appendChildren(inputEl, labelEL);
     }
 
     private createBreadcrumbs() {
@@ -58,14 +48,37 @@ export class SchemaVisualization extends DivEl{
         return d3.select(`#${this.svgContainerId}`).append('svg').attr('viewBox', svgViewBox);
     }
 
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
-
-            this.appendChild(this.getHeader());
-            this.appendChild(this.createSVGContainer());
-            this.schemaRender.execute(this.createSVG(600, 600));
-
-            return rendered;
+    private setData(appKey: string): Q.Promise<void> {
+        return new ReferencesRequest<{references: Relation[]}>(appKey).sendAndParse().then(data => {
+            const schemaData = new SchemaData(data.references);
+            this.schemaRender = new SchemaRender(schemaData.getRelations(), schemaData.getNodes(), schemaData.getFirstNode());
         });
     }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then(() => {
+            return this.setData(this.appKey).then(() => {
+                this.appendChild(this.getHeader());
+                this.appendChild(this.createSVGContainer());
+                this.schemaRender.execute(this.createSVG(600, 600));
+
+                return true;
+            });
+        });
+    }
+
+    public navigateToNode(nodeId: string): void {
+        this.schemaRender.navigateToNode(nodeId);
+    }
+
+    public onNavigation(fn: FnSchemaNavigationListener): void {
+        this.schemaRender.addOnNavigationListener(fn);
+    }
+}
+
+function createInput(id: string, type: string, label: string = ''): DivEl {
+    const inputEl = new InputEl('', type).setId(id);
+    const labelEL = new LabelEl(label);
+    labelEL.getHTMLElement().setAttribute('for', id);
+    return new DivEl().appendChildren(inputEl, labelEL);
 }
