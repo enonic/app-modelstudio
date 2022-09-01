@@ -34,15 +34,15 @@ function getReferences(appKey) {
     const schemaNames = schemaNamesAndReferences.names.concat(baseContentTypeNames);
     const schemaReferences = schemaNamesAndReferences.references.filter(reference => schemaNames.indexOf(reference[1]) >= 0);
     const referencedBaseContentTypeNames = baseContentTypeNames.filter(name => schemaReferences.some(reference => name === reference[1]));
-    const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => [getTitle('CONTENT_TYPE'), name]);
+    const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => ['CONTENT_TYPE', name]);
 
     const references = [
-        [[appKey, getTitle('CONTENT_TYPE')]],
-        [[appKey, getTitle('MIXIN')]],
-        [[appKey, getTitle('XDATA')]],
-        [[appKey, getTitle('PAGE')]],
-        [[appKey, getTitle('LAYOUT')]],
-        [[appKey, getTitle('PART')]],
+        [[appKey, 'CONTENT_TYPE']],
+        [[appKey, 'MIXIN']],
+        [[appKey, 'XDATA']],
+        [[appKey, 'PAGE']],
+        [[appKey, 'LAYOUT']],
+        [[appKey, 'PART']],
         baseContentTypeReferences,
         schemaReferences,
     ].reduce((prev, curr) => prev.concat(curr))
@@ -130,7 +130,7 @@ function cartesianProduct(arr1, arr2) {
 }
 
 function getTitle(str) {
-    return camelize(str.replace(/_/g, ' '));
+    return str; //camelize(str.replace(/_/g, ' ')) + 's';
 } 
 
 function prependAppKey(appKey, str) {

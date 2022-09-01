@@ -67,6 +67,8 @@ export interface RenderOption {
     },
 }
 
+export type FnSchemaNavigationListener = (appKey: string, nodeId: string, prevNodeId?: string) => void;
+
 export type D3SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>; 
 
 export type D3SVGG = d3.Selection<SVGGElement, unknown | string, HTMLElement | SVGGElement, any>;
