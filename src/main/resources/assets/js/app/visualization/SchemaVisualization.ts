@@ -1,7 +1,7 @@
 import * as Q from 'q';
 import * as d3 from 'd3';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {D3SVG, FnSchemaNavigationListener, Relation} from './interfaces';
+import {CentralNodeInfo, D3SVG, FnSchemaNavigationListener, Relation} from './interfaces';
 import SchemaData from './SchemaData';
 import SchemaRender from './SchemaRender';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
@@ -10,19 +10,21 @@ import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ReferencesRequest} from './ReferencesRequest';
 
 export class SchemaVisualization extends DivEl{
-    private appKey: string;
+    public appKey: string;
+    private centralNodeInfo: CentralNodeInfo;
     private svgContainerId: string = 'SvgContainer';
     private schemaRender: SchemaRender;
     private searchInput: DivEl;
     private referencesCheckbox: DivEl;
     private breadcrumbs: DivEl;
-
-    constructor(appKey: string, className?: string) {
+    
+    constructor(appKey: string, centralNodeInfo?: CentralNodeInfo, className?: string) {
         super('schema-visualization' + (className ? ' ' + className : ''));
 
         this.appKey = appKey;
+        this.centralNodeInfo = centralNodeInfo;
         this.referencesCheckbox = createInput('ShowReferencesCheckbox', 'checkbox', 'Show References');
-        this.searchInput = createInput('SearchInput', 'text');
+        this.searchInput = createInput('SearchInput', 'text', 'Search');
         this.breadcrumbs = this.createBreadcrumbs();
     }
 
@@ -51,7 +53,12 @@ export class SchemaVisualization extends DivEl{
     private setData(appKey: string): Q.Promise<void> {
         return new ReferencesRequest<{references: Relation[]}>(appKey).sendAndParse().then(data => {
             const schemaData = new SchemaData(data.references);
-            this.schemaRender = new SchemaRender(schemaData.getRelations(), schemaData.getNodes(), schemaData.getFirstNode());
+            this.schemaRender = new SchemaRender(
+                schemaData.getRelations(), 
+                schemaData.getNodes(), 
+                schemaData.getFirstNode(), 
+                this.centralNodeInfo
+            );
         });
     }
 
@@ -60,7 +67,7 @@ export class SchemaVisualization extends DivEl{
             return this.setData(this.appKey).then(() => {
                 this.appendChild(this.getHeader());
                 this.appendChild(this.createSVGContainer());
-                this.schemaRender.execute(this.createSVG(600, 600));
+                this.schemaRender.execute(this.createSVG(700, 600));
 
                 return true;
             });
@@ -77,8 +84,9 @@ export class SchemaVisualization extends DivEl{
 }
 
 function createInput(id: string, type: string, label: string = ''): DivEl {
-    const inputEl = new InputEl('', type).setId(id);
+    const classNames = type === 'text'  ? 'xp-admin-common-text-input xp-admin-middle' : '';
+    const inputEl = new InputEl(classNames, type).setId(id);
     const labelEL = new LabelEl(label);
     labelEL.getHTMLElement().setAttribute('for', id);
-    return new DivEl().appendChildren(inputEl, labelEL);
+    return new DivEl().appendChildren(labelEL, inputEl);
 }
