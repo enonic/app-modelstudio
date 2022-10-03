@@ -1,6 +1,6 @@
 
 import {
-    getCleanCentralNodeId,
+    getCleanNodeId,
     getColors,
     getFatherNodeId,
     getNodeById,
@@ -17,7 +17,7 @@ import {
     getTextWidth,
     getNodeDisplayName
 } from './helpers';
-import {Relation, Node, RenderGlobalConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener} from './interfaces';
+import {Relation, Node, RenderGlobalConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
@@ -28,12 +28,14 @@ export default class SchemaRender {
     private renderOptions: RenderOption[];
     private onNavigationListeners: Function[] = [];
     private svg: D3SVG;
+    private centralNodeInfo: CentralNodeInfo;
     private textsAndIconsSVGGroups: D3SVGG[];
     private backArrowSvgGroup: D3SVGG;
 
-    constructor(relations: Relation[], nodes: Node[], node: Node) {
+    constructor(relations: Relation[], nodes: Node[], node: Node, centralNodeInfo?: CentralNodeInfo) {
         this.relations = relations;
         this.nodes = nodes;
+        this.centralNodeInfo = centralNodeInfo;
         this.globalConfig = {
             references: {
                 opacity: 0.1,
@@ -128,14 +130,22 @@ export default class SchemaRender {
             }
 
             const conditionals = {
+                isShowingAllRelations: this.renderOptions.length > 1,
                 nodeDepthIsDifferentThanTwo: getNodeById(this.nodes, nodeId).depth !== 2,
                 nodeHasReferenceWithSameDepth: this.relations.some(relation => 
                     (relation.source === nodeId || relation.target === nodeId) && 
-                    getNodeById(this.nodes, relation.source).depth === getNodeById(this.nodes, relation.target).depth
+                    getNodeById(this.nodes, relation.source).depth === getNodeById(this.nodes, relation.target).depth 
+                ),
+                nodeHasReferenceWithSameFather: this.relations.some(relation => 
+                    (relation.source === nodeId || relation.target === nodeId) && 
+                    getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, relation.source)) === 
+                    getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, relation.target))
                 )
             };
 
-            if (conditionals.nodeDepthIsDifferentThanTwo && conditionals.nodeHasReferenceWithSameDepth) {
+            if (conditionals.nodeDepthIsDifferentThanTwo 
+                && conditionals.nodeHasReferenceWithSameDepth
+                && (conditionals.isShowingAllRelations || conditionals.nodeHasReferenceWithSameFather)) {
                 this.toggleReferences(svg, [], true);
             }
 
@@ -183,7 +193,7 @@ export default class SchemaRender {
         const hideSelector = `.${this.globalConfig.classnames.hideOnRef}`;
 
         const fnPathElementsOpacity = (relation: Relation) => {
-            if (this.getShowReferencesCheckbox().checked || forceToggle) {
+            if (this.isInReferencesMode() || forceToggle) {
                 if (nodeIds.length > 0) {
                     return Number(nodeIds.some(nodeId => nodeId === relation.source || nodeId === relation.target));
                 } else {
@@ -195,7 +205,7 @@ export default class SchemaRender {
         };
 
         const fnHideElementsOpacity = () => {
-            if (this.getShowReferencesCheckbox().checked || forceToggle) {
+            if (this.isInReferencesMode() || forceToggle) {
                 return this.globalConfig.references.opacity; 
             } else {
                 return 1;
@@ -204,8 +214,7 @@ export default class SchemaRender {
 
         svg.selectAll(pathSelector).attr('opacity', fnPathElementsOpacity);
         svg.selectAll(hideSelector).attr('opacity', fnHideElementsOpacity);
-    }
-    
+    } 
 
     private clickHandler(svg: D3SVG, nodeId: string): void {
         const node = getNodeById(this.nodes, nodeId);
@@ -255,7 +264,7 @@ export default class SchemaRender {
         this.appendRelations(svgGroup, option);
         this.appendCircle(svgGroup, option.config.circle.radius);
         this.appendChildrenNodes(svgGroup, svg, option);
-        this.appendCentralNode(svgGroup, svg, option);
+        this.appendCentralNode(svgGroup, option);
     }
 
     private appendTextAndIcons(svgGroup: D3SVGG, option: RenderOption): void {
@@ -297,12 +306,14 @@ export default class SchemaRender {
         }
     }
 
-    private appendCentralNode(svgGroup: D3SVGG, svg: D3SVG, option: RenderOption) {
+    private appendCentralNode(svgGroup: D3SVGG, option: RenderOption) {
         if (!option.data.node) { return; }
 
         const hideClass = option.data.node.depth > 1 ? this.globalConfig.classnames.hideOnRef : null;
         const group = svgGroup.append('g').attr('id', this.globalConfig.ids.centralNode);
-        const icon = getNodeIcon(this.relations, this.nodes, option.data.node.id);
+        const icon = option.data.node.depth === 1 
+            ? this.centralNodeInfo?.icon
+            : getNodeIcon(this.relations, this.nodes, option.data.node.id);
         
         if (icon) {
             const width = 40;
@@ -324,17 +335,29 @@ export default class SchemaRender {
     }
 
     private appendNodeName(svg: D3SVGG, option: RenderOption) {
-        const size = 1.5 * option.config.text.size;
-        const text = getCleanCentralNodeId(option.data.node.id);
-        const x = 0;
-        const y = getNodeIcon(this.relations, this.nodes, option.data.node.id) ? 40 / 1.25 : 0;
+        const size = 1.1 * option.config.text.size;
+        
+        let text = '';
+        
+        if (option.data.node.depth === 1) {
+            text = this.centralNodeInfo?.name;
+        }
+
+        if (option.data.node.depth === 2) {
+            text = getNodeDisplayName(option.data.node.id);
+        }
+
+        if(option.data.node.depth === 3) {
+            text = getCleanNodeId(option.data.node.id);
+        }
+
+        const [x, y] = [0, this.centralNodeInfo?.icon ? 40 / 1.25 : 0];
         return this.appendText(svg, size, text, x, y);
     }
 
     private appendTechAppName(svg: D3SVGG, option: RenderOption) {
         const size = 7;
-        const x = 0;
-        const y = getNodeIcon(this.relations, this.nodes, option.data.node.id) ? 40 : 10;
+        const [x, y] = [0, this.centralNodeInfo?.icon ? 45 : 10];
         return this.appendText(svg, size, option.data.techAppName, x, y);
     }
 
@@ -431,14 +454,14 @@ export default class SchemaRender {
         group.append('path')
             .attr('class', 'back-arrow')
             // eslint-disable-next-line max-len
-            .attr('d', `M0 ${2 * size + 200} l-10-10c-0.781-0.781-0.781-2.047 0-2.828l10-10c0.781-0.781 2.047-0.781 2.828 0s0.781 2.047 0 2.828l-6.586 6.586h19.172c1.105 0 2 0.895 2 2s-0.895 2-2 2h-19.172l6.586 6.586c0.39 0.39 0.586 0.902 0.586 1.414s-0.195 1.024-0.586 1.414c-0.781 0.781-2.047 0.781-2.828 0z`)
-            .attr('transform', 'scale(0.25)')
+            .attr('d', `M0 ${4 * size + 100} l-10-10c-0.781-0.781-0.781-2.047 0-2.828l10-10c0.781-0.781 2.047-0.781 2.828 0s0.781 2.047 0 2.828l-6.586 6.586h19.172c1.105 0 2 0.895 2 2s-0.895 2-2 2h-19.172l6.586 6.586c0.39 0.39 0.586 0.902 0.586 1.414s-0.195 1.024-0.586 1.414c-0.781 0.781-2.047 0.781-2.828 0z`)
+            .attr('transform', 'scale(0.4)')
             .attr('pointer-events', 'none');
 
         group.append('rect')
             .on('click', fnClickHandler)
             .attr('x', -10)
-            .attr('y', 45)
+            .attr('y', 3.5 * size)
             .attr('width', 20)
             .attr('height', 15)
             .attr('opacity', 0);
@@ -477,7 +500,10 @@ export default class SchemaRender {
             const fatherNodeId = getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
             return fatherNodeId ? recur(fatherNodeId, [nodeId, ...ids]) : [nodeId, ...ids];
         };
-        return recur(nodeId).filter((id: string) => !!id).map(getCleanCentralNodeId).join(' > ');
+
+        return recur(nodeId).filter((id: string) => !!id)
+            .map(s => getCleanNodeId(getNodeDisplayName(s)))
+            .join(' > ');
     }
 
     private getTextFunctions(option: RenderOption) {
@@ -489,7 +515,7 @@ export default class SchemaRender {
 
         const fnTextFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
 
-        const fnText = (nodeId: string) => getNodeDisplayName(nodeId);
+        const fnText = (nodeId: string) => getCleanNodeId(getNodeDisplayName(nodeId));
 
         const fnTextTransform = (_, nodeIndex: number) => this.tooManyChildren(option)
             ? getTextRotation(nodeIndex, option.data.childrenIds.length, option.config.circle.radius)
@@ -556,7 +582,8 @@ export default class SchemaRender {
             ? textFunctions.y(nodeId, nodeIndex) - fnRectHeight() / 2
             : imageFunctions.y(nodeId, nodeIndex);
 
-        const fnRectFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
+        const fnRectFill = (nodeId: string) => 'lightgray';
+        //getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
 
         return {
             x: (nodeId: string, nodeIndex: number) => fnRectX(nodeId, nodeIndex) - padding.left,
@@ -581,6 +608,10 @@ export default class SchemaRender {
 
     private isInSearchMode(): boolean {
         return Boolean(this.getSearchInput().value !== '');
+    }
+
+    private isInReferencesMode(): boolean {
+        return Boolean(this.getShowReferencesCheckbox().checked);
     }
 
     private setUniqueListener(elementId: string, listenerType: string, fnHandler: (e: Event) => void, debounceTime: number = 0): void {
