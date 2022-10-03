@@ -37,12 +37,12 @@ export function getAllNodesByDepth(nodes: Node[], desiredDepth: number): Node[] 
 }
 
 export function getOuterTextSize(nodes: Node[]): number {
-    const scale = d3.scaleLinear().domain([0, 250]).range([12, 7]);
+    const scale = d3.scaleLinear().domain([0, 250]).range([12, 8]);
     return Math.floor(scale(getOuterCircleRadius(nodes)));
 }
 
 export function getOuterCircleRadius(nodes: Node[]): number {
-    const scale = d3.scaleLinear().domain([0, 100]).range([150, 250]);
+    const scale = d3.scaleLinear().domain([0, 100]).range([200, 300]);
     const quantityOfDepth3Nodes = getAllNodesByDepth(nodes, 3).length;
     return Math.floor(scale(quantityOfDepth3Nodes));
 }
@@ -174,7 +174,7 @@ export function getNodeIdDetails(nodeId: string): NodeIdDetails {
 }
 
 export function getCleanNodeId(nodeId: string): string {
-    return nodeId.split(':').pop().toLowerCase();
+    return nodeId.split(':').pop().replace(/-/g, ' ');
 }
 
 export function getNodeDisplayName(nodeId: string): string {
@@ -203,10 +203,6 @@ export function getNodeDisplayName(nodeId: string): string {
     }    
 
     return displayName;
-}
-
-export function getCleanCentralNodeId(centralNodeId: string): string {
-    return getCleanNodeId(centralNodeId.split('.').pop());
 }
 
 export function getIconKey(key: string): string {

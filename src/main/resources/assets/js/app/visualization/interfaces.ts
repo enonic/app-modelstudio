@@ -9,6 +9,11 @@ export interface Node {
     depth: number
 }
 
+export interface CentralNodeInfo {
+    name: string,
+    icon: string
+}
+
 export enum Icons {
     FOLDER = 'folder.png',
     PART = 'parts.png',
