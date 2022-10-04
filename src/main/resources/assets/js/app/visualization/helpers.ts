@@ -1,7 +1,8 @@
 import * as d3 from 'd3';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {Relation, Node, Icons} from './interfaces';
+import {Relation, Node, RenderConfig} from './interfaces';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 
 export function getDepth(relations: Relation[], nodeId: string, acc: number = 1): number {  
     const targets = getRelationsFromTarget(relations, nodeId);
@@ -77,23 +78,23 @@ export function getFatherNodeId(relations: Relation[], nodes: Node[], node: Node
     return relationsAbove.length > 0 ? relationsAbove.map(x => x.source).pop() : '';
 }
 
-export function getNodeIcon(relations: Relation[], nodes: Node[], nodeId: string): string {
-    let iconKey: string = 'FOLDER';
+export function getNodeIcon(relations: Relation[], nodes: Node[], nodeId: string, iconOptions: RenderConfig['icons']): string {
+    let iconKey: string = iconOptions.fallbackKey;
 
     if (getNodeById(nodes, nodeId).depth !== 2) { 
         iconKey = getIconKey(getCleanNodeId(nodeId));
     }
 
-    if(!Icons[iconKey]) {
+    if(!iconOptions.paths[iconKey]) {
         const fatherNodeId = getFatherNodeId(relations, nodes, getNodeById(nodes, nodeId));
         iconKey = getIconKey(getCleanNodeId(fatherNodeId));
     }
 
-    if(!Icons[iconKey]) {
+    if(!iconOptions.paths[iconKey]) {
         return '';
     }
 
-    return CONFIG.getString('assetsUri') + '/icons/visualization/' + Icons[iconKey];
+    return iconOptions.basePath + iconOptions.paths[iconKey];
 }
 
 function getConstant(nodeIndex: number, max: number): number {
@@ -211,6 +212,65 @@ export function getIconKey(key: string): string {
 
 export function getSvgNodeId(nodeId: string): string {
     return nodeId.toLowerCase().replace(/ /g, '');
+}
+
+export function nodeIdToItemKey(appKey: string, nodeId: string): string {
+    const nodeIdDetails = getNodeIdDetails(nodeId);
+    let itemKey: string;
+    
+    if (nodeIdDetails.type && !nodeIdDetails.appKey && !nodeIdDetails.schemaName) {
+        const type = nodeIdDetails.type === 'CONTENT_TYPE' ? 'contentType' : nodeIdDetails.type.toLowerCase();
+        itemKey = `${appKey}/${type}s`;
+    } else {
+        itemKey = nodeIdDetails.appKey;         
+        itemKey += nodeIdDetails.schemaName ? `:${nodeIdDetails.schemaName}` : '';
+    }
+
+    return itemKey;
+}
+
+export function itemToNodeId(item: ModelTreeGridItem): string {
+    if (item.isApplication()) {
+        return item.getApplication()?.getApplicationKey()?.toString();
+    }
+    if (item.isContentTypes()) {
+        return 'CONTENT_TYPE';
+    }
+    if (item.isMixins()) {
+        return 'MIXIN';
+    }
+    if (item.isXDatas()) {
+        return 'XDATA';
+    }
+    if (item.isPages()) {
+        return 'PAGE';
+    }
+    if (item.isLayouts()) {
+        return 'LAYOUT';
+    }
+    if (item.isParts()) {
+        return 'PART';
+    }
+    if (item.isContentType()) {
+        return `CONTENT_TYPE@${item.getId()}`;
+    }
+    if (item.isMixin()) {
+        return `MIXIN@${item.getId()}`;
+    }
+    if (item.isXData()) {
+        return `XDATA@${item.getId()}`;
+    }
+    if (item.isPage()) {
+        return `PAGE@${item.getId()}`;
+    }
+    if (item.isLayout()) {
+        return `LAYOUT@${item.getId()}`;
+    }
+    if (item.isPart()) {
+        return `PART@${item.getId()}`;
+    }
+
+    return '';
 }
 
 interface NodeIdDetails {
