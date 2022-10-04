@@ -14,22 +14,13 @@ export interface CentralNodeInfo {
     icon: string
 }
 
-export enum Icons {
-    FOLDER = 'folder.png',
-    PART = 'parts.png',
-    PAGE = 'pages.png',
-    LAYOUT = 'layouts.png',
-    CONTENT_TYPE = 'content-types.png',
-    MIXIN = 'mixins.png',
-    XDATA = 'x-data.png',
-}
-
-export interface RenderGlobalConfig {
+export interface RenderConfig {
     references: {
-        opacity: number,
+        opacity: number
     },
     text: {
         size: number
+        hoverColor: string
     },
     marker: {
         size: number
@@ -42,19 +33,24 @@ export interface RenderGlobalConfig {
         hideOnRef: string
     },
     ids: {
-        centralNode: string,
-        search: string,
-        checkbox: string,
-        breadcrumbs: string,
-        backArrow: string,
-        references: string,
-        textsAndIcons: string,
-        innerCircle: string,
-        outerCircle: string,
+        centralNode: string
+        search: string
+        checkbox: string
+        breadcrumbs: string
+        backArrow: string
+        references: string
+        textsAndIcons: string
+        innerCircle: string
+        outerCircle: string
     },
     children: {
         many: number
     },
+    icons: { 
+        fallbackKey: string
+        basePath: string
+        paths: { [key: string]: string }
+    }
 }
 
 export interface RenderOption {
