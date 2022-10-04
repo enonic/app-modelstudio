@@ -7,6 +7,7 @@ import {SchemaVisualization} from '../visualization/SchemaVisualization';
 import {ModelItemsTreeGrid} from '../browse/ModelItemsTreeGrid';
 import {getNodeIdDetails} from '../visualization/helpers';
 import {CentralNodeInfo} from '../visualization/interfaces';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 export class ModelItemStatisticsPanel
     extends ItemStatisticsPanel {
 
@@ -14,11 +15,14 @@ export class ModelItemStatisticsPanel
     private header: ModelItemStatisticsHeader;
     private descriptorTextArea: TextArea;
     private schemaVisualization: SchemaVisualization;
+    private loadMask: LoadMask;
 
     constructor() {
         super('model-item-statistics-panel');
 
         this.initElements();
+
+        this.loadMask = new LoadMask(this);
     }
 
     protected initElements(): void {
@@ -139,8 +143,16 @@ export class ModelItemStatisticsPanel
             name: item.getApplication().getDisplayName(),
             icon: item.getApplication().getIcon()
         };
-        this.schemaVisualization = new SchemaVisualization(appKey, centralNodeInfo);
-        this.schemaVisualizationRenderHandler(appKey, navigateToAppKey);   
+
+        this.schemaVisualization = new SchemaVisualization(
+            appKey, 
+            centralNodeInfo, 
+            '', 
+            () => { this.loadMask.show(); },
+            () => { this.loadMask.hide(); }
+        );
+        
+        this.schemaVisualizationRenderHandler(appKey, navigateToAppKey);
     }
 
     private schemaVisualizationRenderHandler(appKey: string, navigateToAppKey?: string): void {
