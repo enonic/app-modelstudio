@@ -17,8 +17,16 @@ export class SchemaVisualization extends DivEl{
     private searchInput: DivEl;
     private referencesCheckbox: DivEl;
     private breadcrumbs: DivEl;
+    private onLoadStart: () => void;
+    private onLoadEnd: () => void;
     
-    constructor(appKey: string, centralNodeInfo?: CentralNodeInfo, className?: string) {
+    constructor(
+        appKey: string, 
+        centralNodeInfo?: CentralNodeInfo,
+        className?: string,
+        onLoadStart: () => void = () => {},
+        onLoadEnd: () => void = () => {}
+    ) {
         super('schema-visualization' + (className ? ' ' + className : ''));
 
         this.appKey = appKey;
@@ -26,6 +34,9 @@ export class SchemaVisualization extends DivEl{
         this.referencesCheckbox = createInput('ShowReferencesCheckbox', 'checkbox', 'Show References');
         this.searchInput = createInput('SearchInput', 'text', 'Search');
         this.breadcrumbs = this.createBreadcrumbs();
+
+        this.onLoadStart = onLoadStart;
+        this.onLoadEnd = onLoadEnd;
     }
 
     private createBreadcrumbs() {
@@ -51,6 +62,7 @@ export class SchemaVisualization extends DivEl{
     }
 
     private setData(appKey: string): Q.Promise<void> {
+        this.onLoadStart();
         return new ReferencesRequest<{references: Relation[]}>(appKey).sendAndParse().then(data => {
             const schemaData = new SchemaData(data.references);
             this.schemaRender = new SchemaRender(
@@ -59,6 +71,7 @@ export class SchemaVisualization extends DivEl{
                 schemaData.getFirstNode(), 
                 this.centralNodeInfo
             );
+            this.onLoadEnd();
         });
     }
 
