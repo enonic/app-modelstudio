@@ -8,7 +8,6 @@ import {
     getNodeColorByNodeId,
     getNodeIcon,
     getOuterCircleRadius,
-    getOuterTextSize,
     getRelationsPathD,
     getSvgNodeId,
     getTextRotation,
@@ -17,14 +16,14 @@ import {
     getTextWidth,
     getNodeDisplayName
 } from './helpers';
-import {Relation, Node, RenderGlobalConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from './interfaces';
+import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export default class SchemaRender {
     private relations: Relation[];
     private nodes: Node[];
-    private globalConfig: RenderGlobalConfig;
+    private config: RenderConfig;
     private renderOptions: RenderOption[];
     private onNavigationListeners: Function[] = [];
     private svg: D3SVG;
@@ -32,42 +31,11 @@ export default class SchemaRender {
     private textsAndIconsSVGGroups: D3SVGG[];
     private backArrowSvgGroup: D3SVGG;
 
-    constructor(relations: Relation[], nodes: Node[], node: Node, centralNodeInfo?: CentralNodeInfo) {
+    constructor(relations: Relation[], nodes: Node[], node: Node, config: RenderConfig, centralNodeInfo?: CentralNodeInfo) {
         this.relations = relations;
         this.nodes = nodes;
         this.centralNodeInfo = centralNodeInfo;
-        this.globalConfig = {
-            references: {
-                opacity: 0.1,
-            },
-            text: {
-                size: getOuterTextSize(nodes),
-            },
-            marker: {
-                size: 5,
-            },
-            circle: {
-                radius: getOuterCircleRadius(nodes),
-                color: 'lightgray',
-            },
-            classnames: {
-                hideOnRef: 'hide-on-ref',
-            },
-            ids: {
-                centralNode: 'CentralNode',
-                search: 'SearchInput',
-                checkbox: 'ShowReferencesCheckbox',
-                breadcrumbs: 'Breadcrumbs',
-                backArrow: 'BackArrow',
-                references: 'Relations',
-                textsAndIcons: 'TextsAndIcons',
-                innerCircle: 'InnerSVG',
-                outerCircle: 'OuterSVG',
-            },
-            children: {
-                many: 20,
-            },
-        };
+        this.config = config;
 
         this.setOptions(node);
     }
@@ -101,7 +69,7 @@ export default class SchemaRender {
             svgGroups.forEach(group => group.classList.add('hover'));
         };
 
-        this.setUniqueListener(this.globalConfig.ids.search, 'keyup', keyUpHandler, 100);
+        this.setUniqueListener(this.config.ids.search, 'keyup', keyUpHandler, 100);
     }
 
     private initShowReferenceCheckboxListeners(svg: D3SVG) {
@@ -115,7 +83,7 @@ export default class SchemaRender {
             }
         };
 
-        this.setUniqueListener(this.globalConfig.ids.checkbox, 'change', changeHandler);
+        this.setUniqueListener(this.config.ids.checkbox, 'change', changeHandler);
     }
 
     private initTextsAndIconsListeners(svg: D3SVG) {
@@ -149,10 +117,10 @@ export default class SchemaRender {
                 this.toggleReferences(svg, [], true);
             }
 
-            const pathSelector = `#${this.globalConfig.ids.references} > path`;
+            const pathSelector = `#${this.config.ids.references} > path`;
             const fnPathElementsOpacity = (relation: Relation) => {
                 const opacity = Number(relation.source === nodeId || relation.target === nodeId);
-                return opacity || this.globalConfig.references.opacity;
+                return opacity || this.config.references.opacity;
             };
             svg.selectAll(pathSelector).attr('opacity', fnPathElementsOpacity);
         };
@@ -189,8 +157,8 @@ export default class SchemaRender {
     }
 
     private toggleReferences(svg: D3SVG, nodeIds: string[] = [], forceToggle: boolean = false) {
-        const pathSelector = `#${this.globalConfig.ids.references} > path`;
-        const hideSelector = `.${this.globalConfig.classnames.hideOnRef}`;
+        const pathSelector = `#${this.config.ids.references} > path`;
+        const hideSelector = `.${this.config.classnames.hideOnRef}`;
 
         const fnPathElementsOpacity = (relation: Relation) => {
             if (this.isInReferencesMode() || forceToggle) {
@@ -200,13 +168,13 @@ export default class SchemaRender {
                     return 1;
                 }
             } else {
-                return this.globalConfig.references.opacity;
+                return this.config.references.opacity;
             }
         };
 
         const fnHideElementsOpacity = () => {
             if (this.isInReferencesMode() || forceToggle) {
-                return this.globalConfig.references.opacity; 
+                return this.config.references.opacity; 
             } else {
                 return 1;
             }
@@ -255,7 +223,7 @@ export default class SchemaRender {
     }
 
     private setOptions(node: Node) {
-       this.renderOptions = new SchemaRenderOptionsBuilder(this.globalConfig, this.relations, this.nodes, node).build();
+       this.renderOptions = new SchemaRenderOptionsBuilder(this.config, this.relations, this.nodes, node).build();
     }
 
     private renderByOption(svg: D3SVG, option: RenderOption) {
@@ -263,7 +231,7 @@ export default class SchemaRender {
 
         this.appendRelations(svgGroup, option);
         this.appendCircle(svgGroup, option.config.circle.radius);
-        this.appendChildrenNodes(svgGroup, svg, option);
+        this.appendChildrenNodes(svgGroup, option);
         this.appendCentralNode(svgGroup, option);
     }
 
@@ -275,7 +243,7 @@ export default class SchemaRender {
         const rectFunctions = this.getRectFunctions(textFunctions, imageFunctions, option);
 
         const group: D3SVGG = svgGroup.append('g')
-            .attr('id', this.globalConfig.ids.textsAndIcons)
+            .attr('id', this.config.ids.textsAndIcons)
             .selectAll('text, g')
             .data(data)
             .enter()
@@ -309,11 +277,11 @@ export default class SchemaRender {
     private appendCentralNode(svgGroup: D3SVGG, option: RenderOption) {
         if (!option.data.node) { return; }
 
-        const hideClass = option.data.node.depth > 1 ? this.globalConfig.classnames.hideOnRef : null;
-        const group = svgGroup.append('g').attr('id', this.globalConfig.ids.centralNode);
+        const hideClass = option.data.node.depth > 1 ? this.config.classnames.hideOnRef : null;
+        const group = svgGroup.append('g').attr('id', this.config.ids.centralNode);
         const icon = option.data.node.depth === 1 
             ? this.centralNodeInfo?.icon
-            : getNodeIcon(this.relations, this.nodes, option.data.node.id);
+            : getNodeIcon(this.relations, this.nodes, option.data.node.id, this.config.icons);
         
         if (icon) {
             const width = 40;
@@ -374,7 +342,7 @@ export default class SchemaRender {
             getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, relation.source));
 
         const linkGroups = svg.append('g')
-            .attr('id', this.globalConfig.ids.references)
+            .attr('id', this.config.ids.references)
             .selectAll('path')
             .data(option.data.relations)
             .enter();
@@ -408,10 +376,10 @@ export default class SchemaRender {
             .attr('cy', y)
             .attr('r', radius)
             .attr('fill', 'none')
-            .attr('stroke', this.globalConfig.circle.color);
+            .attr('stroke', this.config.circle.color);
     }
 
-    private appendChildrenNodes(svgGroup: D3SVGG, svg: D3SVG, option: RenderOption) {
+    private appendChildrenNodes(svgGroup: D3SVGG, option: RenderOption) {
         if (!option.data.childrenIds.length) { return; }
 
         this.appendTextAndIcons(svgGroup, option);
@@ -449,7 +417,7 @@ export default class SchemaRender {
 
     private appendBackArrow(svg: D3SVGG, size: number, fnClickHandler = () => { }): D3SVGG {
         const group: D3SVGG = svg.append('g')
-            .attr('id', this.globalConfig.ids.backArrow);
+            .attr('id', this.config.ids.backArrow);
         
         group.append('path')
             .attr('class', 'back-arrow')
@@ -478,8 +446,8 @@ export default class SchemaRender {
             .join('marker')
             .attr('id', color => `arrow-${color}`)
             .attr('viewBox', '0 -5 10 10')
-            .attr('markerWidth', this.globalConfig.marker.size)
-            .attr('markerHeight', this.globalConfig.marker.size)
+            .attr('markerWidth', this.config.marker.size)
+            .attr('markerHeight', this.config.marker.size)
             .attr('orient', 'auto')
             .append('path')
             .attr('fill', color => color)
@@ -487,7 +455,7 @@ export default class SchemaRender {
     }
 
     private tooManyChildren(option: RenderOption): boolean {
-        return option.data.childrenIds.length >= this.globalConfig.children.many;
+        return option.data.childrenIds.length >= this.config.children.many;
     }
 
     private clearAllHoveredGroups(): void {
@@ -542,11 +510,12 @@ export default class SchemaRender {
             getTextYPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length) - 2*fnImageWidth();
 
         const fnImageHref = (nodeId: string) =>
-            getNodeIcon(this.relations, this.nodes, nodeId) ||
+            getNodeIcon(this.relations, this.nodes, nodeId, this.config.icons) ||
             getNodeIcon(
                 this.relations,
                 this.nodes,
-                getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, nodeId))
+                getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, nodeId)),
+                this.config.icons
             );
 
         return {
@@ -582,7 +551,7 @@ export default class SchemaRender {
             ? textFunctions.y(nodeId, nodeIndex) - fnRectHeight() / 2
             : imageFunctions.y(nodeId, nodeIndex);
 
-        const fnRectFill = (nodeId: string) => 'lightgray';
+        const fnRectFill = (nodeId: string) => this.config.text.hoverColor;
         //getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
 
         return {
@@ -595,15 +564,15 @@ export default class SchemaRender {
     }
 
     private getSearchInput(): HTMLInputElement {
-        return document.getElementById(this.globalConfig.ids.search) as HTMLInputElement;
+        return document.getElementById(this.config.ids.search) as HTMLInputElement;
     }
 
     private getShowReferencesCheckbox(): HTMLInputElement {
-        return document.getElementById(this.globalConfig.ids.checkbox) as HTMLInputElement;
+        return document.getElementById(this.config.ids.checkbox) as HTMLInputElement;
     }
 
     private getBreadcrumbs(): HTMLInputElement {
-        return document.getElementById(this.globalConfig.ids.breadcrumbs) as HTMLInputElement;
+        return document.getElementById(this.config.ids.breadcrumbs) as HTMLInputElement;
     }
 
     private isInSearchMode(): boolean {
