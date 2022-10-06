@@ -16,9 +16,8 @@ export class ModelItemStatisticsPanel
 
     constructor() {
         super('model-item-statistics-panel');
-
-        this.schemaVisualization = new SchemaVisualization();
         this.loadMask = new LoadMask(this);
+        this.setSchemaVisualization();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -28,7 +27,7 @@ export class ModelItemStatisticsPanel
         });
     }
 
-    setItem(item: ModelTreeGridItem) {
+    setItem(item: ModelTreeGridItem): void {
         const currentItem = this.getItem();
 
         if (!currentItem || !currentItem.equals(item)) {
@@ -36,73 +35,69 @@ export class ModelItemStatisticsPanel
         }
     }
 
-    public setTreeGrid(treeGrid: ModelItemsTreeGrid) {
+    setTreeGrid(treeGrid: ModelItemsTreeGrid): void {
         this.treeGrid = treeGrid;
-        this.addTreeGridListeners();
+        this.treeGridNavigationHandler();
     }
 
-    private addTreeGridListeners(): void {
+    private treeGridNavigationHandler(): void {
         this.treeGrid.onHighlightingChanged(() => {
             const item: ModelTreeGridItem = this.treeGrid.getFirstSelectedOrHighlightedItem();
-            this.treeGridNavigationHandler(item);
+                const treeGridAppKey = item.getApplication()?.getApplicationKey()?.toString() 
+                || item.getComponent()?.getName()?.getApplicationKey()?.toString()
+                || item.getSchema()?.getName().getApplicationKey().toString();
+
+            if (!item || !treeGridAppKey) {
+                return;
+            }
+
+            const schemaVisualizationAppKey = this.schemaVisualization?.appKey || '';
+            const nodeId = itemToNodeId(item);        
+
+            if (treeGridAppKey === schemaVisualizationAppKey) {
+                this.schemaVisualization.navigateToNode(nodeId);
+            } else {
+                this.setSchemaVisualizationData(treeGridAppKey, item, nodeId);
+                this.schemaVisualization.refresh();
+            }
         });
     }
 
-    // treeGrid -> Visualization
-    private treeGridNavigationHandler(item: ModelTreeGridItem) {
-        const treeGridAppKey = item.getApplication()?.getApplicationKey()?.toString() 
-            || item.getComponent()?.getName()?.getApplicationKey()?.toString()
-            || item.getSchema()?.getName().getApplicationKey().toString();
-
-        if (!item || !treeGridAppKey) {
-            return;
-        }
-
-        const schemaVisualizationAppKey = this.schemaVisualization?.appKey || '';
-        const nodeId = itemToNodeId(item);        
-
-        if (treeGridAppKey === schemaVisualizationAppKey) {
-            this.schemaVisualization.navigateToNode(nodeId);
-        } else {
-            this.setSchemaVisualizationData(treeGridAppKey, item, nodeId);
-            this.schemaVisualization.refresh();
-        }
+    private setSchemaVisualization(): void {
+        this.schemaVisualization = new SchemaVisualization();
+        this.schemaVisualizationOnNavigateHandler();
     }
 
-    private setSchemaVisualizationData(appKey: string, item: ModelTreeGridItem, navigateToAppKey?: string) {
+    private setSchemaVisualizationData(appKey: string, item: ModelTreeGridItem, navigateToAppKey?: string): void {
         const centralNodeInfo: CentralNodeInfo = {
             name: item.getApplication().getDisplayName(),
             icon: item.getApplication().getIcon()
         };
-        
+
         const onSchemaVisualizationDataLoadStart = () => { 
-            this.loadMask.show(); 
-            this.schemaVisualizationRenderHandler(appKey, navigateToAppKey);
+            this.loadMask.show();
         };
 
         const onSchemaVisualizationDataLoadEnd = () => { 
             this.loadMask.hide();
-            this.schemaVisualizationNavigationHandler();
+            this.schemaVisualizationRenderHandler(appKey, navigateToAppKey);   
         };
 
         this.schemaVisualization.setData(appKey, centralNodeInfo, onSchemaVisualizationDataLoadStart, onSchemaVisualizationDataLoadEnd);
     }
 
     private schemaVisualizationRenderHandler(appKey: string, navigateToAppKey?: string): void {
-        this.schemaVisualization.onRendered(() => {
-            this.treeGrid.highlightItemById(appKey, false);
-            this.treeGrid.expandNodeByDataId(appKey);
-            
-            if (navigateToAppKey) {
-                this.schemaVisualization.navigateToNode(navigateToAppKey);
-            }
-        }); 
+        this.treeGrid.highlightItemById(appKey);
+        this.treeGrid.expandNodeByDataId(appKey);
+        
+        if (navigateToAppKey) {
+            this.schemaVisualization.navigateToNode(navigateToAppKey);
+        }
     }
         
-    // Visualization -> TreeGrid
-    private schemaVisualizationNavigationHandler() {
+    private schemaVisualizationOnNavigateHandler(): void {
         const executeNavigation = (itemKey: string, prevItemKey?: string): Q.Promise<boolean> => { 
-            this.treeGrid.highlightItemById(itemKey, false);
+            this.treeGrid.highlightItemById(itemKey, false, true);
 
             if (prevItemKey) {
                 this.treeGrid.collapseNodeByDataId(prevItemKey);
@@ -115,7 +110,7 @@ export class ModelItemStatisticsPanel
             return Q(true);            
         };
 
-        this.schemaVisualization.onNavigation((appKey: string, nodeId: string, prevNodeId?: string): void => {
+        this.schemaVisualization.onNavigate((appKey: string, nodeId: string, prevNodeId?: string): void => {
             const itemKey = nodeIdToItemKey(appKey, nodeId);
             const prevItemKey = prevNodeId ? nodeIdToItemKey(appKey, prevNodeId): undefined;
 

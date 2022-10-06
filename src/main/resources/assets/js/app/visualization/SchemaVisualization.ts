@@ -13,6 +13,7 @@ import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class SchemaVisualization extends DivEl{
     public appKey: string;
+    private onNavigationListeners: FnSchemaNavigationListener[] = [];
     private centralNodeInfo: CentralNodeInfo;
     private svgContainerId: string = 'SvgContainer';
     private schemaRender: SchemaRender;
@@ -95,6 +96,8 @@ export class SchemaVisualization extends DivEl{
             this.getRenderConfig(schemaData),
             this.centralNodeInfo
         );
+
+        this.onNavigationListeners.forEach(fn => this.schemaRender.addOnNavigationListener(fn));
     }
 
     private execute(): Q.Promise<void> {
@@ -174,8 +177,8 @@ export class SchemaVisualization extends DivEl{
         this.schemaRender.navigateToNode(nodeId);
     }
 
-    onNavigation(fn: FnSchemaNavigationListener): void {
-        this.schemaRender.addOnNavigationListener(fn);
+    onNavigate(fn: FnSchemaNavigationListener): void {
+        this.onNavigationListeners.push(fn);
     }
 }
 
