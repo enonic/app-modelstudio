@@ -190,13 +190,13 @@ export default class SchemaRender {
         this.execute(svg);
     }
 
-    public navigateToNode(nodeId: string): void {
+    navigateToNode(nodeId: string): void {
         if(this.svg && getNodeById(this.nodes, nodeId)) {
             this.clickHandler(this.svg, nodeId);
         }
     }
 
-    public execute(svg: D3SVG) {
+    execute(svg: D3SVG) {
         this.svg = svg;
 
         this.reset(svg);
@@ -207,7 +207,7 @@ export default class SchemaRender {
         this.initListeners(svg);
     }
 
-    public addOnNavigationListener(fn: FnSchemaNavigationListener) {
+    addOnNavigationListener(fn: FnSchemaNavigationListener) {
         this.onNavigationListeners = [fn, ...this.onNavigationListeners];
     }
 
@@ -286,7 +286,7 @@ export default class SchemaRender {
         if (icon) {
             const width = 40;
             const x = - width / 2;
-            const y = - width / 1.5;
+            const y = - width;
 
             this.appendImage(group, icon, width, x, y).attr('class', hideClass);
         }
@@ -319,13 +319,13 @@ export default class SchemaRender {
             text = getCleanNodeId(option.data.node.id);
         }
 
-        const [x, y] = [0, this.centralNodeInfo?.icon ? 40 / 1.25 : 0];
+        const [x, y] = [0, this.centralNodeInfo?.icon ? 40 / 2.5 : 0]; //TODO: use width
         return this.appendText(svg, size, text, x, y);
     }
 
     private appendTechAppName(svg: D3SVGG, option: RenderOption) {
         const size = 7;
-        const [x, y] = [0, this.centralNodeInfo?.icon ? 45 : 10];
+        const [x, y] = [0, this.centralNodeInfo?.icon ? 40 / 1.25 : 45]; //TODO: use width
         return this.appendText(svg, size, option.data.techAppName, x, y);
     }
 
