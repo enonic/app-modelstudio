@@ -20,14 +20,13 @@ export class ModelTreeGridItemViewer
     }
 
     resolveSubName(object: ModelTreeGridItem): string {
+        const subName = object.getId() ? object.getId().split(/\:|\//g)[1] : '';
 
-        if (object.getType() != null) {
-            switch (object.getType()) {
-            default:
-                return object.getItemDisplayName() ? object.getItemDisplayName().toLocaleLowerCase() : '';
-            }
+        if (subName) {
+            return subName;
         }
-        return '';
+
+        return object.getItemDisplayName() ? object.getItemDisplayName().toLocaleLowerCase() : '';
     }
 
     resolveIconEl(object: ModelTreeGridItem): Element {
