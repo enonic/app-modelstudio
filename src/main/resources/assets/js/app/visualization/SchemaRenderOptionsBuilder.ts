@@ -6,7 +6,6 @@ import {
     getAllNodesByDepth,
     getSvgNodeId
 } from './helpers';
-
 import {Relation, Node, RenderConfig, RenderOption} from './interfaces';
 
 export class SchemaRenderOptionsBuilder {
@@ -14,6 +13,10 @@ export class SchemaRenderOptionsBuilder {
     private relations: Relation[];
     private nodes: Node[];
     private node: Node;
+
+    public static readonly hideOnRefClassName = 'hide-on-ref';
+    private static readonly innerCircleID = 'SVG-inner-circle';
+    private static readonly outerCircleID = 'SVG-outer-circle';
 
     constructor(config: RenderConfig, relations: Relation[], nodes: Node[], node: Node) {
         this.config = config;
@@ -48,14 +51,13 @@ export class SchemaRenderOptionsBuilder {
             data: {
                 node: node1,
                 childrenIds: children1,
-                relations: [],
-                techAppName: node1.id
+                relations: []
             },
             config: {
-                id: this.config.ids.innerCircle,
-                class: this.config.classnames.hideOnRef,
+                id: SchemaRenderOptionsBuilder.innerCircleID,
+                class: SchemaRenderOptionsBuilder.hideOnRefClassName,
                 text: {size: this.config.text.size * 2},
-                circle: {radius: this.config.circle.radius / 2}
+                circle: {radius: this.config.circle.radius * 0.625}
             },
         };
 
@@ -71,7 +73,7 @@ export class SchemaRenderOptionsBuilder {
                 relations: relations2
             },
             config: {
-                id: this.config.ids.outerCircle,
+                id: SchemaRenderOptionsBuilder.outerCircleID,
                 text: {size: this.config.text.size},
                 circle: {radius: this.config.circle.radius}
             },
@@ -98,7 +100,7 @@ export class SchemaRenderOptionsBuilder {
             config: {
                 id: `Render-${getSvgNodeId(node.id)}`,
                 text: {size: this.config.text.size * 2},
-                circle: {radius: this.config.circle.radius}
+                circle: {radius: this.config.circle.radius * 0.875}
             },
         };
 
@@ -133,7 +135,7 @@ export class SchemaRenderOptionsBuilder {
             config: {
                 id: `Render-${getSvgNodeId(node.id)}`,
                 text: {size: this.config.text.size * 2},
-                circle: {radius: this.config.circle.radius}
+                circle: {radius: this.config.circle.radius * 0.875}
             },
         };
 
