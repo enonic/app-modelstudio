@@ -3,91 +3,91 @@
 
     .header {
         display: flex;
-        margin: 50px;
-        margin-bottom: 0px;
-        flex-direction: column;
+        align-items: center;
+        background-color: #fafafa;
+        border-bottom: 1px solid #eeeeee;
+        padding: 20px;
 
         > div {
             width: 100%;
         }
 
-        :not(div:last-child) {
-            margin-bottom: 20px;
+        div:last-child {
+            text-align: right;
         }
 
-        input[type=checkbox] {
+        #search-input {
+            width: 200px;
+        }
+
+        #references-checkbox {
             -webkit-appearance: auto;
             -moz-appearance: auto;
             appearance: auto;
             margin: 0px 5px;
         }
 
-        #SearchInput {
-            width: 200px;
-        }
-
-        #ShowReferencesCheckbox {
-            
-        }
-
-        #Breadcrumbs {
-            display: none; // TODO: fix
+        #breadcrumbs {
+            text-align: center;
+            font-weight: bold;
         }
     }
 
-    svg {
-        font-family: Open Sans, Helvetica, sans-serif;
-        max-width: 1000px;
-        margin: 0 auto;
-        display: block;
+    #SvgContainer {
+        display: flex;
+        height: 100%;
+        flex-grow: 1;
 
-        * {
-            transition: 0.15s;
-        }
-
-        rect {
-            opacity: 0;
-        }
-
-        g:not(#CentralNode) > image {
-            filter: invert(0.5);
-        }
-
-        g:hover, g.hover {
-            cursor: pointer;
-        }
-
-        #TextsAndIcons {
-            g:hover rect, g.hover rect {
-                opacity: 0.7;
+        svg {
+            font-family: Open Sans, Helvetica, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: block;
+    
+            * {
+                transition: 0.15s;
             }
-
-            /*
-            g:hover image, g.hover image {
-                filter: invert(1);
-            }
-
-            g:hover text, g.hover text {
-                fill: white;
-            }
-            */
-        } 
-
-        .fade-in {
-            opacity: 1;
-            animation-name: fadeInOpacity;
-            animation-iteration-count: 1;
-            animation-timing-function: ease-in;
-            animation-duration: .3s;
-        }
-
-        @keyframes fadeInOpacity {
-            0% {
+    
+            rect {
                 opacity: 0;
             }
+    
+            g:hover, g.hover {
+                cursor: pointer;
+            }
 
-            100% {
+            #central-node {
+                text {
+                    font-weight: bolder;
+                }
+            }
+
+            #texts-and-icons {
+                g:hover text, g.filtered text{
+                    font-weight: bolder;
+                }
+
+                g.filtered rect {
+                    opacity: 0.7;
+                }
+            }
+    
+            .fade-in {
                 opacity: 1;
+                animation-name: fadeInOpacity;
+                animation-iteration-count: 1;
+                animation-timing-function: ease-in;
+                animation-duration: .3s;
+            }
+    
+            @keyframes fadeInOpacity {
+                0% {
+                    opacity: 0;
+                }
+    
+                100% {
+                    opacity: 1;
+                }
             }
         }
     }

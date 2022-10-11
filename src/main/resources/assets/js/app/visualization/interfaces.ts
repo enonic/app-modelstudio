@@ -10,7 +10,8 @@ export interface Node {
 }
 
 export interface CentralNodeInfo {
-    name: string,
+    name: string
+    subname: string
     icon: string
 }
 
@@ -21,6 +22,7 @@ export interface RenderConfig {
     text: {
         size: number
         hoverColor: string
+        fallbackColor: string
     },
     marker: {
         size: number
@@ -29,27 +31,13 @@ export interface RenderConfig {
         radius: number
         color: string
     },
-    classnames: {
-        hideOnRef: string
-    },
     ids: {
-        centralNode: string
         search: string
         checkbox: string
         breadcrumbs: string
-        backArrow: string
-        references: string
-        textsAndIcons: string
-        innerCircle: string
-        outerCircle: string
     },
     children: {
         many: number
-    },
-    icons: { 
-        fallbackKey: string
-        basePath: string
-        paths: { [key: string]: string }
     }
 }
 
@@ -58,7 +46,6 @@ export interface RenderOption {
         node?: Node,
         childrenIds: string[],
         relations: Relation[],
-        techAppName?: string
     },
     config: {
         id: string,

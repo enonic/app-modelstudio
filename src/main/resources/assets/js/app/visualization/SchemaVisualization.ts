@@ -9,12 +9,10 @@ import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ReferencesRequest} from './ReferencesRequest';
 import {getOuterCircleRadius, getOuterTextSize} from './helpers';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class SchemaVisualization extends DivEl{
     public appKey: string;
     private onNavigationListeners: FnSchemaNavigationListener[] = [];
-    private centralNodeInfo: CentralNodeInfo;
     private svgContainerId: string = 'SvgContainer';
     private schemaRender: SchemaRender;
     private searchInput: DivEl;
@@ -27,38 +25,21 @@ export class SchemaVisualization extends DivEl{
     private static readonly markerSize = 5;
     private static readonly circleColor = 'lightgray';
     private static readonly hoverColor = 'lightgray';
-    private static readonly hideOnRefClassName = 'hide-on-red';
-    private static readonly inputID = 'SearchInput';
-    private static readonly checkboxID = 'ShowReferencesCheckbox';
-    private static readonly breadcrumbsID = 'Breadcrumbs';
-    private static readonly centralNodeID = 'CentralNode';
-    private static readonly backArrowID = 'BackArrow';
-    private static readonly referencesID = 'Relations';
-    private static readonly textsAndIconsID = 'TextsAndIcons';
-    private static readonly innerCircleID = 'InnerSVG';
-    private static readonly outerCircleID = 'OuterSVG';
-    private static readonly iconFallbackKey = 'FOLDER';
-    private static readonly iconBasePath = '/icons/visualization/';
-    private static readonly iconPaths = {
-        FOLDER: 'folder.png',
-        PART:'parts.png',
-        PAGE:'pages.png',
-        LAYOUT:'layouts.png',
-        CONTENT_TYPE:'content-types.png',
-        MIXIN:'mixins.png',
-        XDATA:'x-data.png',
-    };
+    private static readonly fallbackColor = 'gray';
+    private static readonly inputID = 'search-input';
+    private static readonly checkboxID = 'references-checkbox';
+    private static readonly breadcrumbsID = 'breadcrumbs';
     
     constructor(className?: string) {
         super('schema-visualization' + (className ? ' ' + className : ''));
+
+        this.referencesCheckbox = createInput(SchemaVisualization.checkboxID, 'checkbox', 'References');
+        this.searchInput = createInput(SchemaVisualization.inputID, 'text', '', 'Filter');
+        this.breadcrumbs = this.createBreadcrumbs();
     }
 
-    setData(appKey?: string, centralNodeInfo?: CentralNodeInfo, onLoadStart: () => void = () => {}, onLoadEnd: () => void = () => {}) {
+    setData(appKey?: string,  onLoadStart: () => void = () => {}, onLoadEnd: () => void = () => {}) {
         this.appKey = appKey;
-        this.centralNodeInfo = centralNodeInfo;
-        this.referencesCheckbox = createInput(SchemaVisualization.checkboxID, 'checkbox', 'Show References');
-        this.searchInput = createInput(SchemaVisualization.inputID, 'text', 'Search');
-        this.breadcrumbs = this.createBreadcrumbs();
         this.onLoadStart = onLoadStart;
         this.onLoadEnd = onLoadEnd;
     }
@@ -70,8 +51,8 @@ export class SchemaVisualization extends DivEl{
     private getHeader(): DivEl {
         const header = new DivEl('header');
         header.appendChild(this.searchInput);
-        header.appendChild(this.referencesCheckbox);
         header.appendChild(this.breadcrumbs);
+        header.appendChild(this.referencesCheckbox);
         return header;
     }
 
@@ -93,8 +74,7 @@ export class SchemaVisualization extends DivEl{
             schemaData.getRelations(), 
             schemaData.getNodes(), 
             schemaData.getFirstNode(), 
-            this.getRenderConfig(schemaData),
-            this.centralNodeInfo
+            this.getRenderConfig(schemaData)
         );
 
         this.onNavigationListeners.forEach(fn => this.schemaRender.addOnNavigationListener(fn));
@@ -114,20 +94,9 @@ export class SchemaVisualization extends DivEl{
     private getRenderConfig(schemaData: SchemaData) {
         const config: RenderConfig = {
             ids: {
-                centralNode: SchemaVisualization.centralNodeID,
                 search: SchemaVisualization.inputID,
                 checkbox: SchemaVisualization.checkboxID,
                 breadcrumbs: SchemaVisualization.breadcrumbsID,
-                backArrow: SchemaVisualization.backArrowID,
-                references: SchemaVisualization.referencesID,
-                textsAndIcons: SchemaVisualization.textsAndIconsID,
-                innerCircle: SchemaVisualization.innerCircleID,
-                outerCircle: SchemaVisualization.outerCircleID,
-            },
-            icons: {
-                paths: SchemaVisualization.iconPaths,
-                fallbackKey: SchemaVisualization.iconFallbackKey,
-                basePath: CONFIG.getString('assetsUri') + SchemaVisualization.iconBasePath
             },
             circle: {
                 radius: getOuterCircleRadius(schemaData.getNodes()),
@@ -135,10 +104,8 @@ export class SchemaVisualization extends DivEl{
             },
             text: {
                 size: getOuterTextSize(schemaData.getNodes()),
+                fallbackColor: SchemaVisualization.fallbackColor,
                 hoverColor: SchemaVisualization.hoverColor
-            },
-            classnames: {
-                hideOnRef: SchemaVisualization.hideOnRefClassName,
             },
             references: {
                 opacity: SchemaVisualization.referencesOpacity,
@@ -147,7 +114,7 @@ export class SchemaVisualization extends DivEl{
                 size: SchemaVisualization.markerSize,
             },
             children: {
-                many: 20,
+                many: 10,
             },
         };
         
@@ -173,19 +140,31 @@ export class SchemaVisualization extends DivEl{
         });
     }
 
-    navigateToNode(nodeId: string): void {
+    navigateToNode(nodeId: string, centralNodeInfo: CentralNodeInfo): void {
+        this.schemaRender.updateCentralNodeInfo(centralNodeInfo);
         this.schemaRender.navigateToNode(nodeId);
     }
 
     onNavigate(fn: FnSchemaNavigationListener): void {
         this.onNavigationListeners.push(fn);
     }
+
+    updateCentralNodeInfo(centralNodeInfo: CentralNodeInfo): void {
+        this.schemaRender.updateCentralNodeInfo(centralNodeInfo);
+    }
+
 }
 
-function createInput(id: string, type: string, label: string = ''): DivEl {
+function createInput(id: string, type: string, label: string = '', placeholder: string = ''): DivEl {
     const classNames = type === 'text'  ? 'xp-admin-common-text-input xp-admin-middle' : '';
-    const inputEl = new InputEl(classNames, type).setId(id);
-    const labelEL = new LabelEl(label);
-    labelEL.getHTMLElement().setAttribute('for', id);
-    return new DivEl().appendChildren(labelEL, inputEl);
+    const divEL = new DivEl();
+    const inputEl = new InputEl(classNames, type).setPlaceholder(placeholder).setId(id);
+    const labelEL = label ? new LabelEl(label) : null;
+    
+    if(labelEL) {
+        labelEL.getHTMLElement().setAttribute('for', id);
+        divEL.appendChild(labelEL);
+    }
+    
+    return divEL.appendChild(inputEl);
 }
