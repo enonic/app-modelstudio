@@ -6,8 +6,6 @@ import {
     getNodeById,
     getNodeColor,
     getNodeColorByNodeId,
-    getNodeIcon,
-    getOuterCircleRadius,
     getRelationsPathD,
     getSvgNodeId,
     getTextRotation,
@@ -25,16 +23,21 @@ export default class SchemaRender {
     private nodes: Node[];
     private config: RenderConfig;
     private renderOptions: RenderOption[];
+    private centralNodeInfo: CentralNodeInfo = {} as CentralNodeInfo;
+
     private onNavigationListeners: Function[] = [];
     private svg: D3SVG;
-    private centralNodeInfo: CentralNodeInfo;
     private textsAndIconsSVGGroups: D3SVGG[];
     private backArrowSvgGroup: D3SVGG;
 
-    constructor(relations: Relation[], nodes: Node[], node: Node, config: RenderConfig, centralNodeInfo?: CentralNodeInfo) {
+    private static readonly centralNodeID = 'central-node';
+    private static readonly backArrowID = 'back-arrow';
+    private static readonly textsAndIconsID = 'texts-and-icons';
+    private static readonly referencesID = 'references';
+
+    constructor(relations: Relation[], nodes: Node[], node: Node, config: RenderConfig) {
         this.relations = relations;
         this.nodes = nodes;
-        this.centralNodeInfo = centralNodeInfo;
         this.config = config;
 
         this.setOptions(node);
@@ -50,7 +53,7 @@ export default class SchemaRender {
     private initSearchInputListeners(): void {
         const keyUpHandler = (e: Event) => {
             this.clearAllHoveredGroups();
-            
+
             let typedText = (e.target as HTMLInputElement).value;
 
             if (!typedText) {
@@ -66,7 +69,7 @@ export default class SchemaRender {
             }
 
             const svgGroups = nodeIdMatches.map(nodeId => document.getElementById(nodeId)).filter(el => !!el);
-            svgGroups.forEach(group => group.classList.add('hover'));
+            svgGroups.forEach(group => group.classList.add('filtered'));
         };
 
         this.setUniqueListener(this.config.ids.search, 'keyup', keyUpHandler, 100);
@@ -88,8 +91,8 @@ export default class SchemaRender {
 
     private initTextsAndIconsListeners(svg: D3SVG) {
         const clickHandler = (_, nodeId: string): void => {
-            this.clickHandler(svg, nodeId);
             this.executeOnNavigationListener(nodeId);
+            this.clickHandler(svg, nodeId);
         };
 
         const mouseOverHandler = (_, nodeId: string): void => {
@@ -100,24 +103,24 @@ export default class SchemaRender {
             const conditionals = {
                 isShowingAllRelations: this.renderOptions.length > 1,
                 nodeDepthIsDifferentThanTwo: getNodeById(this.nodes, nodeId).depth !== 2,
-                nodeHasReferenceWithSameDepth: this.relations.some(relation => 
-                    (relation.source === nodeId || relation.target === nodeId) && 
-                    getNodeById(this.nodes, relation.source).depth === getNodeById(this.nodes, relation.target).depth 
+                nodeHasReferenceWithSameDepth: this.relations.some(relation =>
+                    (relation.source === nodeId || relation.target === nodeId) &&
+                    getNodeById(this.nodes, relation.source).depth === getNodeById(this.nodes, relation.target).depth
                 ),
-                nodeHasReferenceWithSameFather: this.relations.some(relation => 
-                    (relation.source === nodeId || relation.target === nodeId) && 
-                    getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, relation.source)) === 
+                nodeHasReferenceWithSameFather: this.relations.some(relation =>
+                    (relation.source === nodeId || relation.target === nodeId) &&
+                    getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, relation.source)) ===
                     getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, relation.target))
                 )
             };
 
-            if (conditionals.nodeDepthIsDifferentThanTwo 
+            if (conditionals.nodeDepthIsDifferentThanTwo
                 && conditionals.nodeHasReferenceWithSameDepth
                 && (conditionals.isShowingAllRelations || conditionals.nodeHasReferenceWithSameFather)) {
                 this.toggleReferences(svg, [], true);
             }
 
-            const pathSelector = `#${this.config.ids.references} > path`;
+            const pathSelector = `#${SchemaRender.referencesID} > path`;
             const fnPathElementsOpacity = (relation: Relation) => {
                 const opacity = Number(relation.source === nodeId || relation.target === nodeId);
                 return opacity || this.config.references.opacity;
@@ -149,16 +152,16 @@ export default class SchemaRender {
         const clickHandler = () => {
             const centralNode = this.renderOptions[0].data.node;
             const centralNodeFatherId = getFatherNodeId(this.relations, this.nodes, centralNode);
-            this.clickHandler(svg, centralNodeFatherId);
             this.executeOnNavigationListener(centralNodeFatherId, centralNode.id);
+            this.clickHandler(svg, centralNodeFatherId);
         };
 
         this.backArrowSvgGroup.on('click', clickHandler);
     }
 
     private toggleReferences(svg: D3SVG, nodeIds: string[] = [], forceToggle: boolean = false) {
-        const pathSelector = `#${this.config.ids.references} > path`;
-        const hideSelector = `.${this.config.classnames.hideOnRef}`;
+        const pathSelector = `#${SchemaRender.referencesID} > path`;
+        const hideSelector = `.${SchemaRenderOptionsBuilder.hideOnRefClassName}`;
 
         const fnPathElementsOpacity = (relation: Relation) => {
             if (this.isInReferencesMode() || forceToggle) {
@@ -174,7 +177,7 @@ export default class SchemaRender {
 
         const fnHideElementsOpacity = () => {
             if (this.isInReferencesMode() || forceToggle) {
-                return this.config.references.opacity; 
+                return this.config.references.opacity;
             } else {
                 return 1;
             }
@@ -182,7 +185,7 @@ export default class SchemaRender {
 
         svg.selectAll(pathSelector).attr('opacity', fnPathElementsOpacity);
         svg.selectAll(hideSelector).attr('opacity', fnHideElementsOpacity);
-    } 
+    }
 
     private clickHandler(svg: D3SVG, nodeId: string): void {
         const node = getNodeById(this.nodes, nodeId);
@@ -191,7 +194,7 @@ export default class SchemaRender {
     }
 
     navigateToNode(nodeId: string): void {
-        if(this.svg && getNodeById(this.nodes, nodeId)) {
+        if (this.svg && getNodeById(this.nodes, nodeId)) {
             this.clickHandler(this.svg, nodeId);
         }
     }
@@ -211,19 +214,23 @@ export default class SchemaRender {
         this.onNavigationListeners = [fn, ...this.onNavigationListeners];
     }
 
+    updateCentralNodeInfo(centralNodeInfo: CentralNodeInfo): void {
+        this.centralNodeInfo = centralNodeInfo;
+    }
+
     private executeOnNavigationListener(nodeId: string, prevNodeId?: string) {
         const appKey = this.nodes[0].id;
-        this.onNavigationListeners.forEach(listener => AppHelper.debounce(listener(appKey, nodeId, prevNodeId), 100));
+        this.onNavigationListeners.forEach(listener => listener(appKey, nodeId, prevNodeId));
     }
 
     private reset(svg: D3SVG) {
         this.textsAndIconsSVGGroups = [];
         this.backArrowSvgGroup = null;
-        svg.selectAll('*').remove(); 
+        svg.selectAll('*').remove();
     }
 
     private setOptions(node: Node) {
-       this.renderOptions = new SchemaRenderOptionsBuilder(this.config, this.relations, this.nodes, node).build();
+        this.renderOptions = new SchemaRenderOptionsBuilder(this.config, this.relations, this.nodes, node).build();
     }
 
     private renderByOption(svg: D3SVG, option: RenderOption) {
@@ -239,11 +246,10 @@ export default class SchemaRender {
         const data = option.data.childrenIds;
         const textFontSize = option.config.text.size;
         const textFunctions = this.getTextFunctions(option);
-        const imageFunctions = this.getImageFunctions(option);
-        const rectFunctions = this.getRectFunctions(textFunctions, imageFunctions, option);
+        const rectFunctions = this.getRectFunctions(textFunctions, option);
 
         const group: D3SVGG = svgGroup.append('g')
-            .attr('id', this.config.ids.textsAndIcons)
+            .attr('id', SchemaRender.textsAndIconsID)
             .selectAll('text, g')
             .data(data)
             .enter()
@@ -253,11 +259,6 @@ export default class SchemaRender {
             .attr('transform', textFunctions.transform);
 
         this.appendRectWithFunctions(group, rectFunctions);
-
-        if (!this.tooManyChildren(option)) {
-            this.appendImageWithFunctions(group, imageFunctions);
-        }
-
         this.appendTextWithFunctions(group, textFunctions, textFontSize);
 
         this.textsAndIconsSVGGroups = [...this.textsAndIconsSVGGroups, group];
@@ -277,25 +278,20 @@ export default class SchemaRender {
     private appendCentralNode(svgGroup: D3SVGG, option: RenderOption) {
         if (!option.data.node) { return; }
 
-        const hideClass = option.data.node.depth > 1 ? this.config.classnames.hideOnRef : null;
-        const group = svgGroup.append('g').attr('id', this.config.ids.centralNode);
-        const icon = option.data.node.depth === 1 
-            ? this.centralNodeInfo?.icon
-            : getNodeIcon(this.relations, this.nodes, option.data.node.id, this.config.icons);
-        
+        const hideClass = option.data.node.depth > 1 ? SchemaRenderOptionsBuilder.hideOnRefClassName : null;
+        const group = svgGroup.append('g').attr('id', SchemaRender.centralNodeID);
+        const icon = this.centralNodeInfo.icon;
+
         if (icon) {
-            const width = 40;
+            const width = 50;
             const x = - width / 2;
-            const y = - width;
+            const y = - width * 1.2;
 
             this.appendImage(group, icon, width, x, y).attr('class', hideClass);
         }
 
         this.appendNodeName(group, option).attr('class', hideClass);
-
-        if (option.data.techAppName) {
-            this.appendTechAppName(group, option).attr('class', hideClass);
-        }
+        this.appendTechAppName(group, option).attr('class', hideClass);
 
         if (option.data.node.depth > 1) {
             this.appendBackArrow(group, option.config.text.size).attr('class', hideClass);
@@ -304,29 +300,15 @@ export default class SchemaRender {
 
     private appendNodeName(svg: D3SVGG, option: RenderOption) {
         const size = 1.1 * option.config.text.size;
-        
-        let text = '';
-        
-        if (option.data.node.depth === 1) {
-            text = this.centralNodeInfo?.name;
-        }
-
-        if (option.data.node.depth === 2) {
-            text = getNodeDisplayName(option.data.node.id);
-        }
-
-        if(option.data.node.depth === 3) {
-            text = getCleanNodeId(option.data.node.id);
-        }
-
-        const [x, y] = [0, this.centralNodeInfo?.icon ? 40 / 2.5 : 0]; //TODO: use width
+        let text = this.centralNodeInfo.name;
+        const [x, y] = [0, this.centralNodeInfo.icon ? 40 / 2.5 : 0]; // TODO: use width
         return this.appendText(svg, size, text, x, y);
     }
 
     private appendTechAppName(svg: D3SVGG, option: RenderOption) {
         const size = 7;
-        const [x, y] = [0, this.centralNodeInfo?.icon ? 40 / 1.25 : 45]; //TODO: use width
-        return this.appendText(svg, size, option.data.techAppName, x, y);
+        const [x, y] = [0, this.centralNodeInfo.icon ? 40 / 1.25 : 45]; // TODO: use width
+        return this.appendText(svg, size, this.centralNodeInfo.subname, x, y, this.config.text.fallbackColor);
     }
 
     private appendRelations(svg: D3SVGG, option: RenderOption) {
@@ -342,7 +324,7 @@ export default class SchemaRender {
             getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, relation.source));
 
         const linkGroups = svg.append('g')
-            .attr('id', this.config.ids.references)
+            .attr('id', SchemaRender.referencesID)
             .selectAll('path')
             .data(option.data.relations)
             .enter();
@@ -361,12 +343,13 @@ export default class SchemaRender {
         return svg.append('image').attr('x', x).attr('y', y).attr('width', width).attr('href', href);
     }
 
-    private appendText(svg: D3SVGG, size: number, text: string, x = 0, y = 0) {
+    private appendText(svg: D3SVGG, size: number, text: string, x = 0, y = 0, color: string = 'black') {
         return svg.append('text')
             .attr('x', x)
             .attr('y', y)
             .attr('font-size', size)
             .attr('text-anchor', 'middle')
+            .attr('fill', color)
             .text(text);
     }
 
@@ -393,9 +376,6 @@ export default class SchemaRender {
             .attr('font-size', textFontSize)
             .attr('text-anchor', 'middle')
             .text(functions.text);
-            //.clone(true).lower()
-            //.attr('stroke', 'white')
-            //.attr('stroke-width', textFontSize);
     }
 
     private appendRectWithFunctions(svg: D3SVGG, functions: ReturnType<typeof this.getRectFunctions>) {
@@ -407,18 +387,10 @@ export default class SchemaRender {
             .attr('fill', functions.fill);
     }
 
-    private appendImageWithFunctions(svg: D3SVGG, functions: ReturnType<typeof this.getImageFunctions>) {
-        svg.append('image')
-            .attr('x', functions.x)
-            .attr('y', functions.y)
-            .attr('width', functions.width)
-            .attr('href', functions.href);
-    }
-
     private appendBackArrow(svg: D3SVGG, size: number, fnClickHandler = () => { }): D3SVGG {
         const group: D3SVGG = svg.append('g')
-            .attr('id', this.config.ids.backArrow);
-        
+            .attr('id', SchemaRender.backArrowID);
+
         group.append('path')
             .attr('class', 'back-arrow')
             // eslint-disable-next-line max-len
@@ -429,7 +401,7 @@ export default class SchemaRender {
         group.append('rect')
             .on('click', fnClickHandler)
             .attr('x', -10)
-            .attr('y', 3.5 * size)
+            .attr('y', 3 * size)
             .attr('width', 20)
             .attr('height', 15)
             .attr('opacity', 0);
@@ -459,8 +431,8 @@ export default class SchemaRender {
     }
 
     private clearAllHoveredGroups(): void {
-        const hoveredGroups = document.querySelectorAll('g .hover');
-        hoveredGroups.forEach(group => group.classList.remove('hover'));
+        const hoveredGroups = document.querySelectorAll('g .filtered');
+        hoveredGroups.forEach(group => group.classList.remove('filtered'));
     }
 
     private getBreadcrumbsText(nodeId: string): string {
@@ -470,7 +442,7 @@ export default class SchemaRender {
         };
 
         return recur(nodeId).filter((id: string) => !!id)
-            .map(s => getCleanNodeId(getNodeDisplayName(s)))
+            .map(s => getCleanNodeId(getNodeDisplayName(s.toLowerCase())))
             .join(' > ');
     }
 
@@ -498,67 +470,29 @@ export default class SchemaRender {
         };
     }
 
-    private getImageFunctions(option: RenderOption) {
-        const isOuterCircle = option.config.circle.radius === getOuterCircleRadius(this.nodes);
-
-        const fnImageWidth = () => isOuterCircle && this.renderOptions.length > 1 ? 7.5 : 15;
-
-        const fnImageX = (_, nodeIndex: number) =>
-            getTextXPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length) - fnImageWidth()/2;
-
-        const fnImageY = (_, nodeIndex: number) =>
-            getTextYPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length) - 2*fnImageWidth();
-
-        const fnImageHref = (nodeId: string) =>
-            getNodeIcon(this.relations, this.nodes, nodeId, this.config.icons) ||
-            getNodeIcon(
-                this.relations,
-                this.nodes,
-                getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, nodeId)),
-                this.config.icons
-            );
-
-        return {
-            x: fnImageX,
-            y: fnImageY,
-            width: fnImageWidth,
-            height: fnImageWidth,
-            href: fnImageHref
-        };
-    }
-
-    private getRectFunctions(
-        textFunctions: ReturnType<typeof this.getTextFunctions>,
-        imageFunctions: ReturnType<typeof this.getImageFunctions>,
-        option: RenderOption) {
-
+    private getRectFunctions(textFunctions: ReturnType<typeof this.getTextFunctions>, option: RenderOption) {
         const padding = {
-            top: this.tooManyChildren(option) ? 7.5 : 5, 
-            bottom: this.tooManyChildren(option) ? 5 : 7.5,
+            top: 7.5,
+            bottom: 5,
             left: 7.5,
             right: 7.5,
         };
 
         const fnTextWidth = (nodeId: string) => getTextWidth(textFunctions.text(nodeId), option.config.text.size);
-        
+
         const fnRectWidth = (nodeId: string) => fnTextWidth(nodeId);
-        const fnRectHeight = () => this.tooManyChildren(option)
-            ? option.config.text.size
-            : imageFunctions.height() + option.config.text.size;
+        const fnRectHeight = () => option.config.text.size;
 
-        const fnRectX = (nodeId: string, nodeIndex: number) => textFunctions.x(nodeId, nodeIndex) - fnRectWidth(nodeId)/2;
-        const fnRectY = (nodeId: string, nodeIndex: number) => this.tooManyChildren(option)
-            ? textFunctions.y(nodeId, nodeIndex) - fnRectHeight() / 2
-            : imageFunctions.y(nodeId, nodeIndex);
+        const fnRectX = (nodeId: string, nodeIndex: number) => textFunctions.x(nodeId, nodeIndex) - fnRectWidth(nodeId) / 2;
+        const fnRectY = (nodeId: string, nodeIndex: number) => textFunctions.y(nodeId, nodeIndex) - fnRectHeight() / 2;
 
-        const fnRectFill = (nodeId: string) => this.config.text.hoverColor;
-        //getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
+        const fnRectFill = () => this.config.text.hoverColor;
 
         return {
             x: (nodeId: string, nodeIndex: number) => fnRectX(nodeId, nodeIndex) - padding.left,
             y: (nodeId: string, nodeIndex: number) => fnRectY(nodeId, nodeIndex) - padding.top,
-            width: (nodeId: string) => fnRectWidth(nodeId) + 2*padding.right,
-            height: () => fnRectHeight() + 2*padding.bottom,
+            width: (nodeId: string) => fnRectWidth(nodeId) + 2 * padding.right,
+            height: () => fnRectHeight() + 2 * padding.bottom,
             fill: fnRectFill,
         };
     }

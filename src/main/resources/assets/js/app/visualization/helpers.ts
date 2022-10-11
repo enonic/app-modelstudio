@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {Relation, Node, RenderConfig} from './interfaces';
+import {Relation, Node} from './interfaces';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 
@@ -38,7 +37,7 @@ export function getAllNodesByDepth(nodes: Node[], desiredDepth: number): Node[] 
 }
 
 export function getOuterTextSize(nodes: Node[]): number {
-    const scale = d3.scaleLinear().domain([0, 250]).range([12, 8]);
+    const scale = d3.scaleLinear().domain([0, 250]).range([13, 10]);
     return Math.floor(scale(getOuterCircleRadius(nodes)));
 }
 
@@ -53,7 +52,7 @@ export function getNodeColor(relations: Relation[], nodes: Node[], node: Node): 
 
     if (node.depth === 2) {
         const index = relations
-            .filter(({source}) => source === nodes[0].id) // FIX
+            .filter(({source}) => source === nodes[0].id) // TODO: FIX
             .findIndex(({target}) => target === node.id) + 1;
 
         return colors[index] || colors[colors.length - 1];
@@ -76,25 +75,6 @@ export function getFatherNodeId(relations: Relation[], nodes: Node[], node: Node
         .filter(relation => getNodeById(nodes, relation.source).depth === node.depth - 1);
         
     return relationsAbove.length > 0 ? relationsAbove.map(x => x.source).pop() : '';
-}
-
-export function getNodeIcon(relations: Relation[], nodes: Node[], nodeId: string, iconOptions: RenderConfig['icons']): string {
-    let iconKey: string = iconOptions.fallbackKey;
-
-    if (getNodeById(nodes, nodeId).depth !== 2) { 
-        iconKey = getIconKey(getCleanNodeId(nodeId));
-    }
-
-    if(!iconOptions.paths[iconKey]) {
-        const fatherNodeId = getFatherNodeId(relations, nodes, getNodeById(nodes, nodeId));
-        iconKey = getIconKey(getCleanNodeId(fatherNodeId));
-    }
-
-    if(!iconOptions.paths[iconKey]) {
-        return '';
-    }
-
-    return iconOptions.basePath + iconOptions.paths[iconKey];
 }
 
 function getConstant(nodeIndex: number, max: number): number {
@@ -143,7 +123,7 @@ export function getColors(): string[] {
     return [...d3.schemeCategory10];
 }
 
-// Fix: find a simpler way to do that.
+// TODO: Fix: find a simpler way to do that.
 export function getTextWidth(str: string, fontSize: number): number {
     // eslint-disable-next-line max-len
     const widths = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.2796875,0.2765625,0.3546875,0.5546875,0.5546875,0.8890625,0.665625,0.190625,0.3328125,0.3328125,0.3890625,0.5828125,0.2765625,0.3328125,0.2765625,0.3015625,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.5546875,0.2765625,0.2765625,0.584375,0.5828125,0.584375,0.5546875,1.0140625,0.665625,0.665625,0.721875,0.721875,0.665625,0.609375,0.7765625,0.721875,0.2765625,0.5,0.665625,0.5546875,0.8328125,0.721875,0.7765625,0.665625,0.7765625,0.721875,0.665625,0.609375,0.721875,0.665625,0.94375,0.665625,0.665625,0.609375,0.2765625,0.3546875,0.2765625,0.4765625,0.5546875,0.3328125,0.5546875,0.5546875,0.5,0.5546875,0.5546875,0.2765625,0.5546875,0.5546875,0.221875,0.240625,0.5,0.221875,0.8328125,0.5546875,0.5546875,0.5546875,0.5546875,0.3328125,0.5,0.2765625,0.5546875,0.5,0.721875,0.5,0.5,0.5,0.3546875,0.259375,0.353125,0.5890625];

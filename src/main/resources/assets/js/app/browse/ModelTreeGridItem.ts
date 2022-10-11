@@ -11,6 +11,7 @@ import {SchemaType} from '../schema/SchemaType';
 import {Site} from '../schema/Site';
 import {Styles} from '../schema/Styles';
 import {RenderableApplication} from '../application/RenderableApplication';
+import {UrlHelper} from '../util/UrlHelper';
 
 export enum UserTreeGridItemType {
     APPLICATION,
@@ -105,7 +106,7 @@ export class ModelTreeGridItem
             return 'site.xml';
 
         case UserTreeGridItemType.STYLES:
-            return 'styles.xml';
+            return 'styles'; //'styles.xml';
 
         case UserTreeGridItemType.PARTS:
             return i18n('field.parts');
@@ -297,67 +298,24 @@ export class ModelTreeGridItem
     }
 
     getIconClass(): string {
-        switch (this.getType()) {
-        case UserTreeGridItemType.APPLICATION:
-            return 'icon-folder icon-large';
-
-        case UserTreeGridItemType.PART:
-            return 'icon-puzzle icon-large';
-
-        case UserTreeGridItemType.LAYOUT:
-            return 'icon-layout icon-large';
-
-        case UserTreeGridItemType.PAGE:
-            return 'icon-page icon-large';
-
-        case UserTreeGridItemType.CONTENT_TYPE:
-            return 'icon-file-text2 icon-large';
-
-        case UserTreeGridItemType.MIXIN:
-            return 'icon-file-text2 icon-large';
-
-        case UserTreeGridItemType.XDATA:
-            return 'icon-file-text2 icon-large';
-
-        case UserTreeGridItemType.SITE:
-            return 'icon-file-text2 icon-large';
-
-        case UserTreeGridItemType.STYLES:
-            return 'icon-file-text2 icon-large';
-
-        case UserTreeGridItemType.PARTS:
-            return 'icon-folder icon-large';
-
-        case UserTreeGridItemType.PAGES:
-            return 'icon-folder icon-large';
-
-        case UserTreeGridItemType.LAYOUTS:
-            return 'icon-folder icon-large';
-
-        case UserTreeGridItemType.CONTENT_TYPES:
-            return 'icon-folder icon-large';
-
-        case UserTreeGridItemType.MIXINS:
-            return 'icon-folder icon-large';
-
-        case UserTreeGridItemType.XDATAS:
-            return 'icon-folder icon-large';
-        }
-    }
-
-    getIconUrl(): string {
         return '';
     }
 
-    getIconSrc(): string {
-        if (this.isApplication()) {
-            return this.application.getIcon();
+    getIconUrl(): string {
+        if (this.isContentType()) {
+            return UrlHelper.getCmsRestUri('schema/content/icon/') + this.getId();
         }
-        if (this.isSchema()) {
-            return this.schema.getIcon();
+        if (this.isPart()) {
+            return UrlHelper.getCmsRestUri('content/page/part/descriptor/icon/') + this.getId();
         }
-
-        return null;
+        if (this.isLayout()) {
+            return UrlHelper.getCmsRestUri('schema/content/icon/portal:page-template');
+        }
+        if (this.isPage() || this.isMixin() || this.isXData() || this.isSite() || this.isStyles()) {
+            return UrlHelper.getCmsRestUri('schema/content/icon/media:document');
+        }
+        
+        return UrlHelper.getCmsRestUri('schema/content/icon/base:folder');
     }
 }
 
