@@ -55,7 +55,7 @@ export class ModelItemStatisticsPanel
             const nodeId = itemToNodeId(item);        
 
             if (treeGridAppKey === schemaVisualizationAppKey) {
-                this.schemaVisualization.navigateToNode(nodeId);
+                this.schemaVisualization.navigateToNode(nodeId, this.getCentralNodeInfo(item));
             } else {
                 this.setSchemaVisualizationData(treeGridAppKey, item, nodeId);
                 this.schemaVisualization.refresh();
@@ -69,29 +69,25 @@ export class ModelItemStatisticsPanel
     }
 
     private setSchemaVisualizationData(appKey: string, item: ModelTreeGridItem, navigateToAppKey?: string): void {
-        const centralNodeInfo: CentralNodeInfo = {
-            name: item.getApplication().getDisplayName(),
-            icon: item.getApplication().getIcon()
-        };
-
         const onSchemaVisualizationDataLoadStart = () => { 
             this.loadMask.show();
         };
 
-        const onSchemaVisualizationDataLoadEnd = () => { 
+        const onSchemaVisualizationDataLoadEnd = () => {
             this.loadMask.hide();
-            this.schemaVisualizationRenderHandler(appKey, navigateToAppKey);   
+            this.schemaVisualizationRenderHandler(appKey, item, navigateToAppKey);   
         };
 
-        this.schemaVisualization.setData(appKey, centralNodeInfo, onSchemaVisualizationDataLoadStart, onSchemaVisualizationDataLoadEnd);
+        this.schemaVisualization.setData(appKey, onSchemaVisualizationDataLoadStart, onSchemaVisualizationDataLoadEnd);
     }
 
-    private schemaVisualizationRenderHandler(appKey: string, navigateToAppKey?: string): void {
-        this.treeGrid.highlightItemById(appKey);
+    private schemaVisualizationRenderHandler(appKey: string, item: ModelTreeGridItem, navigateToAppKey?: string): void {
         this.treeGrid.expandNodeByDataId(appKey);
         
         if (navigateToAppKey) {
-            this.schemaVisualization.navigateToNode(navigateToAppKey);
+            this.schemaVisualization.navigateToNode(navigateToAppKey, this.getCentralNodeInfo(item));
+        } else {
+            this.treeGrid.highlightItemById(appKey, false, true);
         }
     }
         
@@ -99,6 +95,10 @@ export class ModelItemStatisticsPanel
         const executeNavigation = (itemKey: string, prevItemKey?: string): Q.Promise<boolean> => { 
             this.treeGrid.highlightItemById(itemKey, false, true);
 
+            const highlightedItem = this.treeGrid.getHighlightedItem();
+            const centralNodeInfo = this.getCentralNodeInfo(highlightedItem);
+            this.schemaVisualization.updateCentralNodeInfo(centralNodeInfo);
+            
             if (prevItemKey) {
                 this.treeGrid.collapseNodeByDataId(prevItemKey);
             }
@@ -119,11 +119,18 @@ export class ModelItemStatisticsPanel
                 const typeKey = nodeIdToItemKey(appKey, nodeIdDetails.type);
 
                 executeNavigation(typeKey, prevItemKey).then(() => executeNavigation(itemKey, prevItemKey));
-                return;
             }
 
             executeNavigation(itemKey, prevItemKey);
         });
+    }
+
+    private getCentralNodeInfo(item: ModelTreeGridItem): CentralNodeInfo{
+        return {
+            name: item.getDisplayName(),
+            subname: item.getId(),
+            icon: item.isApplication() ? item.getApplication().getIcon() : item.getIconUrl()
+        };
     }
 }
 
