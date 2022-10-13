@@ -18,34 +18,37 @@ exports.get = function handleGet(req) {
 }
 
 function getReferences(appKey) {
-    const schemaNamesAndReferences = [
-        getSchemaNamesAndReferences(appKey, 'CONTENT_TYPE'),
-        getSchemaNamesAndReferences(appKey, 'MIXIN'),
-        getSchemaNamesAndReferences(appKey, 'XDATA'),
-        getComponentNamesAndReferences(appKey, 'PAGE'),
-        getComponentNamesAndReferences(appKey, 'LAYOUT'),
-        getComponentNamesAndReferences(appKey, 'PART'),
-    ].reduce((prev, curr) => ({
+    
+    const schemaCategories = ['CONTENT_TYPE', 'MIXIN', 'XDATA'];
+    const componentCategories = ['PAGE', 'LAYOUT', 'PART'];
+    const categories = [].concat(schemaCategories).concat(componentCategories);
+    const schemaNamesAndReferences = schemaCategories.map(schemaCategory => getSchemaNamesAndReferences(appKey, schemaCategory));
+    const componentNamesAndReferences = componentCategories.map(componentCategory => getComponentNamesAndReferences(appKey, componentCategory));
+
+    const namesAndReferences = []
+    .concat(schemaNamesAndReferences)
+    .concat(componentNamesAndReferences)
+    .reduce((prev, curr) => ({
         names: prev.names.concat(curr.names),
         references: prev.references.concat(curr.references)
     }));
 
     const baseContentTypeNames = getBaseContentTypeNames(appKey);
-    const schemaNames = schemaNamesAndReferences.names.concat(baseContentTypeNames);
-    const schemaReferences = schemaNamesAndReferences.references.filter(reference => schemaNames.indexOf(reference[1]) >= 0);
-    const referencedBaseContentTypeNames = baseContentTypeNames.filter(name => schemaReferences.some(reference => name === reference[1]));
+    const allNames = namesAndReferences.names.concat(baseContentTypeNames);
+    const allRefs = namesAndReferences.references.filter(reference => allNames.indexOf(reference[1]) > -1);
+    const referencedBaseContentTypeNames = baseContentTypeNames.filter(name => allRefs.some(reference => name === reference[1]));
     const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => ['CONTENT_TYPE', name]);
+    const refs = [].concat(baseContentTypeReferences).concat(allRefs);
 
-    const references = [
-        [[appKey, 'CONTENT_TYPE']],
-        [[appKey, 'MIXIN']],
-        [[appKey, 'XDATA']],
-        [[appKey, 'PAGE']],
-        [[appKey, 'LAYOUT']],
-        [[appKey, 'PART']],
-        baseContentTypeReferences,
-        schemaReferences,
-    ].reduce((prev, curr) => prev.concat(curr))
+    let initialRefs = [];
+    categories.forEach(category => {
+        if (refs.some(ref => ref[0] === category)) {
+            initialRefs.push([appKey, category]);
+        }
+    });
+
+    const references = initialRefs
+    .concat(refs)
     .map(reference => ({source: reference[0], target: reference[1]}));
     
     return references;

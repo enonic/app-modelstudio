@@ -1,5 +1,5 @@
 import * as Q from 'q';
-import * as d3 from 'd3';
+import {select, schemeCategory10} from 'd3';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {CentralNodeInfo, D3SVG, FnSchemaNavigationListener, Relation, RenderConfig} from './interfaces';
 import SchemaData from './SchemaData';
@@ -9,6 +9,8 @@ import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ReferencesRequest} from './ReferencesRequest';
 import {getOuterCircleRadius, getOuterTextSize} from './helpers';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class SchemaVisualization extends DivEl{
     public appKey: string;
@@ -23,9 +25,9 @@ export class SchemaVisualization extends DivEl{
 
     private static readonly referencesOpacity = 0.1;
     private static readonly markerSize = 5;
-    private static readonly circleColor = 'lightgray';
-    private static readonly hoverColor = 'lightgray';
-    private static readonly fallbackColor = 'gray';
+    private static readonly lightGrayColor = '#d3d3d3';
+    private static readonly blackColor = '#3e3e3e';
+    private static readonly grayColor = '#808080';
     private static readonly inputID = 'search-input';
     private static readonly checkboxID = 'references-checkbox';
     private static readonly breadcrumbsID = 'breadcrumbs';
@@ -33,8 +35,8 @@ export class SchemaVisualization extends DivEl{
     constructor(className?: string) {
         super('schema-visualization' + (className ? ' ' + className : ''));
 
-        this.referencesCheckbox = createInput(SchemaVisualization.checkboxID, 'checkbox', 'References');
-        this.searchInput = createInput(SchemaVisualization.inputID, 'text', '', 'Filter');
+        this.referencesCheckbox = createCheckboxInput(SchemaVisualization.checkboxID, 'References');
+        this.searchInput = createTextInput(SchemaVisualization.inputID, '', 'Filter');
         this.breadcrumbs = this.createBreadcrumbs();
     }
 
@@ -62,7 +64,7 @@ export class SchemaVisualization extends DivEl{
 
     private createSVG(width: number, height: number): D3SVG {
         const svgViewBox = [-width/2, -height/2, width, height];
-        return d3.select(`#${this.svgContainerId}`).append('svg').attr('viewBox', svgViewBox);
+        return select(`#${this.svgContainerId}`).append('svg').attr('viewBox', svgViewBox);
     }
 
     private loadReferences(appKey: string): Q.Promise<{ references: Relation[] }> {
@@ -100,12 +102,9 @@ export class SchemaVisualization extends DivEl{
             },
             circle: {
                 radius: getOuterCircleRadius(schemaData.getNodes()),
-                color: SchemaVisualization.circleColor,
             },
             text: {
                 size: getOuterTextSize(schemaData.getNodes()),
-                fallbackColor: SchemaVisualization.fallbackColor,
-                hoverColor: SchemaVisualization.hoverColor
             },
             references: {
                 opacity: SchemaVisualization.referencesOpacity,
@@ -116,6 +115,20 @@ export class SchemaVisualization extends DivEl{
             children: {
                 many: 10,
             },
+            colors: {
+                primary: SchemaVisualization.blackColor,
+                secondary: SchemaVisualization.grayColor,
+                fallback: SchemaVisualization.lightGrayColor,
+                range: [
+                    '#d3d3d3',
+                    '#ff7f0e', // Content Type
+                    '#2ca02c', // Mixins
+                    '#e91e63', // XDatas
+                    '#2fb6a3', // Pages
+                    '#000000', // Layouts
+                    '#1f77b4', // Parts
+                ]
+            }
         };
         
         return config;
@@ -155,16 +168,46 @@ export class SchemaVisualization extends DivEl{
 
 }
 
-function createInput(id: string, type: string, label: string = '', placeholder: string = ''): DivEl {
-    const classNames = type === 'text'  ? 'xp-admin-common-text-input xp-admin-middle' : '';
+function createTextInput(id: string, label: string = '', placeholder: string = ''): DivEl {
     const divEL = new DivEl();
-    const inputEl = new InputEl(classNames, type).setPlaceholder(placeholder).setId(id);
-    const labelEL = label ? new LabelEl(label) : null;
     
+    const inputEL = new InputEl('', 'text');
+    inputEL.setPlaceholder(placeholder);
+    inputEL.setId(id);
+
+    const labelEL = label ? new LabelEl(label) : null;
+
+    const buttonEL = new ButtonEl();
+    const spanEL = new SpanEl('icon-close');
+    buttonEL.appendChild(spanEL);
+    buttonEL.onClicked(() => {
+        const inputDOM = document.getElementById(inputEL.getId()) as HTMLInputElement;
+        inputDOM.value = ''; // TODO: Why reset, resetBaseValues and setValue were not able to clear it?
+        inputDOM.dispatchEvent(new KeyboardEvent('keyup', {'key': 'enter'})); // Necessary to trigger keyup handler.
+    });
+
     if(labelEL) {
         labelEL.getHTMLElement().setAttribute('for', id);
         divEL.appendChild(labelEL);
     }
+
+    divEL.appendChild(inputEL);
+    divEL.appendChild(buttonEL);
+
+    return divEL;
+}
+
+function createCheckboxInput(id: string, label: string): DivEl {
+    const divEL = new DivEl('checkbox form-input right');
     
-    return divEL.appendChild(inputEl);
+    const inputEl = new InputEl('form-input', 'checkbox');
+    inputEl.setId(id);
+    
+    const labelEL = label ? new LabelEl(label) : null;
+    labelEL.getHTMLElement().setAttribute('for', id);
+
+    divEL.appendChild(inputEl);
+    divEL.appendChild(labelEL);
+    
+    return  divEL;
 }
