@@ -21,15 +21,12 @@ export interface RenderConfig {
     },
     text: {
         size: number
-        hoverColor: string
-        fallbackColor: string
     },
     marker: {
         size: number
     },
     circle: {
         radius: number
-        color: string
     },
     ids: {
         search: string
@@ -38,6 +35,12 @@ export interface RenderConfig {
     },
     children: {
         many: number
+    }
+    colors: {
+        primary: string
+        secondary: string
+        fallback: string
+        range: Array<string>
     }
 }
 

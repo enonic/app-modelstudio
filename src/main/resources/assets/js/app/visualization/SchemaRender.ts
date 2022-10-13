@@ -1,7 +1,6 @@
 
 import {
     getCleanNodeId,
-    getColors,
     getFatherNodeId,
     getNodeById,
     getNodeColor,
@@ -12,7 +11,9 @@ import {
     getTextXPosition,
     getTextYPosition,
     getTextWidth,
-    getNodeDisplayName
+    getNodeDisplayName,
+    getDepth,
+    getNodeIdDetails
 } from './helpers';
 import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
@@ -60,15 +61,15 @@ export default class SchemaRender {
                 return;
             }
 
-            typedText = typedText.toLowerCase();
-
-            const nodeIdMatches = this.nodes.map(node => node.id.toLowerCase()).filter(nodeId => nodeId.includes(typedText));
+            const nodeIdMatches = this.nodes
+                .map(node => node.id)
+                .filter(nodeId => getDepth(this.relations, nodeId) === 3 && nodeId.toLowerCase().includes(typedText.toLowerCase()));
 
             if (nodeIdMatches.length === 0) {
                 return;
             }
 
-            const svgGroups = nodeIdMatches.map(nodeId => document.getElementById(nodeId)).filter(el => !!el);
+            const svgGroups = nodeIdMatches.map(nodeId => document.getElementById(nodeId.toLowerCase())).filter(el => !!el);
             svgGroups.forEach(group => group.classList.add('filtered'));
         };
 
@@ -100,6 +101,16 @@ export default class SchemaRender {
                 return;
             }
 
+            // Hovering children if father is of depth 2
+            if (getDepth(this.relations, nodeId) === 2) {
+                const nodeIdMatches = this.nodes
+                    .map(node => node.id)
+                    .filter(nId => getNodeIdDetails(nId).type === getNodeIdDetails(nodeId).type);
+                const svgGroups = nodeIdMatches.map(nodeId => document.getElementById(nodeId.toLowerCase())).filter(el => !!el);
+                svgGroups.forEach(group => group.classList.add('hover'));
+            }
+
+            // Showing connected references
             const conditionals = {
                 isShowingAllRelations: this.renderOptions.length > 1,
                 nodeDepthIsDifferentThanTwo: getNodeById(this.nodes, nodeId).depth !== 2,
@@ -291,7 +302,7 @@ export default class SchemaRender {
         }
 
         this.appendNodeName(group, option).attr('class', hideClass);
-        this.appendTechAppName(group, option).attr('class', hideClass);
+        this.appendTechAppName(group).attr('class', hideClass);
 
         if (option.data.node.depth > 1) {
             this.appendBackArrow(group, option.config.text.size).attr('class', hideClass);
@@ -302,13 +313,13 @@ export default class SchemaRender {
         const size = 1.1 * option.config.text.size;
         let text = this.centralNodeInfo.name;
         const [x, y] = [0, this.centralNodeInfo.icon ? 40 / 2.5 : 0]; // TODO: use width
-        return this.appendText(svg, size, text, x, y);
+        return this.appendText(svg, size, text, x, y, this.config.colors.primary);
     }
 
-    private appendTechAppName(svg: D3SVGG, option: RenderOption) {
+    private appendTechAppName(svg: D3SVGG) {
         const size = 7;
         const [x, y] = [0, this.centralNodeInfo.icon ? 40 / 1.25 : 45]; // TODO: use width
-        return this.appendText(svg, size, this.centralNodeInfo.subname, x, y, this.config.text.fallbackColor);
+        return this.appendText(svg, size, this.centralNodeInfo.subname, x, y, this.config.colors.secondary);
     }
 
     private appendRelations(svg: D3SVGG, option: RenderOption) {
@@ -321,7 +332,7 @@ export default class SchemaRender {
             getRelationsPathD(relation, option.data.childrenIds, option.config.circle.radius, shorten);
 
         const fnStroke = (relation: Relation) =>
-            getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, relation.source));
+            getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, relation.source), this.config.colors.range);
 
         const linkGroups = svg.append('g')
             .attr('id', SchemaRender.referencesID)
@@ -329,7 +340,7 @@ export default class SchemaRender {
             .data(option.data.relations)
             .enter();
 
-        const markerEnd = (id: string) => `#arrow-${getNodeColorByNodeId(this.relations, this.nodes, id)}`;
+        const markerEnd = (id: string) => `#arrow-${getNodeColorByNodeId(this.relations, this.nodes, id, this.config.colors.range)}`;
 
         return linkGroups.append('path')
             .attr('d', fnD)
@@ -359,7 +370,7 @@ export default class SchemaRender {
             .attr('cy', y)
             .attr('r', radius)
             .attr('fill', 'none')
-            .attr('stroke', this.config.circle.color);
+            .attr('stroke', this.config.colors.fallback);
     }
 
     private appendChildrenNodes(svgGroup: D3SVGG, option: RenderOption) {
@@ -414,7 +425,7 @@ export default class SchemaRender {
     private setSvgDefs(svg: D3SVG): void {
         svg.append('defs')
             .selectAll('marker')
-            .data(getColors())
+            .data(this.config.colors.range)
             .join('marker')
             .attr('id', color => `arrow-${color}`)
             .attr('viewBox', '0 -5 10 10')
@@ -431,8 +442,8 @@ export default class SchemaRender {
     }
 
     private clearAllHoveredGroups(): void {
-        const hoveredGroups = document.querySelectorAll('g .filtered');
-        hoveredGroups.forEach(group => group.classList.remove('filtered'));
+        const hoveredGroups = document.querySelectorAll('g .filtered, g .hover');
+        hoveredGroups.forEach(group => group.classList.remove('filtered', 'hover'));
     }
 
     private getBreadcrumbsText(nodeId: string): string {
@@ -453,7 +464,8 @@ export default class SchemaRender {
         const fnTextY = (_, nodeIndex: number) =>
             getTextYPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length);
 
-        const fnTextFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
+        const colorsRange = this.config.colors.range;
+        const fnTextFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId), colorsRange);
 
         const fnText = (nodeId: string) => getCleanNodeId(getNodeDisplayName(nodeId));
 
@@ -486,7 +498,7 @@ export default class SchemaRender {
         const fnRectX = (nodeId: string, nodeIndex: number) => textFunctions.x(nodeId, nodeIndex) - fnRectWidth(nodeId) / 2;
         const fnRectY = (nodeId: string, nodeIndex: number) => textFunctions.y(nodeId, nodeIndex) - fnRectHeight() / 2;
 
-        const fnRectFill = () => this.config.text.hoverColor;
+        const fnRectFill = () => this.config.colors.fallback;
 
         return {
             x: (nodeId: string, nodeIndex: number) => fnRectX(nodeId, nodeIndex) - padding.left,
