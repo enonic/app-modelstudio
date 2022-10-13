@@ -1,6 +1,8 @@
 const schemaLib = require('/lib/xp/schema');
 const contentLib = require('/lib/xp/content');
 
+const applicationWildcardResolver = __.newBean('com.enonic.xp.app.visualization.lib.ApplicationWildcardResolver');
+
 exports.get = function handleGet(req) {
     if (!req.params.appKey) {
         return {
@@ -51,16 +53,17 @@ function getReferences(appKey) {
     return references;
 }
 
-function getBaseContentTypeNames(appKey) {
+function getBaseContentTypeIds() {
     const allTypeNames = contentLib.getTypes().map(type => type.name);
 
-    const baseContentTypeNames = allTypeNames.filter(name => {
+    return allTypeNames.filter(name => {
         const left = name.split(':')[0];
         return left === 'base' || left === 'media' || left === 'portal';
     });
+}
 
-    const baseContentTypeUids = baseContentTypeNames.map(name => getUid('CONTENT_TYPE', prependAppKey(appKey, name)));
-
+function getBaseContentTypeNames(appKey) {
+    const baseContentTypeUids = getBaseContentTypeIds().map(name => getUid('CONTENT_TYPE', prependAppKey(appKey, name)));
     return baseContentTypeUids;
 }
 
@@ -81,7 +84,7 @@ function getComponentNamesAndReferences(appKey, type) {
 }
 
 function buildReferences(appKey, type, names, schemas) {
-    let references = cartesianProduct([getTitle(type)], names);
+    let references = cartesianProduct([type], names);
 
     getRegExps().forEach(obj => {
         const targetType = obj.targetType;
@@ -94,15 +97,37 @@ function buildReferences(appKey, type, names, schemas) {
             const id = str => prependAppKey(appKey, fnReplace(str));
             const targetUid = str => getUid(targetType, id(str));
 
-            const sourceUid = getUid(type, curr.name || curr.key);
+            const sourceUid = getUid(type, curr.name || curr.key)
+
+            const matches = getMatches(appKey, regExpMatches.map(fnReplace)).map(targetUid);
             
-            return regExpMatches.length > 0 ? prev.concat(cartesianProduct([sourceUid], regExpMatches.map(targetUid))) : prev;
+            return regExpMatches.length > 0 ? prev.concat(cartesianProduct([sourceUid], matches)) : prev;
         }, []);
     
         references = references.concat(relations);
     });
 
     return references;
+}
+
+// https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType
+function getMatches(appKey, initialMatches) {
+    if (initialMatches.length === 0) {
+        return [];
+    }
+
+    const schemaIds = schemaLib.listSchemas({ application: appKey, type: 'CONTENT_TYPE' })
+        .map(schema => schemaLib.getSchema({ name: schema.name, type: 'CONTENT_TYPE' }))
+        .map(schema => (schema.name || schema.key).split(':').pop());
+
+    let additionalMatches = [];
+
+    initialMatches.forEach(matchId => {
+        const matches = __.toNativeObject(applicationWildcardResolver.matches_multiple(appKey, matchId, schemaIds));
+        additionalMatches = additionalMatches.concat(matches);
+    });
+
+    return initialMatches.concat(additionalMatches);
 }
 
 function getRegExps() {
@@ -129,22 +154,10 @@ function cartesianProduct(arr1, arr2) {
     return arr1.reduce((prev, curr) => prev.concat(arr2.map(v2 => [curr, v2])), []);
 }
 
-function getTitle(str) {
-    return str; //camelize(str.replace(/_/g, ' ')) + 's';
-} 
-
 function prependAppKey(appKey, str) {
     return appKey + ':' + str;
 }
 
 function getUid(type, id) {
     return `${type}@${id}`;
-}
-
-function camelize(str) {
-    return str.split(/ |_|-/g).map(word => {
-        const firstLetter = word[0];
-        const remaningLetters = word.slice(1);
-        return firstLetter.toUpperCase() + remaningLetters.toLowerCase();
-    }).join(' ');
 }
