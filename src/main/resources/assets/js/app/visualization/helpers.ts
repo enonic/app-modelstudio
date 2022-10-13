@@ -47,8 +47,7 @@ export function getOuterCircleRadius(nodes: Node[]): number {
     return Math.floor(scale(quantityOfDepth3Nodes));
 }
 
-export function getNodeColor(relations: Relation[], nodes: Node[], node: Node): string {
-    const colors = getColors();
+export function getNodeColor(relations: Relation[], nodes: Node[], node: Node, colors: Array<string>): string {
 
     if (node.depth === 2) {
         const index = relations
@@ -63,11 +62,11 @@ export function getNodeColor(relations: Relation[], nodes: Node[], node: Node): 
             - getDepth(relations, nodes.find(({id}) => id === b.source).id))
           .map(({source}) => nodes.find(({id}) => id === source));
 
-    return n[0] ? getNodeColor(relations, nodes, n[0]) : 'lightgray';
+    return n[0] ? getNodeColor(relations, nodes, n[0], colors) : 'lightgray';
 }
 
-export function getNodeColorByNodeId(relations: Relation[], nodes: Node[], nodeId: string): string {
-    return getNodeColor(relations, nodes, nodes.find(({id}) => id === nodeId));
+export function getNodeColorByNodeId(relations: Relation[], nodes: Node[], nodeId: string, colors: Array<string>): string {
+    return getNodeColor(relations, nodes, nodes.find(({id}) => id === nodeId), colors);
 }
 
 export function getFatherNodeId(relations: Relation[], nodes: Node[], node: Node): string {
@@ -117,10 +116,6 @@ export function getRelationsPathD(relation: Relation, childrenIds: string[], rad
     }
     
     return `M ${x1}, ${y1}, ${x2}, ${y2}`;
-}
-
-export function getColors(): string[] {
-    return [...d3.schemeCategory10];
 }
 
 // TODO: Fix: find a simpler way to do that.
