@@ -302,20 +302,23 @@ export class ModelTreeGridItem
     }
 
     getIconUrl(): string {
+        if (this.isApplication()) {
+            return UrlHelper.getCmsRestUri('apps/application/icon/') + this.getId();
+        }
         if (this.isContentType()) {
-            return UrlHelper.getCmsRestUri('schema/content/icon/') + this.getId();
+            return UrlHelper.getCmsRestUri('cs/schema/content/icon/') + this.getId();
         }
         if (this.isPart()) {
-            return UrlHelper.getCmsRestUri('content/page/part/descriptor/icon/') + this.getId();
+            return UrlHelper.getCmsRestUri('cs/content/page/part/descriptor/icon/') + this.getId();
         }
         if (this.isLayout()) {
-            return UrlHelper.getCmsRestUri('schema/content/icon/portal:page-template');
+            return UrlHelper.getCmsRestUri('cs/schema/content/icon/portal:page-template');
         }
         if (this.isPage() || this.isMixin() || this.isXData() || this.isSite() || this.isStyles()) {
-            return UrlHelper.getCmsRestUri('schema/content/icon/media:document');
+            return UrlHelper.getCmsRestUri('cs/schema/content/icon/media:document');
         }
         
-        return UrlHelper.getCmsRestUri('schema/content/icon/base:folder');
+        return UrlHelper.getCmsRestUri('cs/schema/content/icon/base:folder');
     }
 }
 

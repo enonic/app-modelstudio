@@ -295,10 +295,11 @@ export default class SchemaRender {
 
         if (icon) {
             const width = 50;
+            const height = 50;
             const x = - width / 2;
             const y = - width * 1.2;
 
-            this.appendImage(group, icon, width, x, y).attr('class', hideClass);
+            this.appendImage(group, icon, width, height, x, y).attr('class', hideClass);
         }
 
         this.appendNodeName(group, option).attr('class', hideClass);
@@ -349,9 +350,9 @@ export default class SchemaRender {
             .attr('marker-end', d => `url(${markerEnd(d.source)})`);
     }
 
-    private appendImage(svg: D3SVGG, href: string, width: number, x = 0, y = 0) {
-        svg.append('rect').attr('x', x - 5).attr('y', y - 5).attr('width', width + 10).attr('height', width + 10).attr('fill', 'white');
-        return svg.append('image').attr('x', x).attr('y', y).attr('width', width).attr('href', href);
+    private appendImage(svg: D3SVGG, href: string, width: number, height: number, x = 0, y = 0) {
+        svg.append('rect').attr('x', x - 5).attr('y', y - 5).attr('width', width + 10).attr('height', height + 10).attr('fill', 'white');
+        return svg.append('image').attr('x', x).attr('y', y).attr('width', width).attr('height', height).attr('href', href);
     }
 
     private appendText(svg: D3SVGG, size: number, text: string, x = 0, y = 0, color: string = 'black') {
