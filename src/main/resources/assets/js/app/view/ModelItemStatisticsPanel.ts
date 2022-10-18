@@ -93,8 +93,11 @@ export class ModelItemStatisticsPanel
         
     private schemaVisualizationOnNavigateHandler(): void {
         const executeNavigation = (itemKey: string, prevItemKey?: string): Q.Promise<boolean> => { 
+            if(!this.treeGrid.hasItemWithDataId(itemKey)){
+                return;
+            }
+            
             this.treeGrid.highlightItemById(itemKey, false, true);
-
             const highlightedItem = this.treeGrid.getHighlightedItem();
             const centralNodeInfo = this.getCentralNodeInfo(highlightedItem);
             this.schemaVisualization.updateCentralNodeInfo(centralNodeInfo);
