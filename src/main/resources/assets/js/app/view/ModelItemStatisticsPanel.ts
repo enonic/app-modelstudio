@@ -129,7 +129,7 @@ export class ModelItemStatisticsPanel
         return {
             name: item.getDisplayName(),
             subname: item.getId(),
-            icon: item.isApplication() ? item.getApplication().getIcon() : item.getIconUrl()
+            icon: item.getIconUrl()
         };
     }
 }
