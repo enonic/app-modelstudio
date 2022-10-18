@@ -11,6 +11,7 @@ import {ReferencesRequest} from './ReferencesRequest';
 import {getOuterCircleRadius, getOuterTextSize} from './helpers';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 
 export class SchemaVisualization extends DivEl{
     public appKey: string;
@@ -35,7 +36,7 @@ export class SchemaVisualization extends DivEl{
     constructor(className?: string) {
         super('schema-visualization' + (className ? ' ' + className : ''));
 
-        this.referencesCheckbox = createCheckboxInput(SchemaVisualization.checkboxID, 'References');
+        this.referencesCheckbox = createCustomToggleInput(SchemaVisualization.checkboxID, 'References');
         this.searchInput = createTextInput(SchemaVisualization.inputID, '', 'Filter');
         this.breadcrumbs = this.createBreadcrumbs();
     }
@@ -197,17 +198,17 @@ function createTextInput(id: string, label: string = '', placeholder: string = '
     return divEL;
 }
 
-function createCheckboxInput(id: string, label: string): DivEl {
-    const divEL = new DivEl('checkbox form-input right');
+function createCustomToggleInput(id: string, label: string): DivEl {
+    const divEL = new DivEl();
     
-    const inputEl = new InputEl('form-input', 'checkbox');
-    inputEl.setId(id);
+    const inputEL = new InputEl('icon-arrow-right', 'checkbox');
+    inputEL.setId(id);
     
     const labelEL = label ? new LabelEl(label) : null;
     labelEL.getHTMLElement().setAttribute('for', id);
 
-    divEL.appendChild(inputEl);
     divEL.appendChild(labelEL);
+    divEL.appendChild(inputEL);
     
-    return  divEL;
+    return divEL;
 }
