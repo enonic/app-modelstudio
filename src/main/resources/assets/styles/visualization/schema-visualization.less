@@ -26,6 +26,15 @@
                 border: none;
             }
 
+            .icon-close {
+                color: lightgray;
+
+                &:hover {
+                    cursor: pointer;
+                    color: gray;
+                }
+            }
+
             button {
                 outline: none;
                 width: 20px;
@@ -48,13 +57,27 @@
 
         div:nth-child(3) {
             width: 20%;
-            text-align: right;
-            
+            display: flex;
+            align-items: center;
+            justify-content: end;
+
             #references-checkbox {
-                -webkit-appearance: auto;
-                -moz-appearance: auto;
-                appearance: auto;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: #b1b1b1;
                 margin: 0px 5px;
+                outline: none;
+    
+                &:checked {
+                    background-color: #5a94ee;
+                }
+    
+                &:before {
+                    font-size: 20px;
+                    color: white;
+                }
             }
         }
     }
@@ -131,11 +154,12 @@
             }
 
             div:nth-child(2) {
-                margin: 15px 5px;
+                display: none;
             }
 
             div:nth-child(3) {
-                text-align: center;
+                margin-top: 15px;
+                justify-content: center;
             }
         }
     }
@@ -153,9 +177,7 @@
             }
 
             div:nth-child(2) {
-                width: 100% !important;
-                order: 3;
-                margin: 15px 5px;
+                display: none;
             }
 
             div:nth-child(3) {

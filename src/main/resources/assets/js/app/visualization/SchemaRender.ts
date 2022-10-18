@@ -447,15 +447,16 @@ export default class SchemaRender {
         hoveredGroups.forEach(group => group.classList.remove('filtered', 'hover'));
     }
 
-    private getBreadcrumbsText(nodeId: string): string {
+    private getBreadcrumbsText(nodeId: string): string {        
         const recur = (nodeId: string, ids = []) => {
             const fatherNodeId = getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
             return fatherNodeId ? recur(fatherNodeId, [nodeId, ...ids]) : [nodeId, ...ids];
         };
 
         return recur(nodeId).filter((id: string) => !!id)
-            .map(s => getCleanNodeId(getNodeDisplayName(s.toLowerCase())))
-            .join(' > ');
+            .map(s => getCleanNodeId(getNodeDisplayName(s)))
+            .join(' > ')
+            .toLowerCase();
     }
 
     private getTextFunctions(option: RenderOption) {
