@@ -97,6 +97,10 @@ function buildReferences(appKey, type, names, schemas) {
         const relations = schemas.reduce((prev, curr) => {
             const regExpMatches = curr.resource.match(regExp) || [];
 
+            if (targetType === "MIXIN") {
+                log.info(curr.resource + ' ' + regExp.toString() + ' ' + JSON.stringify(regExpMatches, null, 4) + '\n\n');
+            }
+
             const id = str => prependAppKey(appKey, fnReplace(str));
             const targetUid = str => getUid(targetType, id(str));
 
@@ -147,8 +151,8 @@ function getRegExps() {
         },
         {
             targetType: 'MIXIN',
-            regExp: new RegExp('<mixin name=\"(.*?)\"\/>', 'g'),
-            fnReplace: (str) => str.replace(/<mixin name=\"/g, '').replace(/\"\/>/g, '')
+            regExp: new RegExp('<mixin name="(.*?)"\\s?\/>', 'g'),
+            fnReplace: (str) => str.replace(/<mixin name=\"/g, '').replace(/\"\s?\/>/g, '')
         },
     ]
 }

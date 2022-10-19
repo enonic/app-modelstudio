@@ -45,13 +45,13 @@ export default class SchemaData {
     }
 
     private getAdditionalMixinRelations(relations: Relation[]) {
-        const mixinIds = getRelationsFromSource(relations, 'Mixins').map(({target}) => target);
+        const mixinIds = getRelationsFromSource(relations, 'MIXIN').map(({target}) => target);
 
         let additionalMixinRelations = [];
 
         mixinIds.forEach(mixinId => {
-            const sourceIds = getRelationsFromTarget(relations, mixinId).map(({source}) => source).filter(id => id !== 'Mixins');
-            const targetIds = getRelationsFromSource(relations, mixinId).map(({target}) => target).filter(id => id !== 'Mixins');
+            const sourceIds = getRelationsFromTarget(relations, mixinId).map(({source}) => source).filter(id => id !== 'MIXIN');
+            const targetIds = getRelationsFromSource(relations, mixinId).map(({target}) => target).filter(id => id !== 'MIXIN');
             
             sourceIds.forEach(source => targetIds.forEach(target => additionalMixinRelations.push({source, target, dash: true})));
         });
