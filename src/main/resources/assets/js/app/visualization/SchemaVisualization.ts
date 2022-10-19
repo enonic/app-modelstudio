@@ -201,14 +201,14 @@ function createTextInput(id: string, label: string = '', placeholder: string = '
 function createCustomToggleInput(id: string, label: string): DivEl {
     const divEL = new DivEl();
     
-    const inputEL = new InputEl('icon-arrow-right', 'checkbox');
+    const inputEL = new InputEl('icon-link', 'checkbox');
     inputEL.setId(id);
     
     const labelEL = label ? new LabelEl(label) : null;
     labelEL.getHTMLElement().setAttribute('for', id);
 
-    divEL.appendChild(labelEL);
     divEL.appendChild(inputEL);
+    divEL.appendChild(labelEL);
     
     return divEL;
 }
