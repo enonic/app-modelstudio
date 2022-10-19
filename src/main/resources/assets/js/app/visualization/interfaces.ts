@@ -48,6 +48,7 @@ export interface RenderOption {
     data: {
         node?: Node,
         childrenIds: string[],
+        childrenIdsToShow: string[],
         relations: Relation[],
     },
     config: {
