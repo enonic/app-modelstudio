@@ -11,7 +11,7 @@ import {ReferencesRequest} from './ReferencesRequest';
 import {getOuterCircleRadius, getOuterTextSize} from './helpers';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class SchemaVisualization extends DivEl{
     public appKey: string;
@@ -36,8 +36,8 @@ export class SchemaVisualization extends DivEl{
     constructor(className?: string) {
         super('schema-visualization' + (className ? ' ' + className : ''));
 
-        this.referencesCheckbox = createCustomToggleInput(SchemaVisualization.checkboxID, 'References');
-        this.searchInput = createTextInput(SchemaVisualization.inputID, '', 'Filter');
+        this.referencesCheckbox = createCustomToggleInput(SchemaVisualization.checkboxID, i18n('visualization.input.label.references'));
+        this.searchInput = createTextInput(SchemaVisualization.inputID, '', i18n('visualization.input.label.filter'));
         this.breadcrumbs = this.createBreadcrumbs();
     }
 
