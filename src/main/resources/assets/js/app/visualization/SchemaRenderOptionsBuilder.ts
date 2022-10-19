@@ -51,6 +51,7 @@ export class SchemaRenderOptionsBuilder {
             data: {
                 node: node1,
                 childrenIds: children1,
+                childrenIdsToShow: children1.filter(childrenId => getRelationsFromSource(this.relations, childrenId).length > 0),
                 relations: []
             },
             config: {
@@ -70,6 +71,7 @@ export class SchemaRenderOptionsBuilder {
         const options2: RenderOption = {
             data: {
                 childrenIds: children2,
+                childrenIdsToShow: children2,
                 relations: relations2
             },
             config: {
@@ -95,6 +97,7 @@ export class SchemaRenderOptionsBuilder {
             data: {
                 node,
                 childrenIds,
+                childrenIdsToShow: childrenIds,
                 relations: filteredRelations
             },
             config: {
@@ -130,6 +133,7 @@ export class SchemaRenderOptionsBuilder {
             data: {
                 node,
                 childrenIds,
+                childrenIdsToShow: childrenIds,
                 relations: filteredRelations
             },
             config: {

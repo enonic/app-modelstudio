@@ -13,7 +13,8 @@ import {
     getTextWidth,
     getNodeDisplayName,
     getDepth,
-    getNodeIdDetails
+    getNodeIdDetails,
+    getRelationsFromSource
 } from './helpers';
 import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
@@ -254,9 +255,10 @@ export default class SchemaRender {
     }
 
     private appendTextAndIcons(svgGroup: D3SVGG, option: RenderOption): void {
-        const data = option.data.childrenIds;
+        const data = option.data.childrenIdsToShow;
+
         const textFontSize = option.config.text.size;
-        const textFunctions = this.getTextFunctions(option);
+        const textFunctions = this.getTextFunctions(option, data.length);
         const rectFunctions = this.getRectFunctions(textFunctions, option);
 
         const group: D3SVGG = svgGroup.append('g')
@@ -459,12 +461,12 @@ export default class SchemaRender {
             .toLowerCase();
     }
 
-    private getTextFunctions(option: RenderOption) {
+    private getTextFunctions(option: RenderOption, childrenIdsLength: number) {
         const fnTextX = (_, nodeIndex: number) =>
-            getTextXPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length);
+            getTextXPosition(nodeIndex, option.config.circle.radius, childrenIdsLength);
 
         const fnTextY = (_, nodeIndex: number) =>
-            getTextYPosition(nodeIndex, option.config.circle.radius, option.data.childrenIds.length);
+            getTextYPosition(nodeIndex, option.config.circle.radius, childrenIdsLength);
 
         const colorsRange = this.config.colors.range;
         const fnTextFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId), colorsRange);
@@ -472,7 +474,7 @@ export default class SchemaRender {
         const fnText = (nodeId: string) => getCleanNodeId(getNodeDisplayName(nodeId));
 
         const fnTextTransform = (_, nodeIndex: number) => this.tooManyChildren(option)
-            ? getTextRotation(nodeIndex, option.data.childrenIds.length, option.config.circle.radius)
+            ? getTextRotation(nodeIndex, childrenIdsLength, option.config.circle.radius)
             : null;
 
         return {
