@@ -42,12 +42,7 @@ function getReferences(appKey) {
     const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => ['CONTENT_TYPE', name]);
     const refs = [].concat(baseContentTypeReferences).concat(allRefs);
 
-    let initialRefs = [];
-    categories.forEach(category => {
-        if (refs.some(ref => ref[0] === category)) {
-            initialRefs.push([appKey, category]);
-        }
-    });
+    let initialRefs = cartesianProduct([appKey], categories);
 
     const references = initialRefs
     .concat(refs)
@@ -96,10 +91,6 @@ function buildReferences(appKey, type, names, schemas) {
 
         const relations = schemas.reduce((prev, curr) => {
             const regExpMatches = curr.resource.match(regExp) || [];
-
-            if (targetType === "MIXIN") {
-                log.info(curr.resource + ' ' + regExp.toString() + ' ' + JSON.stringify(regExpMatches, null, 4) + '\n\n');
-            }
 
             const id = str => prependAppKey(appKey, fnReplace(str));
             const targetUid = str => getUid(targetType, id(str));
