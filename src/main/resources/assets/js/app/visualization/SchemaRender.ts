@@ -14,11 +14,11 @@ import {
     getNodeDisplayName,
     getDepth,
     getNodeIdDetails,
-    getRelationsFromSource
 } from './helpers';
 import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export default class SchemaRender {
     private relations: Relation[];
@@ -26,6 +26,7 @@ export default class SchemaRender {
     private config: RenderConfig;
     private renderOptions: RenderOption[];
     private centralNodeInfo: CentralNodeInfo = {} as CentralNodeInfo;
+    private breadcrumbsInfo: Array<string> = [];
 
     private onNavigationListeners: Function[] = [];
     private svg: D3SVG;
@@ -93,7 +94,7 @@ export default class SchemaRender {
 
     private initTextsAndIconsListeners(svg: D3SVG) {
         const clickHandler = (_, nodeId: string): void => {
-            this.executeOnNavigationListener(nodeId);
+            this.executeOnNavigationListeners(nodeId);
             this.clickHandler(svg, nodeId);
         };
 
@@ -164,7 +165,7 @@ export default class SchemaRender {
         const clickHandler = () => {
             const centralNode = this.renderOptions[0].data.node;
             const centralNodeFatherId = getFatherNodeId(this.relations, this.nodes, centralNode);
-            this.executeOnNavigationListener(centralNodeFatherId, centralNode.id);
+            this.executeOnNavigationListeners(centralNodeFatherId, centralNode.id);
             this.clickHandler(svg, centralNodeFatherId);
         };
 
@@ -217,7 +218,7 @@ export default class SchemaRender {
         this.reset(svg);
         this.renderOptions.forEach(renderOption => this.renderByOption(svg, renderOption));
         this.setSvgDefs(svg);
-        this.updateBreadcrumbs();
+        this.updateBreadcrumbs(svg);
         this.toggleReferences(svg);
         this.initListeners(svg);
     }
@@ -230,7 +231,7 @@ export default class SchemaRender {
         this.centralNodeInfo = centralNodeInfo;
     }
 
-    private executeOnNavigationListener(nodeId: string, prevNodeId?: string) {
+    private executeOnNavigationListeners(nodeId: string, prevNodeId?: string) {
         const appKey = this.nodes[0].id;
         this.onNavigationListeners.forEach(listener => listener(appKey, nodeId, prevNodeId));
     }
@@ -259,7 +260,8 @@ export default class SchemaRender {
 
         const textFontSize = option.config.text.size;
         const textFunctions = this.getTextFunctions(option, data.length);
-        const rectFunctions = this.getRectFunctions(textFunctions, option);
+        const rectHoverFunctions = this.getRectFunctions(textFunctions, option);
+        const whiteRectFunctions = this.getRectFunctions(textFunctions, option, 'white');
 
         const group: D3SVGG = svgGroup.append('g')
             .attr('id', SchemaRender.textsAndIconsID)
@@ -271,21 +273,11 @@ export default class SchemaRender {
             .attr('class', 'fade-in')
             .attr('transform', textFunctions.transform);
 
-        this.appendRectWithFunctions(group, rectFunctions);
+        this.appendRectWithFunctions(group, rectHoverFunctions);
+        this.appendRectWithFunctions(group, whiteRectFunctions);
         this.appendTextWithFunctions(group, textFunctions, textFontSize);
 
         this.textsAndIconsSVGGroups = [...this.textsAndIconsSVGGroups, group];
-    }
-
-    private updateBreadcrumbs() {
-        const lastRenderOption = this.renderOptions[this.renderOptions.length - 1];
-
-        if (lastRenderOption.data.node) {
-            const nodeId = lastRenderOption.data.node.id;
-            this.getBreadcrumbs().innerHTML = this.getBreadcrumbsText(nodeId);
-        } else {
-            this.getBreadcrumbs().innerHTML = '';
-        }
     }
 
     private appendCentralNode(svgGroup: D3SVGG, option: RenderOption) {
@@ -330,9 +322,7 @@ export default class SchemaRender {
             return;
         }
 
-        const shorten = option.data.node ? 40 : 20;
-        const fnD = (relation: Relation) =>
-            getRelationsPathD(relation, option.data.childrenIds, option.config.circle.radius, shorten);
+        const fnD = (relation: Relation) => getRelationsPathD(relation, option, this.tooManyChildren(option));
 
         const fnStroke = (relation: Relation) =>
             getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, relation.source), this.config.colors.range);
@@ -432,6 +422,8 @@ export default class SchemaRender {
             .join('marker')
             .attr('id', color => `arrow-${color}`)
             .attr('viewBox', '0 -5 10 10')
+            //.attr('refX', 50)
+            //.attr('refY', -0.5)
             .attr('markerWidth', this.config.marker.size)
             .attr('markerHeight', this.config.marker.size)
             .attr('orient', 'auto')
@@ -449,16 +441,43 @@ export default class SchemaRender {
         hoveredGroups.forEach(group => group.classList.remove('filtered', 'hover'));
     }
 
-    private getBreadcrumbsText(nodeId: string): string {        
+    private updateBreadcrumbsInfo(nodeId: string): void {
         const recur = (nodeId: string, ids = []) => {
             const fatherNodeId = getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
             return fatherNodeId ? recur(fatherNodeId, [nodeId, ...ids]) : [nodeId, ...ids];
         };
 
-        return recur(nodeId).filter((id: string) => !!id)
-            .map(s => getCleanNodeId(getNodeDisplayName(s)))
-            .join(' > ')
-            .toLowerCase();
+        this.breadcrumbsInfo = recur(nodeId).filter((id: string) => !!id);
+    }
+
+    private updateBreadcrumbs(svg: D3SVG) {
+        this.getBreadcrumbs().innerHTML = '';
+
+        const lastRenderOption = this.renderOptions[this.renderOptions.length - 1];        
+
+        if (!lastRenderOption.data.node) {
+            return;
+        }
+
+        const nodeId = lastRenderOption.data.node.id;
+
+        this.updateBreadcrumbsInfo(nodeId);
+
+        const clickHandler = (nodeId: string) => {
+            this.executeOnNavigationListeners(nodeId);
+            this.clickHandler(svg, nodeId);
+        };
+
+        const breadcrumbsSpans = this.breadcrumbsInfo.map(nodeId =>  {
+            let spanEL = new SpanEl();
+            spanEL.setHtml(getCleanNodeId(getNodeDisplayName(nodeId)).toLowerCase());
+            spanEL.onClicked(() => clickHandler(nodeId));
+            return spanEL;
+        });
+
+        breadcrumbsSpans.forEach(spanEL => {
+            this.getBreadcrumbs().appendChild(spanEL.getHTMLElement());
+        });
     }
 
     private getTextFunctions(option: RenderOption, childrenIdsLength: number) {
@@ -486,7 +505,7 @@ export default class SchemaRender {
         };
     }
 
-    private getRectFunctions(textFunctions: ReturnType<typeof this.getTextFunctions>, option: RenderOption) {
+    private getRectFunctions(textFunctions: ReturnType<typeof this.getTextFunctions>, option: RenderOption, fill?: string) {
         const padding = {
             top: 7.5,
             bottom: 5,
@@ -502,7 +521,7 @@ export default class SchemaRender {
         const fnRectX = (nodeId: string, nodeIndex: number) => textFunctions.x(nodeId, nodeIndex) - fnRectWidth(nodeId) / 2;
         const fnRectY = (nodeId: string, nodeIndex: number) => textFunctions.y(nodeId, nodeIndex) - fnRectHeight() / 2;
 
-        const fnRectFill = () => this.config.colors.fallback;
+        const fnRectFill = () => fill || this.config.colors.secondary;
 
         return {
             x: (nodeId: string, nodeIndex: number) => fnRectX(nodeId, nodeIndex) - padding.left,
@@ -521,8 +540,8 @@ export default class SchemaRender {
         return document.getElementById(this.config.ids.checkbox) as HTMLInputElement;
     }
 
-    private getBreadcrumbs(): HTMLInputElement {
-        return document.getElementById(this.config.ids.breadcrumbs) as HTMLInputElement;
+    private getBreadcrumbs(): HTMLDivElement {
+        return document.getElementById(this.config.ids.breadcrumbs) as HTMLDivElement;
     }
 
     private isInSearchMode(): boolean {
