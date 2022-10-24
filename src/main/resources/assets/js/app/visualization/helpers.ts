@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {Relation, Node} from './interfaces';
+import {Relation, Node, RenderOption} from './interfaces';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 
@@ -84,8 +84,16 @@ export function getTextXPosition(nodeIndex: number, circleRadius: number, max: n
     return Math.cos(getConstant(nodeIndex, max)) * circleRadius;
 }
 
+function getMarkerXPosition(nodeIndex: number, circleRadius: number, max: number, radiusOffset: number): number {
+    return Math.cos(getConstant(nodeIndex, max)) * (circleRadius - radiusOffset - 12);
+}
+
 export function getTextYPosition(nodeIndex: number, circleRadius: number, max: number): number {
     return Math.sin(getConstant(nodeIndex, max)) * circleRadius;
+}
+
+function getMarkerYPosition(nodeIndex: number, circleRadius: number, max: number, radiusOffset: number): number {
+    return Math.sin(getConstant(nodeIndex, max)) * (circleRadius - radiusOffset - 12);
 }
 
 export function getTextRotation(nodeIndex: number, max: number, radius: number, orientation=1): string {
@@ -93,28 +101,58 @@ export function getTextRotation(nodeIndex: number, max: number, radius: number, 
   
     const x = Math.cos(k) * radius;
     const y = Math.sin(k) * radius;
-    const r = orientation === 1  ? Math.atan(y/x) * 180/Math.PI : Math.atan(y/x) * 180/Math.PI;
+    const r = orientation === 1 ? Math.atan(y/x) * 180/Math.PI : Math.atan(y/x) * 180/Math.PI;
       
     return `rotate(${r}, ${x}, ${y})`;
 }
 
-export function getRelationsPathD(relation: Relation, childrenIds: string[], radius: number, shorten = 0): string {
+export function getRelationsPathD(relation: Relation, option: RenderOption, manyChildren: boolean): string {
+    const childrenIds = option.data.childrenIds;
+    const radius = option.config.circle.radius;
+    const textSize = option.config.text.size;
+    const centralNode = option.data?.node;
+
     const sourceIndex = childrenIds.findIndex(x => x === relation.source);
     const targetIndex = childrenIds.findIndex(x => x === relation.target);
 
-    const x1 = sourceIndex >= 0 ? getTextXPosition(sourceIndex, radius, childrenIds.length) : 0;
-    const y1 = sourceIndex >= 0 ? getTextYPosition(sourceIndex, radius, childrenIds.length) : 0;
-    
-    let x2 = targetIndex >= 0 ? getTextXPosition(targetIndex, radius, childrenIds.length) : 0;
-    let y2 = targetIndex >= 0 ? getTextYPosition(targetIndex, radius, childrenIds.length) : 0;
+    const sourceRadiusOffset = manyChildren ? getTextWidth(getCleanNodeId(relation.source), textSize) / 2 : 0;
+    const targetRadiusOffset = manyChildren ? getTextWidth(getCleanNodeId(relation.target), textSize) / 2 : 0;
+
+    let x1 = sourceIndex >= 0 
+        ? getMarkerXPosition(sourceIndex, radius, childrenIds.length, sourceRadiusOffset)
+        : 0;
+        
+    let y1 = sourceIndex >= 0 
+        ? getMarkerYPosition(sourceIndex, radius, childrenIds.length, sourceRadiusOffset) 
+        : 0;
+        
+    let x2 = targetIndex >= 0 
+        ? getMarkerXPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset) 
+        : 0;
+        
+    let y2 = targetIndex >= 0 
+        ? getMarkerYPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset) 
+        : 0;
 
     const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
-    if (length > 0) {
-        x2 = x1 + (x2 - x1)/length * (length - shorten);
-        y2 = y1 + (y2 - y1)/length * (length - shorten);
+    if (centralNode && relation.source === centralNode.id) {
+        const shortenFactorSource = 0.3;
+        x1 = x1 + shortenFactorSource * (x2 - x1);
+        y1 = y1 + shortenFactorSource * (y2 - y1);
+        const shortenFactorTarget = 0.7;
+        x2 = x1 + shortenFactorTarget * (x2 - x1);
+        y2 = y1 + shortenFactorTarget * (y2 - y1);
+    } else if (centralNode && relation.target === centralNode.id) {
+        const shortenFactor = 0.7;
+        x2 = x1 + shortenFactor * (x2 - x1);
+        y2 = y1 + shortenFactor * (y2 - y1);
+    } else if (!manyChildren) {
+        const shortenFactor = length > radius ? 0.9 : 0.85;
+        x2 = x1 + shortenFactor * (x2 - x1);
+        y2 = y1 + shortenFactor * (y2 - y1);
     }
-    
+
     return `M ${x1}, ${y1}, ${x2}, ${y2}`;
 }
 
