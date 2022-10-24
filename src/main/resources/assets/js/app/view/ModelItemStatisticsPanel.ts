@@ -92,15 +92,19 @@ export class ModelItemStatisticsPanel
     }
         
     private schemaVisualizationOnNavigateHandler(): void {
-        const executeNavigation = (itemKey: string, prevItemKey?: string): Q.Promise<boolean> => { 
+        const executeNavigation = (itemKey: string, prevItemKey?: string, skipCentralNodeUpdate?: boolean): Q.Promise<boolean> => { 
             if(!this.treeGrid.hasItemWithDataId(itemKey)){
                 return;
             }
             
             this.treeGrid.highlightItemById(itemKey, false, true);
+            const nodeId = itemToNodeId(this.treeGrid.getItemWithDataId(itemKey));
             const highlightedItem = this.treeGrid.getHighlightedItem();
             const centralNodeInfo = this.getCentralNodeInfo(highlightedItem);
-            this.schemaVisualization.updateCentralNodeInfo(centralNodeInfo);
+
+            if(!skipCentralNodeUpdate) {
+                this.schemaVisualization.navigateToNode(nodeId, centralNodeInfo);
+            }
             
             if (prevItemKey) {
                 this.treeGrid.collapseNodeByDataId(prevItemKey);
@@ -117,11 +121,12 @@ export class ModelItemStatisticsPanel
             const itemKey = nodeIdToItemKey(appKey, nodeId);
             const prevItemKey = prevNodeId ? nodeIdToItemKey(appKey, prevNodeId): undefined;
 
-            if(!this.treeGrid.isExpandedAndHasChildren(itemKey)) {
+            if (!this.treeGrid.isExpandedAndHasChildren(itemKey)) {
                 const nodeIdDetails = getNodeIdDetails(nodeId);
                 const typeKey = nodeIdToItemKey(appKey, nodeIdDetails.type);
 
-                executeNavigation(typeKey, prevItemKey).then(() => executeNavigation(itemKey, prevItemKey));
+                executeNavigation(typeKey, prevItemKey, true).then(() => executeNavigation(itemKey, prevItemKey));
+                return;
             }
 
             executeNavigation(itemKey, prevItemKey);

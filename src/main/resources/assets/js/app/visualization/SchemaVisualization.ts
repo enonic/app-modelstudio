@@ -24,9 +24,9 @@ export class SchemaVisualization extends DivEl{
     private onLoadStart: () => void;
     private onLoadEnd: () => void;
 
-    private static readonly referencesOpacity = 0.1;
+    private static readonly referencesOpacity = 0.05;
     private static readonly markerSize = 5;
-    private static readonly lightGrayColor = '#d3d3d3';
+    private static readonly lightGrayColor = '#ededed';
     private static readonly blackColor = '#3e3e3e';
     private static readonly grayColor = '#808080';
     private static readonly inputID = 'search-input';
@@ -48,7 +48,7 @@ export class SchemaVisualization extends DivEl{
     }
 
     private createBreadcrumbs() {
-        return new DivEl().appendChild(new PEl().setId(SchemaVisualization.breadcrumbsID));
+        return new DivEl().setId(SchemaVisualization.breadcrumbsID);
     }
 
     private getHeader(): DivEl {
@@ -162,11 +162,6 @@ export class SchemaVisualization extends DivEl{
     onNavigate(fn: FnSchemaNavigationListener): void {
         this.onNavigationListeners.push(fn);
     }
-
-    updateCentralNodeInfo(centralNodeInfo: CentralNodeInfo): void {
-        this.schemaRender.updateCentralNodeInfo(centralNodeInfo);
-    }
-
 }
 
 function createTextInput(id: string, label: string = '', placeholder: string = ''): DivEl {

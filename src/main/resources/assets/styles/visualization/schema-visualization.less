@@ -48,10 +48,29 @@
 
         div:nth-child(2) {
             width: 60%;
+            display: flex;
+            justify-content: center;
 
-            #breadcrumbs {
-                text-align: center;
-                font-weight: bold;
+            span {
+                color: gray;
+
+                &:last-child {
+                    color: black;
+
+                    &:after {
+                        content: '';
+                    }
+                }
+
+                &:hover {
+                    color: black;
+                    cursor: pointer;
+                }
+
+                &:after {
+                    content: '/';
+                    margin: 0px 5px;
+                }
             }
         }
 
@@ -100,7 +119,7 @@
                 transition: 0.15s;
             }
     
-            rect {
+            g rect:first-child {
                 opacity: 0;
             }
     
