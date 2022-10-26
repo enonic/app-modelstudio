@@ -27,7 +27,7 @@ export default class SchemaData {
         return {} as Node;
     }
 
-    private setRelations(relations: Relation[]): void {        
+    private setRelations(relations: Relation[]): void {   
         this.relations = [...relations, ...this.getAdditionalMixinRelations(relations)];
     }
 
@@ -41,7 +41,11 @@ export default class SchemaData {
 
         const arrayOfNodeIds = Array.from(setOfNodeIds);
 
-        this.nodes = arrayOfNodeIds.map(nodeId => ({'id': nodeId, 'depth': getDepth(this.relations, nodeId)}));
+        this.nodes = arrayOfNodeIds.map(nodeId => ({
+            id: nodeId, 
+            depth: getDepth(this.relations, nodeId),
+            clickable: this.isNodeClickable(nodeId)
+        }));
     }
 
     private getAdditionalMixinRelations(relations: Relation[]) {
@@ -57,5 +61,11 @@ export default class SchemaData {
         });
 
         return additionalMixinRelations;
+    }
+
+    private isNodeClickable(nodeId: string): boolean {
+        return !nodeId.includes('base:') 
+            && !nodeId.includes('media:')
+            && !nodeId.includes('portal:');
     }
 }
