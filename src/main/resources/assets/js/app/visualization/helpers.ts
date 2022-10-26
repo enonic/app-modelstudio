@@ -137,10 +137,10 @@ export function getRelationsPathD(relation: Relation, option: RenderOption, many
     const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
     if (centralNode && relation.source === centralNode.id) {
-        const shortenFactorSource = 0.3;
+        const shortenFactorSource = 0.4;
         x1 = x1 + shortenFactorSource * (x2 - x1);
         y1 = y1 + shortenFactorSource * (y2 - y1);
-        const shortenFactorTarget = 0.7;
+        const shortenFactorTarget = 0.85;
         x2 = x1 + shortenFactorTarget * (x2 - x1);
         y2 = y1 + shortenFactorTarget * (y2 - y1);
     } else if (centralNode && relation.target === centralNode.id) {
@@ -148,7 +148,7 @@ export function getRelationsPathD(relation: Relation, option: RenderOption, many
         x2 = x1 + shortenFactor * (x2 - x1);
         y2 = y1 + shortenFactor * (y2 - y1);
     } else if (!manyChildren) {
-        const shortenFactor = length > radius ? 0.9 : 0.85;
+        const shortenFactor = length > radius ? 0.95 : 0.9;
         x2 = x1 + shortenFactor * (x2 - x1);
         y2 = y1 + shortenFactor * (y2 - y1);
     }
