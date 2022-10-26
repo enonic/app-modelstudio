@@ -191,6 +191,10 @@ export function getCleanNodeId(nodeId: string): string {
     return nodeId.split(':').pop().replace(/-/g, ' ');
 }
 
+export function getNodeTitle(nodeId: string): string {
+    return nodeId.replace(/(.*?)@/, '').toLowerCase();
+}
+
 export function getNodeDisplayName(nodeId: string): string {
 
     const nodeDetails = getNodeIdDetails(nodeId);
