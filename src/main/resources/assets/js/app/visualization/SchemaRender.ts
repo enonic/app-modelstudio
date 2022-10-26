@@ -237,6 +237,8 @@ export default class SchemaRender {
     }
 
     private reset(svg: D3SVG) {
+        this.getSearchInput().value = '';
+        this.getSearchInput().dispatchEvent(new KeyboardEvent('keyup', {'key': 'enter'}));
         this.textsAndIconsSVGGroups = [];
         this.backArrowSvgGroup = null;
         svg.selectAll('*').remove();
