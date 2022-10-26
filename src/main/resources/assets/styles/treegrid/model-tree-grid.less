@@ -1,28 +1,40 @@
 .model-tree-grid {
   .grid {
     .slick-row {
+      .slick-cell-checkboxsel {
+        display: none;
+      }
+
       &.non-selectable {
-        .slick-cell-checkboxsel {
-          label {
-            display: none;
-          }
+        label {
+          display: none;
         }
       }
     }
 
-    .slick-cell:not(.slick-cell-checkboxsel) {
-      flex-grow: 1;
+    .slick-cell {
+      padding-left: 20px;
     }
+  }
 
-    .slick-cell.r1.slick-cell-checkboxsel {
-      padding-right: 2px;
+  .tree-grid-toolbar {
+    .left-wrapper {
+      display: none;
     }
+  }
 
-    .names-and-icon-viewer {
-      .names-and-icon-view {
-        img {
-          width: 32px;
-        }
+  .slick-cell:not(.slick-cell-checkboxsel) {
+    flex-grow: 1;
+  }
+
+  .slick-cell.r1.slick-cell-checkboxsel {
+    padding-right: 2px;
+  }
+
+  .names-and-icon-viewer {
+    .names-and-icon-view {
+      img {
+        width: 32px;
       }
     }
   }
