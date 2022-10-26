@@ -6,7 +6,8 @@ export interface Relation {
 
 export interface Node {
     id: string,
-    depth: number
+    depth: number,
+    clickable: boolean,
 }
 
 export interface CentralNodeInfo {
