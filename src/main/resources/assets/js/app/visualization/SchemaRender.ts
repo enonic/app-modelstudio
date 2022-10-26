@@ -202,8 +202,10 @@ export default class SchemaRender {
 
     private clickHandler(svg: D3SVG, nodeId: string): void {
         const node = getNodeById(this.nodes, nodeId);
-        this.setOptions(node);
-        this.execute(svg);
+        if (node.clickable) {
+            this.setOptions(node);
+            this.execute(svg);
+        }
     }
 
     navigateToNode(nodeId: string): void {
@@ -233,7 +235,11 @@ export default class SchemaRender {
 
     private executeOnNavigationListeners(nodeId: string, prevNodeId?: string) {
         const appKey = this.nodes[0].id;
-        this.onNavigationListeners.forEach(listener => listener(appKey, nodeId, prevNodeId));
+        const node = getNodeById(this.nodes, nodeId);
+
+        if (node.clickable) {
+            this.onNavigationListeners.forEach(listener => listener(appKey, nodeId, prevNodeId));
+        }
     }
 
     private reset(svg: D3SVG) {
@@ -470,10 +476,12 @@ export default class SchemaRender {
             this.clickHandler(svg, nodeId);
         };
 
-        const breadcrumbsSpans = this.breadcrumbsInfo.map(nodeId =>  {
+        const breadcrumbsSpans = this.breadcrumbsInfo.map((nodeId, index) =>  {
             let spanEL = new SpanEl();
             spanEL.setHtml(getCleanNodeId(getNodeDisplayName(nodeId)).toLowerCase());
-            spanEL.onClicked(() => clickHandler(nodeId));
+            if (index + 1 < this.breadcrumbsInfo.length) {
+                spanEL.onClicked(() => clickHandler(nodeId));
+            }
             return spanEL;
         });
 
