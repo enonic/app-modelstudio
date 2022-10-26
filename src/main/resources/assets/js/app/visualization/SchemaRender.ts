@@ -14,6 +14,7 @@ import {
     getNodeDisplayName,
     getDepth,
     getNodeIdDetails,
+    getNodeTitle,
 } from './helpers';
 import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from './interfaces';
 import {SchemaRenderOptionsBuilder} from './SchemaRenderOptionsBuilder';
@@ -284,7 +285,8 @@ export default class SchemaRender {
         this.appendRectWithFunctions(group, rectHoverFunctions);
         this.appendRectWithFunctions(group, whiteRectFunctions);
         this.appendTextWithFunctions(group, textFunctions, textFontSize);
-
+        this.appendTitleToDepth3Nodes(group, data);
+        
         this.textsAndIconsSVGGroups = [...this.textsAndIconsSVGGroups, group];
     }
 
@@ -378,6 +380,14 @@ export default class SchemaRender {
         if (!option.data.childrenIds.length) { return; }
 
         this.appendTextAndIcons(svgGroup, option);
+    }
+
+    private appendTitleToDepth3Nodes(svg: D3SVGG, childrenIds: string[]) {
+        const title = (nodeId: string) => getNodeById(this.nodes, nodeId).depth === 3 ? getNodeTitle(nodeId) : '';
+
+        svg.append('title')
+            .data(childrenIds)
+            .text(title);
     }
 
     private appendTextWithFunctions(svg: D3SVGG, functions: ReturnType<typeof this.getTextFunctions>, textFontSize: number) {
