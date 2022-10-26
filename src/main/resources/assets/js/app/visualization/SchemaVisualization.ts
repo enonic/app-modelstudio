@@ -176,11 +176,14 @@ function createTextInput(id: string, label: string = '', placeholder: string = '
     const buttonEL = new ButtonEl();
     const spanEL = new SpanEl('icon-close');
     buttonEL.appendChild(spanEL);
-    buttonEL.onClicked(() => {
+
+    const clearInput = () => {
         const inputDOM = document.getElementById(inputEL.getId()) as HTMLInputElement;
-        inputDOM.value = ''; // TODO: Why reset, resetBaseValues and setValue were not able to clear it?
-        inputDOM.dispatchEvent(new KeyboardEvent('keyup', {'key': 'enter'})); // Necessary to trigger keyup handler.
-    });
+        inputDOM.value = '';
+        inputDOM.dispatchEvent(new KeyboardEvent('keyup', {'key': 'enter'}));
+    };
+
+    buttonEL.onClicked(clearInput);
 
     if(labelEL) {
         labelEL.getHTMLElement().setAttribute('for', id);
