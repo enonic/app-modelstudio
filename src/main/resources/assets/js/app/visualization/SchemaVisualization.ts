@@ -1,12 +1,11 @@
 import * as Q from 'q';
-import {select, schemeCategory10} from 'd3';
+import {select} from 'd3';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {CentralNodeInfo, D3SVG, FnSchemaNavigationListener, Relation, RenderConfig} from './interfaces';
 import SchemaData from './SchemaData';
 import SchemaRender from './SchemaRender';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
-import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ReferencesRequest} from './ReferencesRequest';
 import {getOuterCircleRadius, getOuterTextSize} from './helpers';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
@@ -171,11 +170,10 @@ function createTextInput(id: string, label: string = '', placeholder: string = '
     inputEL.setPlaceholder(placeholder);
     inputEL.setId(id);
 
-    const labelEL = label ? new LabelEl(label) : null;
-
     const buttonEL = new ButtonEl();
     const spanEL = new SpanEl('icon-close');
     buttonEL.appendChild(spanEL);
+    buttonEL.hide();
 
     const clearInput = () => {
         const inputDOM = document.getElementById(inputEL.getId()) as HTMLInputElement;
@@ -185,10 +183,21 @@ function createTextInput(id: string, label: string = '', placeholder: string = '
 
     buttonEL.onClicked(clearInput);
 
-    if(labelEL) {
+    if (label) {
+        const labelEL = new LabelEl(label);
         labelEL.getHTMLElement().setAttribute('for', id);
         divEL.appendChild(labelEL);
     }
+
+    inputEL.onRendered(() => {
+        const inputDOM = document.getElementById(inputEL.getId()) as HTMLInputElement;
+        const buttonDOM = document.getElementById(buttonEL.getId()) as HTMLButtonElement;
+        
+        inputDOM.addEventListener('keyup', (event: Event) => {
+            const inputValue = (event.target as HTMLInputElement).value;
+            buttonDOM.style.display = inputValue ? '' : 'none';
+        });
+    });
 
     divEL.appendChild(inputEL);
     divEL.appendChild(buttonEL);
