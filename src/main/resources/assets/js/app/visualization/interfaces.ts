@@ -17,6 +17,9 @@ export interface CentralNodeInfo {
 }
 
 export interface RenderConfig {
+    phrases: {
+        navigateBack: string
+    },
     references: {
         opacity: number
     },
