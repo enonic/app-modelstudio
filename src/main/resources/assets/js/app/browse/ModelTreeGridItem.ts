@@ -161,13 +161,13 @@ export class ModelTreeGridItem
             return this.application.getApplicationKey().toString() + '/pages';
 
         case UserTreeGridItemType.CONTENT_TYPES:
-            return this.application.getApplicationKey().toString() + '/contentTypes';
+            return this.application.getApplicationKey().toString() + '/content-types';
 
         case UserTreeGridItemType.MIXINS:
             return this.application.getApplicationKey().toString() + '/mixins';
 
         case UserTreeGridItemType.XDATAS:
-            return this.application.getApplicationKey().toString() + '/xdatas';
+            return this.application.getApplicationKey().toString() + '/x-data';
         default:
             return '';
         }

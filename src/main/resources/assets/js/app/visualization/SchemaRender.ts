@@ -238,7 +238,7 @@ export default class SchemaRender {
         const appKey = this.nodes[0].id;
         const node = getNodeById(this.nodes, nodeId);
 
-        if (node.clickable) {
+        if (node && node.clickable) {
             this.onNavigationListeners.forEach(listener => listener(appKey, nodeId, prevNodeId));
         }
     }
