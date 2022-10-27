@@ -428,6 +428,12 @@ export default class SchemaRender {
             .attr('height', 15)
             .attr('opacity', 0);
 
+        const centralNode = this.renderOptions[0].data.node;
+        const centralNodeFatherName = getNodeDisplayName(getFatherNodeId(this.relations, this.nodes, centralNode));
+        
+        group.append('title')
+            .text(`${this.config.phrases.navigateBack} ${centralNodeFatherName}`);
+
         this.backArrowSvgGroup = group;
 
         return this.backArrowSvgGroup;

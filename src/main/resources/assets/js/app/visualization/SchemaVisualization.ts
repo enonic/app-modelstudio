@@ -95,6 +95,9 @@ export class SchemaVisualization extends DivEl{
 
     private getRenderConfig(schemaData: SchemaData) {
         const config: RenderConfig = {
+            phrases: {
+                navigateBack: i18n('visualization.tooltip.navigation.back')
+            },
             ids: {
                 search: SchemaVisualization.inputID,
                 checkbox: SchemaVisualization.checkboxID,
@@ -128,7 +131,7 @@ export class SchemaVisualization extends DivEl{
                     '#000000', // Layouts
                     '#1f77b4', // Parts
                 ]
-            }
+            },
         };
         
         return config;
