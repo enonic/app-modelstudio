@@ -115,28 +115,31 @@ export function getRelationsPathD(relation: Relation, option: RenderOption, many
     const sourceIndex = childrenIds.findIndex(x => x === relation.source);
     const targetIndex = childrenIds.findIndex(x => x === relation.target);
 
-    const sourceRadiusOffset = manyChildren ? getTextWidth(getCleanNodeId(relation.source), textSize) / 2 : 0;
-    const targetRadiusOffset = manyChildren ? getTextWidth(getCleanNodeId(relation.target), textSize) / 2 : 0;
+    const sourceRadiusOffset = getTextWidth(getCleanNodeId(relation.source), textSize) / 2;
+    const targetRadiusOffset = getTextWidth(getCleanNodeId(relation.target), textSize) / 2;
 
     let x1 = sourceIndex >= 0 
-        ? getMarkerXPosition(sourceIndex, radius, childrenIds.length, sourceRadiusOffset)
+        ? getMarkerXPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0)
         : 0;
         
     let y1 = sourceIndex >= 0 
-        ? getMarkerYPosition(sourceIndex, radius, childrenIds.length, sourceRadiusOffset) 
+        ? getMarkerYPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) 
         : 0;
         
     let x2 = targetIndex >= 0 
-        ? getMarkerXPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset) 
+        ? getMarkerXPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) 
         : 0;
         
     let y2 = targetIndex >= 0 
-        ? getMarkerYPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset) 
+        ? getMarkerYPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) 
         : 0;
 
     const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
     if (centralNode && relation.source === centralNode.id) {
+        if (!manyChildren) {
+            x2 = getMarkerXPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset);
+        }
         const shortenFactorSource = 0.4;
         x1 = x1 + shortenFactorSource * (x2 - x1);
         y1 = y1 + shortenFactorSource * (y2 - y1);
@@ -144,7 +147,7 @@ export function getRelationsPathD(relation: Relation, option: RenderOption, many
         x2 = x1 + shortenFactorTarget * (x2 - x1);
         y2 = y1 + shortenFactorTarget * (y2 - y1);
     } else if (centralNode && relation.target === centralNode.id) {
-        const shortenFactor = 0.7;
+        const shortenFactor = 0.5;
         x2 = x1 + shortenFactor * (x2 - x1);
         y2 = y1 + shortenFactor * (y2 - y1);
     } else if (!manyChildren) {
