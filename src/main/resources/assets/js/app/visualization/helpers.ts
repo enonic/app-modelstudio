@@ -273,7 +273,7 @@ export function itemToNodeId(item: ModelTreeGridItem): string {
         return `CONTENT-TYPES@${item.getId()}`;
     }
     if (item.isMixin()) {
-        return `MIXIN@${item.getId()}`;
+        return `MIXINS@${item.getId()}`;
     }
     if (item.isXData()) {
         return `X-DATA@${item.getId()}`;
