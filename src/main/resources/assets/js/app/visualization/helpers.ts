@@ -191,7 +191,7 @@ export function getNodeIdDetails(nodeId: string): NodeIdDetails {
 }
 
 export function getCleanNodeId(nodeId: string): string {
-    return nodeId.split(':').pop().replace(/-/g, ' ');
+    return nodeId.split(':').pop();//.replace(/-/g, ' ');
 }
 
 export function getNodeTitle(nodeId: string): string {
