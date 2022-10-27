@@ -199,27 +199,26 @@ export function getNodeTitle(nodeId: string): string {
 }
 
 export function getNodeDisplayName(nodeId: string): string {
-
     const nodeDetails = getNodeIdDetails(nodeId);
     const displayName = nodeDetails.schemaName || nodeDetails.type || nodeDetails.appKey;
 
     switch (displayName) {
-        case 'PART':
+        case 'PARTS':
             return i18n('field.parts');
 
-        case 'LAYOUT':
+        case 'LAYOUTS':
             return i18n('field.layouts');
 
-        case 'PAGE':
+        case 'PAGES':
             return i18n('field.pages');
 
-        case 'CONTENT_TYPE':
+        case 'CONTENT-TYPES':
             return i18n('field.contentTypes');
 
-        case 'MIXIN':
+        case 'MIXINS':
             return i18n('field.mixins');
 
-        case 'XDATA':
+        case 'X-DATA':
             return i18n('field.xdatas');
     }    
 
@@ -239,8 +238,7 @@ export function nodeIdToItemKey(appKey: string, nodeId: string): string {
     let itemKey: string;
     
     if (nodeIdDetails.type && !nodeIdDetails.appKey && !nodeIdDetails.schemaName) {
-        const type = nodeIdDetails.type === 'CONTENT_TYPE' ? 'contentType' : nodeIdDetails.type.toLowerCase();
-        itemKey = `${appKey}/${type}s`;
+        itemKey = `${appKey}/${nodeIdDetails.type.toLowerCase()}`;
     } else {
         itemKey = nodeIdDetails.appKey;         
         itemKey += nodeIdDetails.schemaName ? `:${nodeIdDetails.schemaName}` : '';
@@ -254,40 +252,40 @@ export function itemToNodeId(item: ModelTreeGridItem): string {
         return item.getApplication()?.getApplicationKey()?.toString();
     }
     if (item.isContentTypes()) {
-        return 'CONTENT_TYPE';
+        return 'CONTENT-TYPES';
     }
     if (item.isMixins()) {
-        return 'MIXIN';
+        return 'MIXINS';
     }
     if (item.isXDatas()) {
-        return 'XDATA';
+        return 'X-DATA';
     }
     if (item.isPages()) {
-        return 'PAGE';
+        return 'PAGES';
     }
     if (item.isLayouts()) {
-        return 'LAYOUT';
+        return 'LAYOUTS';
     }
     if (item.isParts()) {
-        return 'PART';
+        return 'PARTS';
     }
     if (item.isContentType()) {
-        return `CONTENT_TYPE@${item.getId()}`;
+        return `CONTENT-TYPES@${item.getId()}`;
     }
     if (item.isMixin()) {
         return `MIXIN@${item.getId()}`;
     }
     if (item.isXData()) {
-        return `XDATA@${item.getId()}`;
+        return `X-DATA@${item.getId()}`;
     }
     if (item.isPage()) {
-        return `PAGE@${item.getId()}`;
+        return `PAGES@${item.getId()}`;
     }
     if (item.isLayout()) {
-        return `LAYOUT@${item.getId()}`;
+        return `LAYOUTS@${item.getId()}`;
     }
     if (item.isPart()) {
-        return `PART@${item.getId()}`;
+        return `PARTS@${item.getId()}`;
     }
 
     return '';

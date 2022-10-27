@@ -19,10 +19,34 @@ exports.get = function handleGet(req) {
     };
 }
 
+const SCHEMA_NAMES = {
+    CONTENTTYPE: 'CONTENT-TYPES',
+    MIXIN: 'MIXINS',
+    XDATA: 'X-DATA',
+    PAGE: 'PAGES',
+    LAYOUT: 'LAYOUTS',
+    PART: 'PARTS'
+}
+
+function libSchemaSchemaTypeMapper(key) {
+    return {
+        [SCHEMA_NAMES.CONTENTTYPE]: 'CONTENT_TYPE',
+        [SCHEMA_NAMES.MIXIN]: 'MIXIN',
+        [SCHEMA_NAMES.XDATA]: 'XDATA'
+    }[key];
+}
+
+function libSchemaComponentTypeMapper(key) {
+    return {
+        [SCHEMA_NAMES.PAGE]: 'PAGE',
+        [SCHEMA_NAMES.LAYOUT]: 'LAYOUT',
+        [SCHEMA_NAMES.PART]: 'PART'
+    }[key];
+}
+
 function getReferences(appKey) {
-    
-    const schemaCategories = ['CONTENT_TYPE', 'MIXIN', 'XDATA'];
-    const componentCategories = ['PAGE', 'LAYOUT', 'PART'];
+    const schemaCategories = [SCHEMA_NAMES.CONTENTTYPE, SCHEMA_NAMES.MIXIN, SCHEMA_NAMES.XDATA];
+    const componentCategories = [SCHEMA_NAMES.PAGE, SCHEMA_NAMES.LAYOUT, SCHEMA_NAMES.PART];
     const categories = [].concat(schemaCategories).concat(componentCategories);
     const schemaNamesAndReferences = schemaCategories.map(schemaCategory => getSchemaNamesAndReferences(appKey, schemaCategory));
     const componentNamesAndReferences = componentCategories.map(componentCategory => getComponentNamesAndReferences(appKey, componentCategory));
@@ -39,7 +63,7 @@ function getReferences(appKey) {
     const allNames = namesAndReferences.names.concat(baseContentTypeNames);
     const allRefs = namesAndReferences.references.filter(reference => allNames.indexOf(reference[1]) > -1);
     const referencedBaseContentTypeNames = baseContentTypeNames.filter(name => allRefs.some(reference => name === reference[1]));
-    const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => ['CONTENT_TYPE', name]);
+    const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => [SCHEMA_NAMES.CONTENTTYPE, name]);
     const refs = [].concat(baseContentTypeReferences).concat(allRefs);
 
     let initialRefs = cartesianProduct([appKey], categories);
@@ -61,22 +85,23 @@ function getBaseContentTypeIds() {
 }
 
 function getBaseContentTypeNames(appKey) {
-    const baseContentTypeUids = getBaseContentTypeIds().map(name => getUid('CONTENT_TYPE', prependAppKey(appKey, name)));
+    const baseContentTypeUids = getBaseContentTypeIds().map(name => getUid(SCHEMA_NAMES.CONTENTTYPE, prependAppKey(appKey, name)));
     return baseContentTypeUids;
 }
 
 function getSchemaNamesAndReferences(appKey, type) {
-    const names = schemaLib.listSchemas({ application: appKey, type }).map(schema => schema.name);
+    
+    const names = schemaLib.listSchemas({ application: appKey, type: libSchemaSchemaTypeMapper(type) }).map(schema => schema.name);
     const namesWithUid = names.map(name => getUid(type, name));
-    const schemas = names.map(name => schemaLib.getSchema({ name, type }));
+    const schemas = names.map(name => schemaLib.getSchema({ name, type: libSchemaSchemaTypeMapper(type) }));
 
     return {names: namesWithUid, references: buildReferences(appKey, type, namesWithUid, schemas)};
 }
 
 function getComponentNamesAndReferences(appKey, type) {
-    const names = schemaLib.listComponents({ application: appKey, type }).map(component => component.key);
+    const names = schemaLib.listComponents({ application: appKey, type: libSchemaComponentTypeMapper(type) }).map(component => component.key);
     const namesWithUid = names.map(name => getUid(type, name));
-    const components = names.map(name => schemaLib.getComponent({ key: name, type }));
+    const components = names.map(name => schemaLib.getComponent({ key: name, type: libSchemaComponentTypeMapper(type) }));
     
     return {names: namesWithUid, references: buildReferences(appKey, type, namesWithUid, components)};
 }
@@ -131,17 +156,17 @@ function getMatches(appKey, initialMatches) {
 function getRegExps() {
     return [
         {
-            targetType: 'CONTENT_TYPE',
+            targetType: SCHEMA_NAMES.CONTENTTYPE,
             regExp: new RegExp('<allow-content-type>(.*?)<\/allow-content-type>', 'g'),
             fnReplace: (str) => str.replace(/<\/?allow-content-type>/g, '')
         },
         {
-            targetType: 'CONTENT_TYPE',
+            targetType: SCHEMA_NAMES.CONTENTTYPE,
             regExp: new RegExp('<allow-on-content-type>(.*?)<\/allow-on-content-type>', 'g'),
             fnReplace: (str) => str.replace(/<\/?allow-on-content-type>/g, '')
         },
         {
-            targetType: 'MIXIN',
+            targetType: SCHEMA_NAMES.MIXIN,
             regExp: new RegExp('<mixin name="(.*?)"\\s?\/>', 'g'),
             fnReplace: (str) => str.replace(/<mixin name=\"/g, '').replace(/\"\s?\/>/g, '')
         },
