@@ -27,7 +27,7 @@ export default class SchemaRender {
     private config: RenderConfig;
     private renderOptions: RenderOption[];
     private centralNodeInfo: CentralNodeInfo = {} as CentralNodeInfo;
-    private breadcrumbsInfo: Array<string> = [];
+    private breadcrumbsInfo: {nodeName: string, nodeId: string}[] = [];
 
     private onNavigationListeners: Function[] = [];
     private svg: D3SVG;
@@ -221,9 +221,9 @@ export default class SchemaRender {
         this.reset(svg);
         this.renderOptions.forEach(renderOption => this.renderByOption(svg, renderOption));
         this.setSvgDefs(svg);
-        this.updateBreadcrumbs(svg);
         this.toggleReferences(svg);
         this.initListeners(svg);
+        this.updateBreadcrumbs(svg);
     }
 
     addOnNavigationListener(fn: FnSchemaNavigationListener) {
@@ -464,37 +464,34 @@ export default class SchemaRender {
         const hoveredGroups = document.querySelectorAll('g .filtered, g .hover');
         hoveredGroups.forEach(group => group.classList.remove('filtered', 'hover'));
     }
+    
+    setBreadcrumbsInfo(nodeName: string, nodeId: string) {
+        const nodeDepth = getNodeById(this.nodes, nodeId).depth;
 
-    private updateBreadcrumbsInfo(nodeId: string): void {
-        const recur = (nodeId: string, ids = []) => {
-            const fatherNodeId = getFatherNodeId(this.relations, this.nodes, getNodeById(this.nodes, nodeId));
-            return fatherNodeId ? recur(fatherNodeId, [nodeId, ...ids]) : [nodeId, ...ids];
-        };
+        if (nodeDepth === 1) {
+            this.breadcrumbsInfo = [{nodeName, nodeId}];
+        }
 
-        this.breadcrumbsInfo = recur(nodeId).filter((id: string) => !!id);
+        if (nodeDepth === 2 && this.breadcrumbsInfo.length >= 1) {
+            this.breadcrumbsInfo = [this.breadcrumbsInfo[0], {nodeName, nodeId}];
+        }
+
+        if (nodeDepth === 3 && this.breadcrumbsInfo.length >= 2) {
+            this.breadcrumbsInfo = [this.breadcrumbsInfo[0], this.breadcrumbsInfo[1], {nodeName, nodeId}];
+        }
     }
 
     private updateBreadcrumbs(svg: D3SVG) {
         this.getBreadcrumbs().innerHTML = '';
-
-        const lastRenderOption = this.renderOptions[this.renderOptions.length - 1];        
-
-        if (!lastRenderOption.data.node) {
-            return;
-        }
-
-        const nodeId = lastRenderOption.data.node.id;
-
-        this.updateBreadcrumbsInfo(nodeId);
 
         const clickHandler = (nodeId: string) => {
             this.executeOnNavigationListeners(nodeId);
             this.clickHandler(svg, nodeId);
         };
 
-        const breadcrumbsSpans = this.breadcrumbsInfo.map((nodeId, index) =>  {
+        const breadcrumbsSpans = this.breadcrumbsInfo.map(({nodeName, nodeId}, index) =>  {
             let spanEL = new SpanEl();
-            spanEL.setHtml(getCleanNodeId(getNodeDisplayName(nodeId)).toLowerCase());
+            spanEL.setHtml(nodeName);
             if (index + 1 < this.breadcrumbsInfo.length) {
                 spanEL.onClicked(() => clickHandler(nodeId));
             }

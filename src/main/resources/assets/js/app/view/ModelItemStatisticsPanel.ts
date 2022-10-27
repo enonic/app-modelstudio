@@ -52,10 +52,10 @@ export class ModelItemStatisticsPanel
             }
 
             const schemaVisualizationAppKey = this.schemaVisualization?.appKey || '';
-            const nodeId = itemToNodeId(item);        
+            const nodeId = itemToNodeId(item);
 
             if (treeGridAppKey === schemaVisualizationAppKey) {
-                this.schemaVisualization.navigateToNode(nodeId, this.getCentralNodeInfo(item));
+                this.schemaVisualization.navigateToNode(item, nodeId, this.getCentralNodeInfo(item));
             } else {
                 this.setSchemaVisualizationData(treeGridAppKey, item, nodeId);
                 this.schemaVisualization.refresh();
@@ -85,7 +85,7 @@ export class ModelItemStatisticsPanel
         this.treeGrid.expandNodeByDataId(appKey);
         
         if (navigateToAppKey) {
-            this.schemaVisualization.navigateToNode(navigateToAppKey, this.getCentralNodeInfo(item));
+            this.schemaVisualization.navigateToNode(item, navigateToAppKey, this.getCentralNodeInfo(item));
         } else {
             this.treeGrid.highlightItemById(appKey, false, true);
         }
@@ -98,13 +98,12 @@ export class ModelItemStatisticsPanel
             }
             
             this.treeGrid.highlightItemById(itemKey, false, true);
-            const nodeId = itemToNodeId(this.treeGrid.getItemWithDataId(itemKey));
+            const item = this.treeGrid.getItemWithDataId(itemKey);
+            const nodeId = itemToNodeId(item);
             const highlightedItem = this.treeGrid.getHighlightedItem();
             const centralNodeInfo = this.getCentralNodeInfo(highlightedItem);
 
-            if(!skipCentralNodeUpdate) {
-                this.schemaVisualization.navigateToNode(nodeId, centralNodeInfo);
-            }
+            this.schemaVisualization.navigateToNode(item, nodeId, centralNodeInfo, skipCentralNodeUpdate);
             
             if (prevItemKey) {
                 this.treeGrid.collapseNodeByDataId(prevItemKey);
@@ -117,8 +116,9 @@ export class ModelItemStatisticsPanel
             return Q(true);            
         };
 
-        this.schemaVisualization.onNavigate((appKey: string, nodeId: string, prevNodeId?: string): void => {
+        this.schemaVisualization.onNavigate((appKey: string, nodeId: string, prevNodeId?: string): ModelTreeGridItem => {
             const itemKey = nodeIdToItemKey(appKey, nodeId);
+            const item = this.treeGrid.getItemWithDataId(itemKey);
             const prevItemKey = prevNodeId ? nodeIdToItemKey(appKey, prevNodeId): undefined;
 
             if (!this.treeGrid.isExpandedAndHasChildren(itemKey)) {
@@ -126,10 +126,13 @@ export class ModelItemStatisticsPanel
                 const typeKey = nodeIdToItemKey(appKey, nodeIdDetails.type);
 
                 executeNavigation(typeKey, prevItemKey, true).then(() => executeNavigation(itemKey, prevItemKey));
-                return;
+
+                return item;
             }
 
             executeNavigation(itemKey, prevItemKey);
+
+            return item;
         });
     }
 

@@ -11,6 +11,7 @@ import {getOuterCircleRadius, getOuterTextSize} from './helpers';
 import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 
 export class SchemaVisualization extends DivEl{
     public appKey: string;
@@ -156,8 +157,14 @@ export class SchemaVisualization extends DivEl{
         });
     }
 
-    navigateToNode(nodeId: string, centralNodeInfo: CentralNodeInfo): void {
-        this.schemaRender.updateCentralNodeInfo(centralNodeInfo);
+    navigateToNode(item: ModelTreeGridItem, nodeId: string, centralNodeInfo: CentralNodeInfo, skipCentralNodeUpdate: boolean = false)
+        : void {
+        this.schemaRender.setBreadcrumbsInfo(item.getDisplayName(), nodeId);
+
+        if (!skipCentralNodeUpdate) {
+            this.schemaRender.updateCentralNodeInfo(centralNodeInfo);
+        }
+        
         this.schemaRender.navigateToNode(nodeId);
     }
 
