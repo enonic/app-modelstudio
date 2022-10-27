@@ -1,5 +1,7 @@
 include 'testing'
 
+rootProject.name = projectName
+
 if ( hasProperty( 'env' ) ) {
     addBuild('../lib-admin-ui')
 }
