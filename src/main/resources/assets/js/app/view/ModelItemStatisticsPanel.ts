@@ -116,7 +116,7 @@ export class ModelItemStatisticsPanel
             return Q(true);            
         };
 
-        this.schemaVisualization.onNavigate((appKey: string, nodeId: string, prevNodeId?: string): ModelTreeGridItem => {
+        this.schemaVisualization.onNavigate((appKey: string, nodeId: string, prevNodeId?: string): void => {
             const itemKey = nodeIdToItemKey(appKey, nodeId);
             const item = this.treeGrid.getItemWithDataId(itemKey);
             const prevItemKey = prevNodeId ? nodeIdToItemKey(appKey, prevNodeId): undefined;
@@ -126,13 +126,11 @@ export class ModelItemStatisticsPanel
                 const typeKey = nodeIdToItemKey(appKey, nodeIdDetails.type);
 
                 executeNavigation(typeKey, prevItemKey, true).then(() => executeNavigation(itemKey, prevItemKey));
-
-                return item;
+                return;
             }
 
             executeNavigation(itemKey, prevItemKey);
-
-            return item;
+            return;
         });
     }
 
