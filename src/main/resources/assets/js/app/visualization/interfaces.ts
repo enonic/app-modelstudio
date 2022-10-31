@@ -16,21 +16,22 @@ export interface CentralNodeInfo {
     icon: string
 }
 
+export interface SVGRenderOptionsConfig { 
+    circleRadius: number, 
+    textSize: number 
+}
+
 export interface RenderConfig {
     phrases: {
+        filterPlaceholder: string
+        referencesLabel: string
         navigateBack: string
     },
     references: {
         opacity: number
     },
-    text: {
-        size: number
-    },
     marker: {
         size: number
-    },
-    circle: {
-        radius: number
     },
     ids: {
         search: string

@@ -4,7 +4,7 @@ import {HttpRequest} from '@enonic/lib-admin-ui/rest/HttpRequest';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetRequest} from '@enonic/lib-admin-ui/rest/GetRequest';
 
-export class ReferencesRequest<T> implements HttpRequest<T> {
+export class Request<T> implements HttpRequest<T> {
 
     private readonly appKey: string;
     private readonly path: Path;
@@ -28,7 +28,7 @@ export class ReferencesRequest<T> implements HttpRequest<T> {
                 const json = JSON.parse(rawResponse);
                 return json;
             }, error => {
-                console.error('ReferencesRequest request error: ', error);
+                console.error('Visualization Request request error: ', error);
             });
         }
     }
