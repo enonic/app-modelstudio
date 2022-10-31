@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import {Relation, Node, RenderOption} from './interfaces';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export function getDepth(relations: Relation[], nodeId: string, acc: number = 1): number {  
     const targets = getRelationsFromTarget(relations, nodeId);
@@ -289,6 +290,19 @@ export function itemToNodeId(item: ModelTreeGridItem): string {
     }
 
     return '';
+}
+
+export function setUniqueListener(elementId: string, listenerType: string, fnHandler: (e: Event) => void, debounceTime: number = 0): void {
+    const element: HTMLElement = document.getElementById(elementId);
+
+    if (element) {
+        const handler = AppHelper.debounce(fnHandler, debounceTime);
+
+        if (!element[listenerType]) {
+            element[listenerType] = handler;
+            element.addEventListener(listenerType, handler);
+        }
+    }
 }
 
 interface NodeIdDetails {

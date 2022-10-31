@@ -1,17 +1,16 @@
 import * as Q from 'q';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
-import {SchemaVisualization} from '../visualization/SchemaVisualization';
+import {Visualization} from '../visualization/Visualization';
 import {ModelItemsTreeGrid} from '../browse/ModelItemsTreeGrid';
 import {getNodeIdDetails, itemToNodeId, nodeIdToItemKey} from '../visualization/helpers';
 import {CentralNodeInfo} from '../visualization/interfaces';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 
-export class ModelItemStatisticsPanel
-    extends ItemStatisticsPanel {
+export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
 
     private treeGrid: ModelItemsTreeGrid;
-    private schemaVisualization: SchemaVisualization;
+    private schemaVisualization: Visualization;
     private loadMask: LoadMask;
 
     constructor() {
@@ -64,7 +63,7 @@ export class ModelItemStatisticsPanel
     }
 
     private setSchemaVisualization(): void {
-        this.schemaVisualization = new SchemaVisualization();
+        this.schemaVisualization = new Visualization();
         this.schemaVisualizationOnNavigateHandler();
     }
 

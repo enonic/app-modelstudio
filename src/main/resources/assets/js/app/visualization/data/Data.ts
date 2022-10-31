@@ -1,8 +1,7 @@
+import {getDepth, getRelationsFromSource, getRelationsFromTarget} from '../helpers';
+import {Relation, Node} from '../interfaces';
 
-import {getDepth, getRelationsFromSource, getRelationsFromTarget} from './helpers';
-import {Relation, Node} from './interfaces';
-
-export default class SchemaData {
+export class Data {
     relations: Relation[];
     nodes: Node[];
 
