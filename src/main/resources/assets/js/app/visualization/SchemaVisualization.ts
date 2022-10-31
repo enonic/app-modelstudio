@@ -21,6 +21,7 @@ export class SchemaVisualization extends DivEl{
     private searchInput: DivEl;
     private referencesCheckbox: DivEl;
     private breadcrumbs: DivEl;
+    private isLoading: boolean;
     private onLoadStart: () => void;
     private onLoadEnd: () => void;
 
@@ -42,6 +43,9 @@ export class SchemaVisualization extends DivEl{
     }
 
     setData(appKey?: string,  onLoadStart: () => void = () => {}, onLoadEnd: () => void = () => {}) {
+        if (this.isLoading) {
+            return false;
+        }
         this.appKey = appKey;
         this.onLoadStart = onLoadStart;
         this.onLoadEnd = onLoadEnd;
@@ -139,6 +143,10 @@ export class SchemaVisualization extends DivEl{
     }
 
     refresh(): void {
+        if (this.isLoading) {
+            return;
+        }
+
         this.removeChildren();
         this.doRender();
     }
@@ -150,8 +158,13 @@ export class SchemaVisualization extends DivEl{
                 return true;
             }
 
+            this.isLoading = true;
             this.onLoadStart();
-            this.execute().then(this.onLoadEnd);
+
+            this.execute().then(() => {
+                this.onLoadEnd();
+                this.isLoading = false;
+            });
             
             return true;
         });
