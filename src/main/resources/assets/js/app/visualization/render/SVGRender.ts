@@ -5,7 +5,7 @@ import {
     getNodeById,
     getNodeColor,
     getNodeColorByNodeId,
-    getRelationsPathD,
+    getRelationsPath,
     getSvgNodeId,
     getTextRotation,
     getTextXPosition,
@@ -363,10 +363,22 @@ export class SVGRender {
             return;
         }
 
-        const fnD = (relation: Relation) => getRelationsPathD(relation, option, this.tooManyChildren(option));
+        const fnD = (relation: Relation) => getRelationsPath(relation, option, this.tooManyChildren(option));
 
         const fnStroke = (relation: Relation) =>
             getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, relation.source), this.config.colors.range);
+
+        const fnDash = (relation: Relation) => relation.dash ? 6 : null;
+
+        const fnTransform = (relation: Relation) => this.tooManyChildren(option) && relation.target === relation.source 
+            ? getTextRotation(
+                option.data.childrenIdsToShow.findIndex(nodeId => nodeId === relation.target), 
+                option.data.childrenIdsToShow.length, 
+                option.config.circle.radius,
+            ) : null;
+
+        const markerEnd = (relation: Relation) => 
+            `url(#arrow-${getNodeColorByNodeId(this.relations, this.nodes, relation.source, this.config.colors.range)})`;
 
         const linkGroups = svg.append('g')
             .attr('id', SVGRender.referencesID)
@@ -374,13 +386,13 @@ export class SVGRender {
             .data(option.data.relations)
             .enter();
 
-        const markerEnd = (id: string) => `#arrow-${getNodeColorByNodeId(this.relations, this.nodes, id, this.config.colors.range)}`;
-
         return linkGroups.append('path')
             .attr('d', fnD)
+            .attr('fill', 'none')
             .attr('stroke', fnStroke)
-            .attr('stroke-dasharray', d => d.dash ? 6 : null)
-            .attr('marker-end', d => `url(${markerEnd(d.source)})`);
+            .attr('stroke-dasharray', fnDash)
+            .attr('marker-end', markerEnd)
+            .attr('transform', fnTransform);
     }
 
     private appendImage(svg: D3SVGG, href: string, width: number, height: number, x = 0, y = 0) {
