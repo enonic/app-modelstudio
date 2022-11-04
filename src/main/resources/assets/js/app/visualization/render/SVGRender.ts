@@ -218,9 +218,9 @@ export class SVGRender {
             
         if (renderRelations.length === 0) {
             referencesCheckbox.setChecked(false);
-            referencesCheckbox.setDisabled(true);
+            referencesCheckbox.setEnabled(false);
         } else {
-            referencesCheckbox.setDisabled(false);
+            referencesCheckbox.setEnabled(true);
         }
     }
 
