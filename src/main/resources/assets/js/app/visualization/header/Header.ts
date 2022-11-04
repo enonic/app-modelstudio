@@ -3,7 +3,7 @@ import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {PHRASES} from '../constants';
+import {getPhrases} from '../constants';
 
 export default class Header extends DivEl{
     private filterWrapper: DivEl;
@@ -22,7 +22,7 @@ export default class Header extends DivEl{
         const divEL = new DivEl('filterWrapper');
     
         const inputEL = new InputEl('', 'text');
-        inputEL.setPlaceholder(PHRASES().filterPlaceholder);
+        inputEL.setPlaceholder(getPhrases().filterPlaceholder);
         inputEL.setId(filterInputID);
 
         const buttonEL = new ButtonEl();
@@ -63,7 +63,7 @@ export default class Header extends DivEl{
         const inputEL = new InputEl('icon-link', 'checkbox');
         inputEL.setId(referencesCheckboxID);
         
-        const labelEL = new LabelEl(PHRASES().referencesLabel);
+        const labelEL = new LabelEl(getPhrases().referencesLabel);
         labelEL.getHTMLElement().setAttribute('for', referencesCheckboxID);
     
         divEL.appendChild(inputEL);

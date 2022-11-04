@@ -1,7 +1,7 @@
 import * as Q from 'q';
 import {select} from 'd3';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {CentralNodeInfo, D3SVG, FnSchemaNavigationListener, Relation, RenderConfig} from './interfaces';
+import {CentralNodeInfo, D3SVG, FnSchemaNavigationListener, Relation} from './interfaces';
 import {Data} from './data/Data';
 import {Request} from './data/Request';
 import {SVGRender} from './render/SVGRender';

@@ -21,9 +21,8 @@ import {
 } from '../helpers';
 import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from '../interfaces';
 import {SVGRenderOptionsBuilder} from './SVGRenderOptionsBuilder';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {RENDER_CONFIG} from '../constants';
+import {getRenderConfig} from '../constants';
 
 export class SVGRender {
     private relations: Relation[];
@@ -47,7 +46,7 @@ export class SVGRender {
     constructor(relations: Relation[], nodes: Node[], node: Node) {
         this.relations = relations;
         this.nodes = nodes;
-        this.config = RENDER_CONFIG;
+        this.config = getRenderConfig();
 
         this.circleRadius = getOuterCircleRadius(nodes);
         this.textSize = getOuterTextSize(nodes);
