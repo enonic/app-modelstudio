@@ -24,12 +24,7 @@ export class Request<T> implements HttpRequest<T> {
             .setPath(this.path)
             .setParams({appKey: this.appKey});
 
-            return jsonRequest.send().then((rawResponse: any) => {
-                const json = JSON.parse(rawResponse);
-                return json;
-            }, error => {
-                console.error('Visualization Request request error: ', error);
-            });
+            return jsonRequest.send().then((rawResponse: any) => JSON.parse(rawResponse));
         }
     }
 

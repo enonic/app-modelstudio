@@ -1,6 +1,18 @@
 .schema-visualization {
     height: 100%;
 
+    >.error-message {
+        color: lightgray;
+        font-family: @admin-font-family;
+        font-size: 21px;
+        line-height: 30px;
+        position: relative;
+        top: 50%;
+        text-align: center;
+        margin-top: -15px;
+        .ellipsis();
+    }
+
     .header {
         position: sticky;
         top: 0;
