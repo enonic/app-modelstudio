@@ -5,9 +5,8 @@ import {CentralNodeInfo, D3SVG, FnSchemaNavigationListener, Relation} from './in
 import {Data} from './data/Data';
 import {Request} from './data/Request';
 import {SVGRender} from './render/SVGRender';
-import SchemaHeader from './header/Header';
+import {Header} from './header/Header';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
-import {IDS} from './constants';
 
 export class Visualization extends DivEl{
     public appKey: string;
@@ -40,11 +39,12 @@ export class Visualization extends DivEl{
         return select(`#${this.svgContainerId}`).append('svg').attr('viewBox', svgViewBox);
     }
 
-    private setSvgRender(schemaData: Data) {        
+    private setSvgRender(schemaData: Data, header: Header) {        
         this.svgRender = new SVGRender(
             schemaData.getRelations(), 
             schemaData.getNodes(), 
-            schemaData.getFirstNode()
+            schemaData.getFirstNode(),
+            header
         );
 
         this.onNavigationListeners.forEach(fn => this.svgRender.addOnNavigationListener(fn));
@@ -54,11 +54,12 @@ export class Visualization extends DivEl{
         return new Request<{references: Relation[]}>(this.appKey)
             .sendAndParse()
             .then(data => new Data(data.references))
-            .then(schemaData => this.setSvgRender(schemaData))
-            .then(() => {
-                const header = new SchemaHeader(IDS.search, IDS.breadcrumbs, IDS.checkbox);
+            .then(data => {
+                const header = new Header();
                 this.appendChild(header);
+                return {data, header};
             })
+            .then(({data, header}) => this.setSvgRender(data, header))
             .then(() => {
                 this.appendChild(this.createSVGContainer());
                 this.svgRender.execute(this.createSVG(700, 600));
@@ -92,8 +93,6 @@ export class Visualization extends DivEl{
             return true;
         });
     }
-
-    // PUBLIC METHODS
 
     navigateToNode(item: ModelTreeGridItem, nodeId: string, centralNodeInfo: CentralNodeInfo, skipCentralNodeUpdate: boolean = false)
         : void {

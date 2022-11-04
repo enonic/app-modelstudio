@@ -6,9 +6,16 @@ const getPhrases = () => ({
     navigateBack: i18n('visualization.tooltip.navigation.back'),
 });
 
-const IDS = {
-    search: 'filter-input',
-    checkbox: 'references-checkbox',
+const CLASSES = {
+    filterWrapper: 'filter-wrapper',
+    filterInput: 'filter-input',
+    filterIcon: 'icon-close',
+
+    referencesWrapper: 'references-wrapper',
+    referencesInput: 'references-checkbox',
+    referencesIcon: 'icon-link',
+
+    breadcrumbsWrapper: 'breadrcrumbs-wrapper',
     breadcrumbs: 'breadcrumbs'
 };
 
@@ -35,8 +42,6 @@ const COLORS = {
 
 const getRenderConfig = () => ({
     phrases: getPhrases(),
-    ids: IDS,
-    
     references: {
         opacity: REFERENCES_OPACITY,
     },
@@ -50,7 +55,7 @@ const getRenderConfig = () => ({
 });
 
 export {
-    IDS,
+    CLASSES,
     getPhrases,
     getRenderConfig
 };

@@ -3,6 +3,8 @@ import {Relation, Node, RenderOption} from './interfaces';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 
 export function getDepth(relations: Relation[], nodeId: string, acc: number = 1): number {  
     const targets = getRelationsFromTarget(relations, nodeId);
@@ -292,15 +294,20 @@ export function itemToNodeId(item: ModelTreeGridItem): string {
     return '';
 }
 
-export function setUniqueListener(elementId: string, listenerType: string, fnHandler: (e: Event) => void, debounceTime: number = 0): void {
-    const element: HTMLElement = document.getElementById(elementId);
+export function setUniqueListener(
+        element: InputEl | Checkbox, 
+        listenerType: string, 
+        fnHandler: (e: Event) => void, 
+        debounceTime: number = 0
+    ): void {
 
     if (element) {
+        const key = `has-${listenerType}`;
         const handler = AppHelper.debounce(fnHandler, debounceTime);
 
-        if (!element[listenerType]) {
-            element[listenerType] = handler;
-            element.addEventListener(listenerType, handler);
+        if (!element[key]) {
+            element[key] = true;
+            element[listenerType](handler);
         }
     }
 }

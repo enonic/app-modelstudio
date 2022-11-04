@@ -33,11 +33,6 @@ export interface RenderConfig {
     marker: {
         size: number
     },
-    ids: {
-        search: string
-        checkbox: string
-        breadcrumbs: string
-    },
     children: {
         many: number
     }
@@ -63,6 +58,8 @@ export interface RenderOption {
         circle: { radius: number }
     },
 }
+
+export type BreadcrumbsItem  = {nodeName: string, nodeId: string};
 
 export type FnSchemaNavigationListener = (appKey: string, nodeId: string, prevNodeId?: string) => void;
 

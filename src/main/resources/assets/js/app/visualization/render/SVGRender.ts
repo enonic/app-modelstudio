@@ -21,8 +21,10 @@ import {
 } from '../helpers';
 import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from '../interfaces';
 import {SVGRenderOptionsBuilder} from './SVGRenderOptionsBuilder';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {getRenderConfig} from '../constants';
+import {Breadcrumbs, Header} from '../header/Header';
+import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 
 export class SVGRender {
     private relations: Relation[];
@@ -31,6 +33,7 @@ export class SVGRender {
     private circleRadius: number;
     private textSize: number;
     private renderOptions: RenderOption[];
+    private header: Header;
     private centralNodeInfo: CentralNodeInfo = {} as CentralNodeInfo;
     private breadcrumbsInfo: {nodeName: string, nodeId: string}[] = [];
     private onNavigationListeners: Function[] = [];
@@ -43,9 +46,10 @@ export class SVGRender {
     private static readonly textsAndIconsID = 'texts-and-icons';
     private static readonly referencesID = 'references';
 
-    constructor(relations: Relation[], nodes: Node[], node: Node) {
+    constructor(relations: Relation[], nodes: Node[], node: Node, header: Header) {
         this.relations = relations;
         this.nodes = nodes;
+        this.header = header;
         this.config = getRenderConfig();
 
         this.circleRadius = getOuterCircleRadius(nodes);
@@ -62,10 +66,10 @@ export class SVGRender {
     }
 
     private initFilterInputListeners(): void {
-        const keyUpHandler = (e: Event) => {
+        const changeHandler = () => {
             this.clearAllHoveredGroups();
 
-            let typedText = (e.target as HTMLInputElement).value;
+            const typedText = this.getFilterInput().getValue();
 
             if (!typedText) {
                 return;
@@ -83,13 +87,13 @@ export class SVGRender {
             svgGroups.forEach(group => group.classList.add('filtered'));
         };
 
-        setUniqueListener(this.config.ids.search, 'keyup', keyUpHandler, 100);
+        setUniqueListener(this.getFilterInput(), 'onValueChanged', changeHandler, 100);
     }
 
     private initShowReferenceCheckboxListeners(svg: D3SVG) {
-        const changeHandler = () => {
+        const changeHandler = () => {            
             if (this.isInSearchMode()) {
-                const typedText = this.getSearchInput().value;
+                const typedText = this.getFilterInput().getValue();
                 const nodeIdMatches = this.nodes.filter(node => node.id.includes(typedText)).map(node => node.id);
                 this.toggleReferences(svg, nodeIdMatches);
             } else {
@@ -97,7 +101,7 @@ export class SVGRender {
             }
         };
 
-        setUniqueListener(this.config.ids.checkbox, 'change', changeHandler);
+        setUniqueListener(this.getReferencesCheckbox(), 'onChange', changeHandler);
     }
 
     private initTextsAndIconsListeners(svg: D3SVG) {
@@ -208,6 +212,18 @@ export class SVGRender {
         svg.selectAll(hideSelector).attr('opacity', fnHideElementsOpacity);
     }
 
+    private updateReferencesCheckboxState() {
+        const referencesCheckbox = this.getReferencesCheckbox();
+        const renderRelations = this.renderOptions.reduce((prev, option) => prev.concat(option.data.relations), []);
+            
+        if (renderRelations.length === 0) {
+            referencesCheckbox.setChecked(false);
+            referencesCheckbox.setDisabled(true);
+        } else {
+            referencesCheckbox.setDisabled(false);
+        }
+    }
+
     private clickHandler(svg: D3SVG, nodeId: string): void {
         const node = getNodeById(this.nodes, nodeId);
         if (node.clickable) {
@@ -231,6 +247,7 @@ export class SVGRender {
         this.toggleReferences(svg);
         this.initListeners(svg);
         this.updateBreadcrumbs(svg);
+        this.updateReferencesCheckboxState();
     }
 
     addOnNavigationListener(fn: FnSchemaNavigationListener) {
@@ -251,8 +268,7 @@ export class SVGRender {
     }
 
     private reset(svg: D3SVG) {
-        this.getSearchInput().value = '';
-        this.getSearchInput().dispatchEvent(new KeyboardEvent('keyup', {'key': 'enter'}));
+        this.getFilterInput().setValue('');
         this.textsAndIconsSVGGroups = [];
         this.backArrowSvgGroup = null;
         svg.selectAll('*').remove();
@@ -495,25 +511,12 @@ export class SVGRender {
     }
 
     private updateBreadcrumbs(svg: D3SVG) {
-        this.getBreadcrumbs().innerHTML = '';
-
         const clickHandler = (nodeId: string) => {
             this.executeOnNavigationListeners(nodeId);
             this.clickHandler(svg, nodeId);
         };
-
-        const breadcrumbsSpans = this.breadcrumbsInfo.map(({nodeName, nodeId}, index) =>  {
-            let spanEL = new SpanEl();
-            spanEL.setHtml(nodeName);
-            if (index + 1 < this.breadcrumbsInfo.length) {
-                spanEL.onClicked(() => clickHandler(nodeId));
-            }
-            return spanEL;
-        });
-
-        breadcrumbsSpans.forEach(spanEL => {
-            this.getBreadcrumbs().appendChild(spanEL.getHTMLElement());
-        });
+        
+        this.getBreadcrumbs().update(this.breadcrumbsInfo, clickHandler);
     }
 
     private getTextFunctions(option: RenderOption, childrenIdsLength: number) {
@@ -568,23 +571,23 @@ export class SVGRender {
         };
     }
 
-    private getSearchInput(): HTMLInputElement {
-        return document.getElementById(this.config.ids.search) as HTMLInputElement;
+    private getFilterInput(): InputEl {
+        return this.header.getFilterInput();
     }
 
-    private getShowReferencesCheckbox(): HTMLInputElement {
-        return document.getElementById(this.config.ids.checkbox) as HTMLInputElement;
+    private getBreadcrumbs(): Breadcrumbs {
+        return this.header.getBreadcrumbs();
     }
 
-    private getBreadcrumbs(): HTMLDivElement {
-        return document.getElementById(this.config.ids.breadcrumbs) as HTMLDivElement;
+    private getReferencesCheckbox(): Checkbox {
+        return this.header.getReferencesCheckbox();
     }
 
     private isInSearchMode(): boolean {
-        return Boolean(this.getSearchInput().value !== '');
+        return this.getFilterInput().getValue() !== '';
     }
 
     private isInReferencesMode(): boolean {
-        return Boolean(this.getShowReferencesCheckbox().checked);
+        return this.getReferencesCheckbox().isChecked();
     }
 }
