@@ -7,6 +7,7 @@ import {Request} from './data/Request';
 import {SVGRender} from './render/SVGRender';
 import {Header} from './header/Header';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
+import {CLASSES, getPhrases} from './constants';
 
 export class Visualization extends DivEl{
     public appKey: string;
@@ -50,47 +51,50 @@ export class Visualization extends DivEl{
         this.onNavigationListeners.forEach(fn => this.svgRender.addOnNavigationListener(fn));
     }
 
-    private execute(): Q.Promise<void> {
+    private getErrorDiv(): DivEl {
+        return new DivEl(CLASSES.errorMessageWrapper).setHtml(getPhrases().errorMessage);
+    }
+    
+    private execute(): Q.Promise<boolean> {
+        this.isLoading = true;
+        this.removeChildren();
+        this.onLoadStart();
+        
         return new Request<{references: Relation[]}>(this.appKey)
             .sendAndParse()
-            .then(data => new Data(data.references))
             .then(data => {
                 const header = new Header();
+                this.setSvgRender(new Data(data.references), header);
                 this.appendChild(header);
-                return {data, header};
-            })
-            .then(({data, header}) => this.setSvgRender(data, header))
-            .then(() => {
                 this.appendChild(this.createSVGContainer());
                 this.svgRender.execute(this.createSVG(700, 600));
+
+                return header;
+            })
+            .catch(error => {
+                console.error(error);
+
+                if (this.getChildren().length > 0) {
+                    this.removeChildren();
+                }
+
+                this.appendChild(this.getErrorDiv());
+
+                return false;
+            })
+            .finally(() => {
+                this.isLoading = false;
+                this.onLoadEnd();
             });
-    }
-
-    refresh(): void {
-        if (this.isLoading) {
-            return;
-        }
-
-        this.removeChildren();
-        this.doRender();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then(() => {
-
-            if (!this.appKey) {
+            if (this.isLoading || !this.appKey) {
                 return true;
             }
 
-            this.isLoading = true;
-            this.onLoadStart();
-
-            this.execute().then(() => {
-                this.onLoadEnd();
-                this.isLoading = false;
-            });
-            
-            return true;
+            return this.execute();
         });
     }
 

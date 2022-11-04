@@ -1,6 +1,7 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 const getPhrases = () => ({
+    errorMessage: i18n('visualization.error.message'),
     filterPlaceholder: i18n('visualization.input.label.filter'),
     referencesLabel: i18n('visualization.input.label.references'),
     navigateBack: i18n('visualization.tooltip.navigation.back'),
@@ -16,7 +17,9 @@ const CLASSES = {
     referencesIcon: 'icon-link',
 
     breadcrumbsWrapper: 'breadrcrumbs-wrapper',
-    breadcrumbs: 'breadcrumbs'
+    breadcrumbs: 'breadcrumbs',
+
+    errorMessageWrapper: 'error-message',
 };
 
 const REFERENCES_OPACITY = 0.05;
