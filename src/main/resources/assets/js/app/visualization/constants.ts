@@ -1,7 +1,6 @@
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {RenderConfig} from './interfaces';
 
-const PHRASES = () => ({
+const getPhrases = () => ({
     filterPlaceholder: i18n('visualization.input.label.filter'),
     referencesLabel: i18n('visualization.input.label.references'),
     navigateBack: i18n('visualization.tooltip.navigation.back'),
@@ -34,8 +33,8 @@ const COLORS = {
     ]
 };
 
-const RENDER_CONFIG: RenderConfig = {
-    phrases: PHRASES(),
+const getRenderConfig = () => ({
+    phrases: getPhrases(),
     ids: IDS,
     
     references: {
@@ -48,10 +47,10 @@ const RENDER_CONFIG: RenderConfig = {
         many: IS_MANY_CHILDREN,
     },
     colors: COLORS
-};
+});
 
 export {
-    PHRASES,
     IDS,
-    RENDER_CONFIG
+    getPhrases,
+    getRenderConfig
 };
