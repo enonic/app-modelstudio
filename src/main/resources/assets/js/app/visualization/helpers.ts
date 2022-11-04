@@ -7,7 +7,7 @@ import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 
 export function getDepth(relations: Relation[], nodeId: string, acc: number = 1): number {  
-    const targets = getRelationsFromTarget(relations, nodeId);
+    const targets = getRelationsFromTarget(relations, nodeId).filter(rel => rel.source !== nodeId);
   
     if (targets.length) {
         return Math.min(...targets.map(({source}) => getDepth(relations, source, acc + 1)));
@@ -107,59 +107,6 @@ export function getTextRotation(nodeIndex: number, max: number, radius: number, 
     const r = orientation === 1 ? Math.atan(y/x) * 180/Math.PI : Math.atan(y/x) * 180/Math.PI;
       
     return `rotate(${r}, ${x}, ${y})`;
-}
-
-export function getRelationsPathD(relation: Relation, option: RenderOption, manyChildren: boolean): string {
-    const childrenIds = option.data.childrenIds;
-    const radius = option.config.circle.radius;
-    const textSize = option.config.text.size;
-    const centralNode = option.data?.node;
-
-    const sourceIndex = childrenIds.findIndex(x => x === relation.source);
-    const targetIndex = childrenIds.findIndex(x => x === relation.target);
-
-    const sourceRadiusOffset = getTextWidth(getCleanNodeId(relation.source), textSize) / 2;
-    const targetRadiusOffset = getTextWidth(getCleanNodeId(relation.target), textSize) / 2;
-
-    let x1 = sourceIndex >= 0 
-        ? getMarkerXPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0)
-        : 0;
-        
-    let y1 = sourceIndex >= 0 
-        ? getMarkerYPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) 
-        : 0;
-        
-    let x2 = targetIndex >= 0 
-        ? getMarkerXPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) 
-        : 0;
-        
-    let y2 = targetIndex >= 0 
-        ? getMarkerYPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) 
-        : 0;
-
-    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-
-    if (centralNode && relation.source === centralNode.id) {
-        if (!manyChildren) {
-            x2 = getMarkerXPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset);
-        }
-        const shortenFactorSource = 0.4;
-        x1 = x1 + shortenFactorSource * (x2 - x1);
-        y1 = y1 + shortenFactorSource * (y2 - y1);
-        const shortenFactorTarget = 0.85;
-        x2 = x1 + shortenFactorTarget * (x2 - x1);
-        y2 = y1 + shortenFactorTarget * (y2 - y1);
-    } else if (centralNode && relation.target === centralNode.id) {
-        const shortenFactor = 0.5;
-        x2 = x1 + shortenFactor * (x2 - x1);
-        y2 = y1 + shortenFactor * (y2 - y1);
-    } else if (!manyChildren) {
-        const shortenFactor = length > radius ? 0.95 : 0.9;
-        x2 = x1 + shortenFactor * (x2 - x1);
-        y2 = y1 + shortenFactor * (y2 - y1);
-    }
-
-    return `M ${x1}, ${y1}, ${x2}, ${y2}`;
 }
 
 // TODO: Fix: find a simpler way to do that.
@@ -312,6 +259,127 @@ export function setUniqueListener(
     }
 }
 
+export function getRelationsPath(relation: Relation, option: RenderOption, manyChildren: boolean): string {
+    return (relation.source === relation.target) 
+        ? getCircularArrowPath(option, relation) 
+        : getArrowPath(option, relation, manyChildren);
+}
+
+function getCircularArrowPath(option: RenderOption, relation: Relation) {
+    const childrenIds = option.data.childrenIds;
+    const radius = option.config.circle.radius;
+    const textSize = option.config.text.size;
+
+    const sourceIndex = childrenIds.findIndex(x => x === relation.source);
+    const sourceRadiusOffset = getTextWidth(getCleanNodeId(relation.source), textSize) / 2;
+    
+    const x = sourceIndex >= 0 ? getTextXPosition(sourceIndex, radius, childrenIds.length) : 0;
+    const y = sourceIndex >= 0 ? getTextYPosition(sourceIndex, radius, childrenIds.length) : 0;
+    const verticalOrientation = y < 0 ? -1 : 1;
+
+    const coordinates = getCoordinates(
+        x - 1.5 * sourceRadiusOffset, 
+        y + verticalOrientation * 2.5,
+        x + 1.5 * sourceRadiusOffset,
+        y + verticalOrientation * 2.5,
+    );
+    
+    const k = Math.abs(coordinates.end.x- coordinates.start.x) / 3;
+
+    const controlCoordinates = getCoordinates(
+        coordinates.start.x - k,
+        coordinates.start.y + verticalOrientation * k,
+        coordinates.end.x + k,
+        coordinates.end.y + verticalOrientation * k
+    );
+
+    return `
+        M ${coordinates.start.x},${coordinates.start.y} 
+        C ${controlCoordinates.start.x},${controlCoordinates.start.y} 
+        ${controlCoordinates.end.x},${controlCoordinates.end.y} 
+        ${coordinates.end.x},${coordinates.end.y}
+    `;
+}
+
+function getArrowPath(option: RenderOption, relation: Relation, manyChildren: boolean): string {
+    const childrenIds = option.data.childrenIds;
+    const radius = option.config.circle.radius;
+    const textSize = option.config.text.size;
+    const centralNode = option.data?.node;
+
+    const sourceIndex = childrenIds.findIndex(x => x === relation.source);
+    const targetIndex = childrenIds.findIndex(x => x === relation.target);
+    const sourceRadiusOffset = getTextWidth(getCleanNodeId(relation.source), textSize) / 2;
+    const targetRadiusOffset = getTextWidth(getCleanNodeId(relation.target), textSize) / 2;
+
+    let x1 = sourceIndex >= 0 ? getMarkerXPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) : 0;  
+    let y1 = sourceIndex >= 0 ? getMarkerYPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) : 0;  
+    let x2 = targetIndex >= 0 ? getMarkerXPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) : 0; 
+    let y2 = targetIndex >= 0 ? getMarkerYPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) : 0;
+
+    if (centralNode && relation.source === centralNode.id) {
+        if (!manyChildren) {
+            x2 = getMarkerXPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset);
+        }
+        return getArrowPathFromCenter(x1, y1, x2, y2);
+    }
+
+    if (centralNode && relation.target === centralNode.id) {
+        return getArrowPathToCenter(x1, y1, x2, y2);
+    }
+
+    if (!manyChildren) {
+        x2 = getMarkerXPosition(targetIndex, radius, childrenIds.length, targetRadiusOffset);
+        return getShortenedArrowPath(x1, y1, x2, y2, radius);
+    }
+
+    return getPath(x1, y1, x2, y2);
+}
+
+function getArrowPathFromCenter(x1: number, y1: number, x2: number, y2: number): string {
+    x1 = 0;
+    y1 = 0;
+    const shortenFactorSource = 0.4;
+    const shortenFactorTarget = 0.85;
+    x1 = x1 + shortenFactorSource * (x2 - x1);
+    y1 = y1 + shortenFactorSource * (y2 - y1);
+    x2 = x1 + shortenFactorTarget * (x2 - x1);
+    y2 = y1 + shortenFactorTarget * (y2 - y1);
+
+    return getPath(x1, y1, x2, y2);
+}
+
+function getArrowPathToCenter(x1: number, y1: number, x2: number, y2: number): string {
+    const shortenFactor = 0.5;
+    x2 = x1 + shortenFactor * (x2 - x1);
+    y2 = y1 + shortenFactor * (y2 - y1);
+
+    return getPath(x1, y1, x2, y2);
+}
+
+function getShortenedArrowPath(x1: number, y1: number, x2: number, y2: number, radius: number): string {
+    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    const shortenFactor = length > radius ? 0.95 : 0.9;
+    x2 = x1 + shortenFactor * (x2 - x1);
+    y2 = y1 + shortenFactor * (y2 - y1);
+
+    return getPath(x1, y1, x2, y2);
+}
+
+function getCoordinates(x1: number, y1: number, x2: number, y2: number): PathCoordinates {
+    return {start: {x: x1, y: y1}, end: {x: x2, y: y2}};
+}
+
+function getPath(x1: number, y1: number, x2: number, y2: number): string {
+    const coordinates: PathCoordinates = getCoordinates(x1, y1, x2, y2);
+    
+    return `M ${coordinates.start.x}, ${coordinates.start.y}, ${coordinates.end.x}, ${coordinates.end.y}`;
+}
+
+interface PathCoordinates {
+    start: {x: number, y: number},
+    end: {x: number, y: number}
+}
 interface NodeIdDetails {
     appKey: string,
     type: string,
