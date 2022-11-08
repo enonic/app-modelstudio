@@ -1,12 +1,15 @@
-import {getDepth, getRelationsFromSource, getRelationsFromTarget} from '../helpers';
-import {Relation, Node} from '../interfaces';
+import {UrlHelper} from '../../util/UrlHelper';
+import {getCleanNodeId, getDepth, getNodeDisplayName, getRelationsFromSource, getRelationsFromTarget} from '../helpers';
+import {Relation, Node, Details} from '../interfaces';
 
 export class Data {
     relations: Relation[];
+    details: Details;
     nodes: Node[];
 
-    constructor(relations: Relation[]) {
+    constructor(relations: Relation[], details: Details) {
         this.setRelations(relations);
+        this.details = details;
         this.setNodes();
     }
 
@@ -40,11 +43,7 @@ export class Data {
 
         const arrayOfNodeIds = Array.from(setOfNodeIds);
 
-        this.nodes = arrayOfNodeIds.map(nodeId => ({
-            id: nodeId, 
-            depth: getDepth(this.relations, nodeId),
-            clickable: this.isNodeClickable(nodeId)
-        }));
+        this.nodes = arrayOfNodeIds.map(nodeId => this.getNodeData(nodeId));
     }
 
     private getAdditionalMixinRelations(relations: Relation[]) {
@@ -66,5 +65,39 @@ export class Data {
         return !nodeId.includes('base:') 
             && !nodeId.includes('media:')
             && !nodeId.includes('portal:');
+    }
+
+    private getIconUrl(type: string, key: string): string {
+        if (type === 'application') {
+            return UrlHelper.getCmsRestUri('apps/application/icon/') + key;
+        }
+        if (type === 'content-types') {
+            return UrlHelper.getCmsRestUri('cs/schema/content/icon/') + key;
+        }
+        if (type === 'parts') {
+            return UrlHelper.getCmsRestUri('cs/content/page/part/descriptor/icon/') + key;
+        }
+        if (type === 'layouts') {
+            return UrlHelper.getCmsRestUri('cs/schema/content/icon/portal:page-template');
+        }
+        if (type === 'pages' || type === 'mixins' || type === 'x-data') {
+            return UrlHelper.getCmsRestUri('cs/schema/content/icon/media:document');
+        }
+        
+        return UrlHelper.getCmsRestUri('cs/schema/content/icon/base:folder');
+    }
+
+    private getNodeData(nodeId: string): Node {
+        const details = this.details[nodeId];
+
+        return {
+            id: nodeId, 
+            depth: getDepth(this.relations, nodeId),
+            clickable: this.isNodeClickable(nodeId),
+            key: details ? details.key : '',
+            displayName: details ? getNodeDisplayName(details.displayName) : getCleanNodeId(nodeId),
+            type: details ? details.type : 'unknown',
+            icon: details ? this.getIconUrl(details.type, details.key) : '',
+        };
     }
 }

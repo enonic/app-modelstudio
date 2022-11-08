@@ -6,9 +6,9 @@ import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 
-export function getDepth(relations: Relation[], nodeId: string, acc: number = 1): number {  
+export function getDepth(relations: Relation[], nodeId: string, acc: number = 1): number {
     const targets = getRelationsFromTarget(relations, nodeId).filter(rel => rel.source !== nodeId);
-  
+
     if (targets.length) {
         return Math.min(...targets.map(({source}) => getDepth(relations, source, acc + 1)));
     }
@@ -25,7 +25,7 @@ export function getRelationsFromSource(relations: Relation[], nodeId: string): R
 }
 
 export function getRelationsByNodeDepth(relations: Relation[], nodes: Node[], desiredDepth: number): Relation[] {
-    const fnFilter = ({source, target}) => getNodeById(nodes, source).depth === desiredDepth 
+    const fnFilter = ({source, target}) => getNodeById(nodes, source).depth === desiredDepth
         && getNodeById(nodes, target).depth === desiredDepth;
 
     return relations.filter(fnFilter);
@@ -61,7 +61,7 @@ export function getNodeColor(relations: Relation[], nodes: Node[], node: Node, c
     }
 
     const n = relations.filter(({target}) => target == node.id)
-          .sort((a,b) => getDepth(relations, nodes.find(({id}) => id === a.source).id) 
+          .sort((a,b) => getDepth(relations, nodes.find(({id}) => id === a.source).id)
             - getDepth(relations, nodes.find(({id}) => id === b.source).id))
           .map(({source}) => nodes.find(({id}) => id === source));
 
@@ -75,7 +75,7 @@ export function getNodeColorByNodeId(relations: Relation[], nodes: Node[], nodeI
 export function getFatherNodeId(relations: Relation[], nodes: Node[], node: Node): string {
     const relationsAbove = getRelationsFromTarget(relations, node.id)
         .filter(relation => getNodeById(nodes, relation.source).depth === node.depth - 1);
-        
+
     return relationsAbove.length > 0 ? relationsAbove.map(x => x.source).pop() : '';
 }
 
@@ -101,11 +101,11 @@ function getMarkerYPosition(nodeIndex: number, circleRadius: number, max: number
 
 export function getTextRotation(nodeIndex: number, max: number, radius: number, orientation=1): string {
     const k = getConstant(nodeIndex, max);
-  
+
     const x = Math.cos(k) * radius;
     const y = Math.sin(k) * radius;
     const r = orientation === 1 ? Math.atan(y/x) * 180/Math.PI : Math.atan(y/x) * 180/Math.PI;
-      
+
     return `rotate(${r}, ${x}, ${y})`;
 }
 
@@ -118,133 +118,42 @@ export function getTextWidth(str: string, fontSize: number): number {
   return Array.from(str).reduce((acc, cur) => acc + (widths[cur.charCodeAt(0)] ?? avg), 0) * fontSize;
 }
 
-export function buildNodeId(type: string, appKey: string, schemaName: string): string {
-    return `${type}@${appKey}:${schemaName}`;
-}
-
-export function getNodeIdDetails(nodeId: string): NodeIdDetails {
-    let appKey = '', type = '', schemaName = '';
-
-    if (nodeId.indexOf('@') >= 0 && nodeId.indexOf(':') >= 0) {
-        appKey = nodeId.replace(/.*@|:.*/g,'');
-        type = nodeId.replace(/@.*/,'');
-        schemaName = nodeId.replace(/.*:/,'');
-    }
-
-    if (nodeId.indexOf('.') >= 0) {
-        appKey = nodeId.replace(/.*@|:.*/g,'');
-    }
-
-    type = nodeId.replace(/@.*/,'');
-
-    return {appKey, type, schemaName};   
-}
-
 export function getCleanNodeId(nodeId: string): string {
     return nodeId.split(':').pop();//.replace(/-/g, ' ');
 }
 
-export function getNodeTitle(nodeId: string): string {
-    return nodeId.replace(/(.*?)@/, '').toLowerCase();
-}
-
-export function getNodeDisplayName(nodeId: string): string {
-    const nodeDetails = getNodeIdDetails(nodeId);
-    const displayName = nodeDetails.schemaName || nodeDetails.type || nodeDetails.appKey;
-
+export function getNodeDisplayName(displayName: string): string {
     switch (displayName) {
-        case 'PARTS':
+        case 'parts':
             return i18n('field.parts');
 
-        case 'LAYOUTS':
+        case 'layouts':
             return i18n('field.layouts');
 
-        case 'PAGES':
+        case 'pages':
             return i18n('field.pages');
 
-        case 'CONTENT-TYPES':
+        case 'content-types':
             return i18n('field.contentTypes');
 
-        case 'MIXINS':
+        case 'mixins':
             return i18n('field.mixins');
 
-        case 'X-DATA':
+        case 'x-data':
             return i18n('field.xdatas');
-    }    
+    }
 
     return displayName;
-}
-
-export function getIconKey(key: string): string {
-    return key.toUpperCase().replace(/ |-/g, '_').replace(/[0-9]/g, '');
 }
 
 export function getSvgNodeId(nodeId: string): string {
     return nodeId.toLowerCase().replace(/ /g, '');
 }
 
-export function nodeIdToItemKey(appKey: string, nodeId: string): string {
-    const nodeIdDetails = getNodeIdDetails(nodeId);
-    let itemKey: string;
-    
-    if (nodeIdDetails.type && !nodeIdDetails.appKey && !nodeIdDetails.schemaName) {
-        itemKey = `${appKey}/${nodeIdDetails.type.toLowerCase()}`;
-    } else {
-        itemKey = nodeIdDetails.appKey;         
-        itemKey += nodeIdDetails.schemaName ? `:${nodeIdDetails.schemaName}` : '';
-    }
-
-    return itemKey;
-}
-
-export function itemToNodeId(item: ModelTreeGridItem): string {
-    if (item.isApplication()) {
-        return item.getApplication()?.getApplicationKey()?.toString();
-    }
-    if (item.isContentTypes()) {
-        return 'CONTENT-TYPES';
-    }
-    if (item.isMixins()) {
-        return 'MIXINS';
-    }
-    if (item.isXDatas()) {
-        return 'X-DATA';
-    }
-    if (item.isPages()) {
-        return 'PAGES';
-    }
-    if (item.isLayouts()) {
-        return 'LAYOUTS';
-    }
-    if (item.isParts()) {
-        return 'PARTS';
-    }
-    if (item.isContentType()) {
-        return `CONTENT-TYPES@${item.getId()}`;
-    }
-    if (item.isMixin()) {
-        return `MIXINS@${item.getId()}`;
-    }
-    if (item.isXData()) {
-        return `X-DATA@${item.getId()}`;
-    }
-    if (item.isPage()) {
-        return `PAGES@${item.getId()}`;
-    }
-    if (item.isLayout()) {
-        return `LAYOUTS@${item.getId()}`;
-    }
-    if (item.isPart()) {
-        return `PARTS@${item.getId()}`;
-    }
-
-    return '';
-}
-
 export function setUniqueListener(
-        element: InputEl | Checkbox, 
-        listenerType: string, 
-        fnHandler: (e: Event) => void, 
+        element: InputEl | Checkbox,
+        listenerType: string,
+        fnHandler: (e: Event) => void,
         debounceTime: number = 0
     ): void {
 
@@ -259,9 +168,22 @@ export function setUniqueListener(
     }
 }
 
+export function getAscendantNodeIds(relations: Relation[], nodes: Node[], nodeId: string) {
+    let nId = nodeId;
+    let arr: string[] = [nId];
+
+    while (getFatherNodeId(relations, nodes, getNodeById(nodes, nId))) {
+        nId = getFatherNodeId(relations, nodes, getNodeById(nodes, nId));
+
+        arr = [nId, ...arr];
+    }
+
+    return arr;
+}
+
 export function getRelationsPath(relation: Relation, option: RenderOption, manyChildren: boolean): string {
-    return (relation.source === relation.target) 
-        ? getCircularArrowPath(option, relation) 
+    return (relation.source === relation.target)
+        ? getCircularArrowPath(option, relation)
         : getArrowPath(option, relation, manyChildren);
 }
 
@@ -272,18 +194,18 @@ function getCircularArrowPath(option: RenderOption, relation: Relation) {
 
     const sourceIndex = childrenIds.findIndex(x => x === relation.source);
     const sourceRadiusOffset = getTextWidth(getCleanNodeId(relation.source), textSize) / 2;
-    
+
     const x = sourceIndex >= 0 ? getTextXPosition(sourceIndex, radius, childrenIds.length) : 0;
     const y = sourceIndex >= 0 ? getTextYPosition(sourceIndex, radius, childrenIds.length) : 0;
     const verticalOrientation = y < 0 ? -1 : 1;
 
     const coordinates = getCoordinates(
-        x - 1.5 * sourceRadiusOffset, 
+        x - 1.5 * sourceRadiusOffset,
         y + verticalOrientation * 2.5,
         x + 1.5 * sourceRadiusOffset,
         y + verticalOrientation * 2.5,
     );
-    
+
     const k = Math.abs(coordinates.end.x- coordinates.start.x) / 3;
 
     const controlCoordinates = getCoordinates(
@@ -312,9 +234,9 @@ function getArrowPath(option: RenderOption, relation: Relation, manyChildren: bo
     const sourceRadiusOffset = getTextWidth(getCleanNodeId(relation.source), textSize) / 2;
     const targetRadiusOffset = getTextWidth(getCleanNodeId(relation.target), textSize) / 2;
 
-    let x1 = sourceIndex >= 0 ? getMarkerXPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) : 0;  
-    let y1 = sourceIndex >= 0 ? getMarkerYPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) : 0;  
-    let x2 = targetIndex >= 0 ? getMarkerXPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) : 0; 
+    let x1 = sourceIndex >= 0 ? getMarkerXPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) : 0;
+    let y1 = sourceIndex >= 0 ? getMarkerYPosition(sourceIndex, radius, childrenIds.length, manyChildren ? sourceRadiusOffset : 0) : 0;
+    let x2 = targetIndex >= 0 ? getMarkerXPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) : 0;
     let y2 = targetIndex >= 0 ? getMarkerYPosition(targetIndex, radius, childrenIds.length, manyChildren ? targetRadiusOffset : 0) : 0;
 
     if (centralNode && relation.source === centralNode.id) {
@@ -372,7 +294,7 @@ function getCoordinates(x1: number, y1: number, x2: number, y2: number): PathCoo
 
 function getPath(x1: number, y1: number, x2: number, y2: number): string {
     const coordinates: PathCoordinates = getCoordinates(x1, y1, x2, y2);
-    
+
     return `M ${coordinates.start.x}, ${coordinates.start.y}, ${coordinates.end.x}, ${coordinates.end.y}`;
 }
 

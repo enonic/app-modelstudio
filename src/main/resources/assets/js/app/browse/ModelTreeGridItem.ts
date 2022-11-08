@@ -134,44 +134,37 @@ export class ModelTreeGridItem
         switch (this.type) {
         case UserTreeGridItemType.APPLICATION:
             return this.application.getApplicationKey().toString();
-
         case UserTreeGridItemType.PART:
+            return 'parts/' + this.component.getName().toString();
         case UserTreeGridItemType.LAYOUT:
+            return 'layouts/' + this.component.getName().toString();
         case UserTreeGridItemType.PAGE:
-            return this.component.getName().toString();
-
+            return 'pages/' + this.component.getName().toString();
         case UserTreeGridItemType.CONTENT_TYPE:
+            return 'content-types/' + this.schema.getName().toString();
         case UserTreeGridItemType.MIXIN:
+            return 'mixins/' + this.schema.getName().toString();
         case UserTreeGridItemType.XDATA:
-            return this.schema.getName().toString();
-
+            return 'x-data/' + this.schema.getName().toString();
         case UserTreeGridItemType.SITE:
             return this.site.getKey().toString() + '/site.xml';
-
         case UserTreeGridItemType.STYLES:
             return this.styles.getKey().toString() + '/styles.xml';
-
         case UserTreeGridItemType.PARTS:
             return this.application.getApplicationKey().toString() + '/parts';
-
         case UserTreeGridItemType.LAYOUTS:
             return this.application.getApplicationKey().toString() + '/layouts';
-
         case UserTreeGridItemType.PAGES:
             return this.application.getApplicationKey().toString() + '/pages';
-
         case UserTreeGridItemType.CONTENT_TYPES:
             return this.application.getApplicationKey().toString() + '/content-types';
-
         case UserTreeGridItemType.MIXINS:
             return this.application.getApplicationKey().toString() + '/mixins';
-
         case UserTreeGridItemType.XDATAS:
             return this.application.getApplicationKey().toString() + '/x-data';
         default:
             return '';
         }
-
     }
 
     isApplication(): boolean {
@@ -306,10 +299,10 @@ export class ModelTreeGridItem
             return UrlHelper.getCmsRestUri('apps/application/icon/') + this.getId();
         }
         if (this.isContentType()) {
-            return UrlHelper.getCmsRestUri('cs/schema/content/icon/') + this.getId();
+            return UrlHelper.getCmsRestUri('cs/schema/content/icon/') + this.schema.getName().toString();
         }
         if (this.isPart()) {
-            return UrlHelper.getCmsRestUri('cs/content/page/part/descriptor/icon/') + this.getId();
+            return UrlHelper.getCmsRestUri('cs/content/page/part/descriptor/icon/') + this.component.getName().toString();
         }
         if (this.isLayout()) {
             return UrlHelper.getCmsRestUri('cs/schema/content/icon/portal:page-template');

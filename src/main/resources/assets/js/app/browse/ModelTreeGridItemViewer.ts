@@ -19,17 +19,7 @@ export class ModelTreeGridItemViewer
     }
 
     resolveSubName(object: ModelTreeGridItem): string {
-        if(object.isApplication()) {
-            return object.getId();
-        }
-        
-        const subName = object.getId() ? object.getId().split(/\:|\//g)[1] : '';
-
-        if (subName) {
-            return subName;
-        }
-
-        return object.getItemDisplayName() ? object.getItemDisplayName().toLocaleLowerCase() : '';
+        return object.getId().replace(/(.*?)(:|\/)/g, '');
     }
 
     resolveIconEl(object: ModelTreeGridItem): Element {
