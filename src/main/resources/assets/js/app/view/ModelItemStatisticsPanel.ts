@@ -54,7 +54,7 @@ export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
             if (treeGridAppKey === schemaVisualizationAppKey) {
                 this.schemaVisualization.navigateToNode(nodeId);
             } else {
-                this.setSchemaVisualizationData(treeGridAppKey, item, nodeId);
+                this.setSchemaVisualizationData(treeGridAppKey, nodeId);
                 this.schemaVisualization.doRender();
             }
         });
