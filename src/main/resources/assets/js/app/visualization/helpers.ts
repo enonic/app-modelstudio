@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import {Relation, Node, RenderOption} from './interfaces';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';

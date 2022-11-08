@@ -19,7 +19,7 @@ import {
 } from '../helpers';
 import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener} from '../interfaces';
 import {SVGRenderOptionsBuilder} from './SVGRenderOptionsBuilder';
-import {getRenderConfig} from '../constants';
+import {CLASSES, getRenderConfig} from '../constants';
 import {Breadcrumbs, Header} from '../header/Header';
 import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
@@ -187,7 +187,7 @@ export class SVGRender {
 
     private toggleReferences(svg: D3SVG, nodeIds: string[] = [], forceToggle: boolean = false) {
         const pathSelector = `#${SVGRender.referencesID} > path`;
-        const hideSelector = `.${SVGRenderOptionsBuilder.hideOnRefClassName}`;
+        const hideSelector = `.${CLASSES.hideOnRef}`;
 
         const fnPathElementsOpacity = (relation: Relation) => {
             if (this.isInReferencesMode() || forceToggle) {
@@ -323,8 +323,8 @@ export class SVGRender {
     private appendCentralNode(svgGroup: D3SVGG, option: RenderOption) {
         if (!option.data.node) { return; }
 
-        const hideClass = option.data.node.depth > 1 ? SVGRenderOptionsBuilder.hideOnRefClassName : null;
-        const group = svgGroup.append('g').attr('id', SVGRender.centralNodeID);
+        const hideClass = option.data.node && option.data.node.depth < 3 ? CLASSES.hideOnRef : null;
+        const group = svgGroup.append('g').attr('id', SVGRender.centralNodeID).attr('class', hideClass);
         const icon = option.data.node.icon;
 
         if (icon) {
@@ -333,15 +333,12 @@ export class SVGRender {
             const x = - width / 2;
             const y = - width * 1.2;
 
-            this.appendImage(group, icon, width, height, x, y).attr('class', hideClass);
+            this.appendImage(group, icon, width, height, x, y);
         }
 
-        this.appendNodeName(group, option).attr('class', hideClass);
-        this.appendTechAppName(group, option).attr('class', hideClass);
-
-        if (option.data.node.depth > 1) {
-            this.appendBackArrow(group, option.config.text.size).attr('class', hideClass);
-        }
+        this.appendNodeName(group, option);
+        this.appendTechAppName(group, option);
+        this.appendBackArrow(svgGroup, option);
     }
 
     private appendNodeName(svg: D3SVGG, option: RenderOption) {
@@ -453,7 +450,13 @@ export class SVGRender {
             .attr('fill', functions.fill);
     }
 
-    private appendBackArrow(svg: D3SVGG, size: number, fnClickHandler = () => { }): D3SVGG {
+    private appendBackArrow(svg: D3SVGG, option: RenderOption): D3SVGG {
+        if (option.data.node.depth < 2) {
+           return;
+        }
+
+        const size = option.config.text.size;
+
         const group: D3SVGG = svg.append('g')
             .attr('id', SVGRender.backArrowID);
 
@@ -465,7 +468,6 @@ export class SVGRender {
             .attr('pointer-events', 'none');
 
         group.append('rect')
-            .on('click', fnClickHandler)
             .attr('x', -10)
             .attr('y', 3 * size)
             .attr('width', 20)
