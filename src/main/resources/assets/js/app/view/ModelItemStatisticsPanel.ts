@@ -92,23 +92,42 @@ export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
                 this.treeGrid.collapseNodeByDataId(nodeIdToCollapse);
             }
 
+            const highlightAndScroll = (nodeId: string) => {
+                if (!this.treeGrid.hasItemWithDataId(nodeId)) {
+                    return;
+                }
+
+                this.treeGrid.highlightItemById(nodeId, true, true);
+                this.treeGrid.scrollToRow(this.getIndexOfHighlightedTreeGridItem(), true);
+            };
+
             nodeIds.reduce((prev: Q.Promise<void>, nodeId: string, index: number) => {
                 return prev.then(() => {
                     if(index === nodeIds.length - 1) {
-                        if (this.treeGrid.hasItemWithDataId(nodeId)) {
-                            this.treeGrid.highlightItemById(nodeId, true, true);
-                        }
+                        highlightAndScroll(nodeId);
                         return;
                     }
 
                     return this.treeGrid.expandNodeByDataId(nodeId).then(() => {
-                        if (this.treeGrid.hasItemWithDataId(nodeId)) {
-                            this.treeGrid.highlightItemById(nodeId, true, true);
-                        }
+                        highlightAndScroll(nodeId);
                     });
                 });
             }, Q());
         });
     }
-}
 
+    private getIndexOfHighlightedTreeGridItem(): number {
+        let n: number = -1;
+    
+        for(let i = 0; i < this.treeGrid.getGrid().getDataView().getLength(); i++) {
+            const item = this.treeGrid.getGrid().getDataView().getItem(i);
+    
+            if (item.getData().getId() === this.treeGrid.getHighlightedItem().getId()) {
+                n = i;
+                break;
+            }
+        }
+    
+        return n;
+    }
+}
