@@ -4,15 +4,21 @@ export interface Relation {
     dash?: boolean
 }
 
+export interface Details {
+    [key: string]: {
+        key: string
+        displayName: string,
+        type: string
+    }
+}
+
 export interface Node {
     id: string,
     depth: number,
     clickable: boolean,
-}
-
-export interface CentralNodeInfo {
-    name: string
-    subname: string
+    key: string,
+    displayName: string,
+    type: string,
     icon: string
 }
 
@@ -61,7 +67,7 @@ export interface RenderOption {
 
 export type BreadcrumbsItem  = {nodeName: string, nodeId: string};
 
-export type FnSchemaNavigationListener = (appKey: string, nodeId: string, prevNodeId?: string) => void;
+export type FnSchemaNavigationListener = (nodeIds: string[], nodeIdToCollapse: string) => void;
 
 export type D3SVG = d3.Selection<SVGSVGElement, unknown, HTMLElement, any>; 
 

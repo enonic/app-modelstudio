@@ -1,6 +1,5 @@
 
 import {
-    getCleanNodeId,
     getFatherNodeId,
     getNodeById,
     getNodeColor,
@@ -11,15 +10,14 @@ import {
     getTextXPosition,
     getTextYPosition,
     getTextWidth,
-    getNodeDisplayName,
     getDepth,
-    getNodeIdDetails,
-    getNodeTitle,
     getOuterCircleRadius,
     getOuterTextSize,
     setUniqueListener,
+    getAscendantNodeIds,
+    getRelationsFromSource,
 } from '../helpers';
-import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener, CentralNodeInfo} from '../interfaces';
+import {Relation, Node, RenderConfig, D3SVG, RenderOption, D3SVGG, FnSchemaNavigationListener} from '../interfaces';
 import {SVGRenderOptionsBuilder} from './SVGRenderOptionsBuilder';
 import {getRenderConfig} from '../constants';
 import {Breadcrumbs, Header} from '../header/Header';
@@ -34,9 +32,8 @@ export class SVGRender {
     private textSize: number;
     private renderOptions: RenderOption[];
     private header: Header;
-    private centralNodeInfo: CentralNodeInfo = {} as CentralNodeInfo;
     private breadcrumbsInfo: {nodeName: string, nodeId: string}[] = [];
-    private onNavigationListeners: Function[] = [];
+    private onNavigationListeners: FnSchemaNavigationListener[] = [];
     private svg: D3SVG;
     private textsAndIconsSVGGroups: D3SVGG[];
     private backArrowSvgGroup: D3SVGG;
@@ -105,22 +102,27 @@ export class SVGRender {
     }
 
     private initTextsAndIconsListeners(svg: D3SVG) {
-        const clickHandler = (_, nodeId: string): void => {
-            this.executeOnNavigationListeners(nodeId);
-            this.clickHandler(svg, nodeId);
-        };
+        const clickHandler = (_, nodeId: string) => {
+            const nodeIdToCollapse = (this.breadcrumbsInfo[1] || {}).nodeId !== getAscendantNodeIds(this.relations, this.nodes, nodeId)[1]
+                ? (this.breadcrumbsInfo[1] || {}).nodeId
+                : undefined;
 
+            this.clickHandler(svg, nodeId, nodeIdToCollapse);
+        };
+        
         const mouseOverHandler = (_, nodeId: string): void => {
             if (this.isInSearchMode()) {
                 return;
             }
 
+            const node = getNodeById(this.nodes, nodeId);
+
             // Hovering children if father is of depth 2
-            if (getDepth(this.relations, nodeId) === 2) {
-                const nodeIdMatches = this.nodes
-                    .map(node => node.id)
-                    .filter(nId => getNodeIdDetails(nId).type === getNodeIdDetails(nodeId).type);
-                const svgGroups = nodeIdMatches.map(nodeId => document.getElementById(nodeId.toLowerCase())).filter(el => !!el);
+            if (node.depth === 2) {
+                const svgGroups = getRelationsFromSource(this.relations, node.id)
+                    .map(({target}) => document.getElementById(getSvgNodeId(target)))
+                    .filter(el => !!el);
+
                 svgGroups.forEach(group => group.classList.add('hover'));
             }
 
@@ -177,8 +179,7 @@ export class SVGRender {
         const clickHandler = () => {
             const centralNode = this.renderOptions[0].data.node;
             const centralNodeFatherId = getFatherNodeId(this.relations, this.nodes, centralNode);
-            this.executeOnNavigationListeners(centralNodeFatherId, centralNode.id);
-            this.clickHandler(svg, centralNodeFatherId);
+            this.clickHandler(svg, centralNodeFatherId, centralNode.id);
         };
 
         this.backArrowSvgGroup.on('click', clickHandler);
@@ -224,9 +225,11 @@ export class SVGRender {
         }
     }
 
-    private clickHandler(svg: D3SVG, nodeId: string): void {
+    private clickHandler(svg: D3SVG, nodeId: string, nodeIdToCollapse?: string): void {
         const node = getNodeById(this.nodes, nodeId);
-        if (node.clickable) {
+        
+        if (node && node.clickable) {
+            this.executeOnNavigationListeners(nodeId, nodeIdToCollapse);
             this.setOptions(node);
             this.execute(svg);
         }
@@ -250,20 +253,16 @@ export class SVGRender {
         this.updateReferencesCheckboxState();
     }
 
-    addOnNavigationListener(fn: FnSchemaNavigationListener) {
+    appendNavigationListeners(fn: FnSchemaNavigationListener) {
         this.onNavigationListeners = [fn, ...this.onNavigationListeners];
     }
 
-    updateCentralNodeInfo(centralNodeInfo: CentralNodeInfo): void {
-        this.centralNodeInfo = centralNodeInfo;
-    }
-
-    private executeOnNavigationListeners(nodeId: string, prevNodeId?: string) {
-        const appKey = this.nodes[0].id;
+    private executeOnNavigationListeners(nodeId: string, nodeIdToCollapse?: string) {
         const node = getNodeById(this.nodes, nodeId);
 
         if (node && node.clickable) {
-            this.onNavigationListeners.forEach(listener => listener(appKey, nodeId, prevNodeId));
+            const arr = getAscendantNodeIds(this.relations, this.nodes, nodeId);
+            this.onNavigationListeners.forEach(listener => listener(arr, nodeIdToCollapse));
         }
     }
 
@@ -326,7 +325,7 @@ export class SVGRender {
 
         const hideClass = option.data.node.depth > 1 ? SVGRenderOptionsBuilder.hideOnRefClassName : null;
         const group = svgGroup.append('g').attr('id', SVGRender.centralNodeID);
-        const icon = this.centralNodeInfo.icon;
+        const icon = option.data.node.icon;
 
         if (icon) {
             const width = 50;
@@ -338,7 +337,7 @@ export class SVGRender {
         }
 
         this.appendNodeName(group, option).attr('class', hideClass);
-        this.appendTechAppName(group).attr('class', hideClass);
+        this.appendTechAppName(group, option).attr('class', hideClass);
 
         if (option.data.node.depth > 1) {
             this.appendBackArrow(group, option.config.text.size).attr('class', hideClass);
@@ -347,15 +346,15 @@ export class SVGRender {
 
     private appendNodeName(svg: D3SVGG, option: RenderOption) {
         const size = 1.1 * option.config.text.size;
-        let text = this.centralNodeInfo.name;
-        const [x, y] = [0, this.centralNodeInfo.icon ? 40 / 2.5 : 0]; // TODO: use width
+        let text = option.data.node.displayName;
+        const [x, y] = [0, option.data.node.icon ? 40 / 2.5 : 0]; // TODO: use width
         return this.appendText(svg, size, text, x, y, this.config.colors.primary);
     }
 
-    private appendTechAppName(svg: D3SVGG) {
+    private appendTechAppName(svg: D3SVGG, option: RenderOption) {
         const size = 7;
-        const [x, y] = [0, this.centralNodeInfo.icon ? 40 / 1.25 : 45]; // TODO: use width
-        return this.appendText(svg, size, this.centralNodeInfo.subname, x, y, this.config.colors.secondary);
+        const [x, y] = [0, option.data.node.icon ? 40 / 1.25 : 45]; // TODO: use width
+        return this.appendText(svg, size, option.data.node.key, x, y, this.config.colors.secondary);
     }
 
     private appendRelations(svg: D3SVGG, option: RenderOption) {
@@ -426,7 +425,9 @@ export class SVGRender {
     }
 
     private appendTitleToDepth3Nodes(svg: D3SVGG, childrenIds: string[]) {
-        const title = (nodeId: string) => getNodeById(this.nodes, nodeId).depth === 3 ? getNodeTitle(nodeId) : '';
+        const title = (nodeId: string) => getNodeById(this.nodes, nodeId).depth === 3 
+            ? getNodeById(this.nodes, nodeId).key || nodeId.replace(/(.*?)\//g,'')
+            : '';
 
         svg.append('title')
             .data(childrenIds)
@@ -472,10 +473,10 @@ export class SVGRender {
             .attr('opacity', 0);
 
         const centralNode = this.renderOptions[0].data.node;
-        const centralNodeFatherName = getNodeDisplayName(getFatherNodeId(this.relations, this.nodes, centralNode));
+        const centralNodeFatherId = getFatherNodeId(this.relations, this.nodes, centralNode);
+        const centralNodeFatherName = getNodeById(this.nodes, centralNodeFatherId).displayName;
         
-        group.append('title')
-            .text(`${this.config.phrases.navigateBack} ${centralNodeFatherName}`);
+        group.append('title').text(`${this.config.phrases.navigateBack} ${centralNodeFatherName}`);
 
         this.backArrowSvgGroup = group;
 
@@ -506,32 +507,38 @@ export class SVGRender {
         hoveredGroups.forEach(group => group.classList.remove('filtered', 'hover'));
     }
     
-    setBreadcrumbsInfo(nodeName: string, nodeId: string) {
-        const nodeDepth = getNodeById(this.nodes, nodeId).depth;
+    setBreadcrumbsInfo() {
+        const firstRenderOption: RenderOption = this.renderOptions[0];
+        const centralNode: Node = firstRenderOption.data.node;
 
-        if (nodeDepth === 1) {
-            this.breadcrumbsInfo = [{nodeName, nodeId}];
-        }
+        const nodeIds: string[] = getAscendantNodeIds(this.relations, this.nodes, centralNode.id);
 
-        if (nodeDepth === 2 && this.breadcrumbsInfo.length >= 1) {
-            this.breadcrumbsInfo = [this.breadcrumbsInfo[0], {nodeName, nodeId}];
-        }
-
-        if (nodeDepth === 3 && this.breadcrumbsInfo.length >= 2) {
-            this.breadcrumbsInfo = [this.breadcrumbsInfo[0], this.breadcrumbsInfo[1], {nodeName, nodeId}];
-        }
+        this.breadcrumbsInfo = nodeIds.map((nodeId: string) => {
+            const node = getNodeById(this.nodes, nodeId);
+            
+            return {
+                nodeName: node.displayName,
+                nodeId: node.id
+            };
+        });
     }
 
     private updateBreadcrumbs(svg: D3SVG) {
+        this.setBreadcrumbsInfo();
+
         const clickHandler = (nodeId: string) => {
-            this.executeOnNavigationListeners(nodeId);
-            this.clickHandler(svg, nodeId);
-        };
+            const nodeIdToCollapseIndex = this.breadcrumbsInfo.findIndex(info => nodeId === info.nodeId) + 1;
+            const nodeIdToCollapse = nodeIdToCollapseIndex < this.breadcrumbsInfo.length 
+                ? this.breadcrumbsInfo[nodeIdToCollapseIndex].nodeId
+                : undefined;
         
+            this.clickHandler(svg, nodeId, nodeIdToCollapse);
+        };
+
         this.getBreadcrumbs().update(this.breadcrumbsInfo, clickHandler);
     }
 
-    private getTextFunctions(option: RenderOption, childrenIdsLength: number) {
+    private getTextFunctions(option: RenderOption, childrenIdsLength: number) {        
         const fnTextX = (_, nodeIndex: number) =>
             getTextXPosition(nodeIndex, option.config.circle.radius, childrenIdsLength);
 
@@ -541,7 +548,7 @@ export class SVGRender {
         const colorsRange = this.config.colors.range;
         const fnTextFill = (nodeId: string) => getNodeColor(this.relations, this.nodes, getNodeById(this.nodes, nodeId), colorsRange);
 
-        const fnText = (nodeId: string) => getCleanNodeId(getNodeDisplayName(nodeId));
+        const fnText = (nodeId: string) => getNodeById(this.nodes, nodeId).displayName;
 
         const fnTextTransform = (_, nodeIndex: number) => this.tooManyChildren(option)
             ? getTextRotation(nodeIndex, childrenIdsLength, option.config.circle.radius)

@@ -1,6 +1,6 @@
 const schemaLib = require('/lib/xp/schema');
 const contentLib = require('/lib/xp/content');
-
+const appLib = require('/lib/xp/app');
 const applicationWildcardResolver = __.newBean('com.enonic.xp.app.visualization.lib.ApplicationWildcardResolver');
 
 exports.get = function handleGet(req) {
@@ -15,17 +15,18 @@ exports.get = function handleGet(req) {
         contentType: 'application/json',
         body: {
             references: getReferences(req.params.appKey),
+            details: getDetails(req.params.appKey)
         }
     };
 }
 
 const SCHEMA_NAMES = {
-    CONTENTTYPE: 'CONTENT-TYPES',
-    MIXIN: 'MIXINS',
-    XDATA: 'X-DATA',
-    PAGE: 'PAGES',
-    LAYOUT: 'LAYOUTS',
-    PART: 'PARTS'
+    CONTENTTYPE: 'content-types',
+    MIXIN: 'mixins',
+    XDATA: 'x-data',
+    PAGE: 'pages',
+    LAYOUT: 'layouts',
+    PART: 'parts'
 }
 
 function libSchemaSchemaTypeMapper(key) {
@@ -44,10 +45,95 @@ function libSchemaComponentTypeMapper(key) {
     }[key];
 }
 
+function inverseMapper(key) {
+    return {
+        CONTENT_TYPE: SCHEMA_NAMES.CONTENTTYPE,
+        MIXIN: SCHEMA_NAMES.MIXIN,
+        XDATA: SCHEMA_NAMES.XDATA,
+        PAGE: SCHEMA_NAMES.PAGE,
+        LAYOUT: SCHEMA_NAMES.LAYOUT,
+        PART: SCHEMA_NAMES.PART,
+    }[key];
+}
+
+function getDetails(appKey) {
+    const schemaCategories = [SCHEMA_NAMES.CONTENTTYPE, SCHEMA_NAMES.MIXIN, SCHEMA_NAMES.XDATA];
+    const componentCategories = [SCHEMA_NAMES.PAGE, SCHEMA_NAMES.LAYOUT, SCHEMA_NAMES.PART];
+
+    const hash = {};
+    
+    setAppDetails(appKey, hash);
+    setCategoriesDetails(appKey, schemaCategories.concat(componentCategories), hash);
+    setSchemaDetails(appKey, schemaCategories, hash);
+    setComponentDetails(appKey, componentCategories, hash);
+
+    return hash;
+}
+
+function setAppDetails(appKey, hash) {
+    const application = appLib.get({key: appKey});
+
+    hash[appKey] = {
+        key: application.key,
+        displayName: application.displayName,
+        type: 'application'
+    }
+}
+
+function setCategoriesDetails(appKey, categories, hash) {
+    categories.forEach(type => {
+        const key = getCategoriesUid(appKey, type);
+
+        hash[key] = {
+            key: key,
+            displayName: type,
+            type: ''
+        }
+    });
+}
+
+function setSchemaDetails(appKey, schemaCategories, hash) {
+    schemaCategories.forEach(type => {
+        const names = schemaLib.listSchemas({ application: appKey, type: libSchemaSchemaTypeMapper(type) }).map(schema => schema.name);
+        const schemas = names.map(name => schemaLib.getSchema({ name, type: libSchemaSchemaTypeMapper(type) }));
+        
+        schemas.forEach(schema => {
+            if (!hash[schema.name]) {
+                const key = getSchemaUid(schema.type, schema.name, true);
+
+                hash[key] = {
+                    key: schema.name,
+                    displayName: schema.displayName,
+                    type: inverseMapper(schema.type)
+                }
+            }
+        });
+    });
+}
+
+function setComponentDetails(appKey, componentCategories, hash) {
+    componentCategories.forEach(type => {
+        const names = schemaLib.listComponents({ application: appKey, type: libSchemaComponentTypeMapper(type) }).map(component => component.key);
+        const components = names.map(name => schemaLib.getComponent({ key: name, type: libSchemaComponentTypeMapper(type) }));
+
+        components.forEach(component => {
+            if (!hash[component.key]) {
+                const key = getSchemaUid(component.type, component.key, true);
+                
+                hash[key] = {
+                    key: component.key,
+                    displayName: component.displayName,
+                    type: inverseMapper(component.type)
+                }
+            }
+        });
+    });    
+}
+
 function getReferences(appKey) {
     const schemaCategories = [SCHEMA_NAMES.CONTENTTYPE, SCHEMA_NAMES.MIXIN, SCHEMA_NAMES.XDATA];
     const componentCategories = [SCHEMA_NAMES.PAGE, SCHEMA_NAMES.LAYOUT, SCHEMA_NAMES.PART];
-    const categories = [].concat(schemaCategories).concat(componentCategories);
+    const categories = [].concat(schemaCategories).concat(componentCategories).map(c => getCategoriesUid(appKey, c));
     const schemaNamesAndReferences = schemaCategories.map(schemaCategory => getSchemaNamesAndReferences(appKey, schemaCategory));
     const componentNamesAndReferences = componentCategories.map(componentCategory => getComponentNamesAndReferences(appKey, componentCategory));
 
@@ -63,7 +149,8 @@ function getReferences(appKey) {
     const allNames = namesAndReferences.names.concat(baseContentTypeNames);
     const allRefs = namesAndReferences.references.filter(reference => allNames.indexOf(reference[1]) > -1);
     const referencedBaseContentTypeNames = baseContentTypeNames.filter(name => allRefs.some(reference => name === reference[1]));
-    const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => [SCHEMA_NAMES.CONTENTTYPE, name]);
+    const baseContentTypeReferences = referencedBaseContentTypeNames.map(name => [getCategoriesUid(appKey, SCHEMA_NAMES.CONTENTTYPE), name]);
+
     const refs = [].concat(baseContentTypeReferences).concat(allRefs);
 
     let initialRefs = cartesianProduct([appKey], categories);
@@ -85,14 +172,13 @@ function getBaseContentTypeIds() {
 }
 
 function getBaseContentTypeNames(appKey) {
-    const baseContentTypeUids = getBaseContentTypeIds().map(name => getUid(SCHEMA_NAMES.CONTENTTYPE, prependAppKey(appKey, name)));
+    const baseContentTypeUids = getBaseContentTypeIds().map(name => getBaseContentTypeUid(appKey, SCHEMA_NAMES.CONTENTTYPE, name));
     return baseContentTypeUids;
 }
 
 function getSchemaNamesAndReferences(appKey, type) {
-    
     const names = schemaLib.listSchemas({ application: appKey, type: libSchemaSchemaTypeMapper(type) }).map(schema => schema.name);
-    const namesWithUid = names.map(name => getUid(type, name));
+    const namesWithUid = names.map(name => getSchemaUid(type, name));
     const schemas = names.map(name => schemaLib.getSchema({ name, type: libSchemaSchemaTypeMapper(type) }));
 
     return {names: namesWithUid, references: buildReferences(appKey, type, namesWithUid, schemas)};
@@ -100,14 +186,14 @@ function getSchemaNamesAndReferences(appKey, type) {
 
 function getComponentNamesAndReferences(appKey, type) {
     const names = schemaLib.listComponents({ application: appKey, type: libSchemaComponentTypeMapper(type) }).map(component => component.key);
-    const namesWithUid = names.map(name => getUid(type, name));
+    const namesWithUid = names.map(name => getSchemaUid(type, name));
     const components = names.map(name => schemaLib.getComponent({ key: name, type: libSchemaComponentTypeMapper(type) }));
     
     return {names: namesWithUid, references: buildReferences(appKey, type, namesWithUid, components)};
 }
 
 function buildReferences(appKey, type, names, schemas) {
-    let references = cartesianProduct([type], names);
+    let references = cartesianProduct([getCategoriesUid(appKey, type)], names);
 
     getRegExps().forEach(obj => {
         const targetType = obj.targetType;
@@ -118,9 +204,9 @@ function buildReferences(appKey, type, names, schemas) {
             const regExpMatches = curr.resource.match(regExp) || [];
 
             const id = str => prependAppKey(appKey, fnReplace(str));
-            const targetUid = str => getUid(targetType, id(str));
+            const targetUid = str => getSchemaUid(targetType, id(str));
 
-            const sourceUid = getUid(type, curr.name || curr.key)
+            const sourceUid = getSchemaUid(type, curr.name || curr.key)
 
             const matches = getMatches(appKey, regExpMatches.map(fnReplace)).map(targetUid);
             
@@ -181,6 +267,19 @@ function prependAppKey(appKey, str) {
     return appKey + ':' + str;
 }
 
-function getUid(type, id) {
-    return `${type}@${id}`;
+function getUid(appKey = '', type = '', id = '') {
+    return [appKey, type, id].filter(item => !!item).join('/');
+}
+
+function getCategoriesUid(appKey, type) {
+    return getUid(appKey, type);
+}
+
+function getSchemaUid(type, id, useInverseMapper = false) {
+    const t = useInverseMapper ? inverseMapper(type) : type;
+    return getUid('', t, id);
+}
+
+function getBaseContentTypeUid(appKey, type, name) {
+    return getUid('', type, prependAppKey(appKey, name));
 }

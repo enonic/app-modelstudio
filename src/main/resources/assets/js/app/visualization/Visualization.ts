@@ -1,12 +1,11 @@
 import * as Q from 'q';
 import {select} from 'd3';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {CentralNodeInfo, D3SVG, FnSchemaNavigationListener, Relation} from './interfaces';
+import {D3SVG, Details, FnSchemaNavigationListener, Relation} from './interfaces';
 import {Data} from './data/Data';
 import {Request} from './data/Request';
 import {SVGRender} from './render/SVGRender';
 import {Header} from './header/Header';
-import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 import {CLASSES, getPhrases} from './constants';
 
 export class Visualization extends DivEl{
@@ -17,7 +16,7 @@ export class Visualization extends DivEl{
     private isLoading: boolean;
     private onLoadStart: () => void;
     private onLoadEnd: () => void;
-    
+
     constructor(className?: string) {
         super('schema-visualization' + (className ? ' ' + className : ''));
     }
@@ -40,31 +39,32 @@ export class Visualization extends DivEl{
         return select(`#${this.svgContainerId}`).append('svg').attr('viewBox', svgViewBox);
     }
 
-    private setSvgRender(schemaData: Data, header: Header) {        
+    private setSvgRender(schemaData: Data, header: Header) {
         this.svgRender = new SVGRender(
-            schemaData.getRelations(), 
-            schemaData.getNodes(), 
+            schemaData.getRelations(),
+            schemaData.getNodes(),
             schemaData.getFirstNode(),
             header
         );
 
-        this.onNavigationListeners.forEach(fn => this.svgRender.addOnNavigationListener(fn));
+        this.onNavigationListeners.forEach(fn => this.svgRender.appendNavigationListeners(fn));
     }
 
     private getErrorDiv(): DivEl {
         return new DivEl(CLASSES.errorMessageWrapper).setHtml(getPhrases().errorMessage);
     }
-    
+
     private execute(): Q.Promise<boolean> {
         this.isLoading = true;
         this.removeChildren();
         this.onLoadStart();
-        
-        return new Request<{references: Relation[]}>(this.appKey)
+
+        return new Request<{references: Relation[], details: Details}>(this.appKey)
             .sendAndParse()
+            .then(data => new Data(data.references, data.details))
             .then(data => {
                 const header = new Header();
-                this.setSvgRender(new Data(data.references), header);
+                this.setSvgRender(data, header);
                 this.appendChild(header);
                 this.appendChild(this.createSVGContainer());
                 this.svgRender.execute(this.createSVG(700, 600));
@@ -98,14 +98,7 @@ export class Visualization extends DivEl{
         });
     }
 
-    navigateToNode(item: ModelTreeGridItem, nodeId: string, centralNodeInfo: CentralNodeInfo, skipCentralNodeUpdate: boolean = false)
-        : void {
-        this.svgRender.setBreadcrumbsInfo(item.getDisplayName(), nodeId);
-
-        if (!skipCentralNodeUpdate) {
-            this.svgRender.updateCentralNodeInfo(centralNodeInfo);
-        }
-        
+    navigateToNode(nodeId: string): void {
         this.svgRender.navigateToNode(nodeId);
     }
 
