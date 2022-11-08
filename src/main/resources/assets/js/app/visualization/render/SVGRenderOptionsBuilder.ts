@@ -6,6 +6,7 @@ import {
     getAllNodesByDepth,
     getSvgNodeId
 } from '../helpers';
+import {CLASSES} from '../constants';
 import {Relation, Node, RenderOption, SVGRenderOptionsConfig} from '../interfaces';
 
 export class SVGRenderOptionsBuilder {
@@ -14,7 +15,6 @@ export class SVGRenderOptionsBuilder {
     private nodes: Node[];
     private node: Node;
 
-    public static readonly hideOnRefClassName = 'hide-on-ref';
     private static readonly innerCircleID = 'SVG-inner-circle';
     private static readonly outerCircleID = 'SVG-outer-circle';
 
@@ -56,7 +56,7 @@ export class SVGRenderOptionsBuilder {
             },
             config: {
                 id: SVGRenderOptionsBuilder.innerCircleID,
-                class: SVGRenderOptionsBuilder.hideOnRefClassName,
+                class:CLASSES.hideOnRef,
                 text: {size: this.config.textSize * 2},
                 circle: {radius: this.config.circleRadius * 0.625}
             },

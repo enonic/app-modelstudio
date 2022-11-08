@@ -11,15 +11,13 @@ const CLASSES = {
     filterWrapper: 'filter-wrapper',
     filterInput: 'filter-input',
     filterIcon: 'icon-close',
-
     referencesWrapper: 'references-wrapper',
     referencesInput: 'references-checkbox',
     referencesIcon: 'icon-link',
-
     breadcrumbsWrapper: 'breadrcrumbs-wrapper',
     breadcrumbs: 'breadcrumbs',
-
     errorMessageWrapper: 'error-message',
+    hideOnRef: 'hide-on-ref'
 };
 
 const REFERENCES_OPACITY = 0.05;
