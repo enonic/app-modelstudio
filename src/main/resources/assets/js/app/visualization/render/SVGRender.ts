@@ -10,7 +10,6 @@ import {
     getTextXPosition,
     getTextYPosition,
     getTextWidth,
-    getDepth,
     getOuterCircleRadius,
     getOuterTextSize,
     setUniqueListener,
@@ -66,15 +65,23 @@ export class SVGRender {
         const changeHandler = () => {
             this.clearAllHoveredGroups();
 
-            const typedText = this.getFilterInput().getValue();
+            const searchText = (this.getFilterInput().getValue() || '').toLowerCase();
 
-            if (!typedText) {
+            if (!searchText) {
                 return;
             }
 
-            const nodeIdMatches = this.nodes
-                .map(node => node.id)
-                .filter(nodeId => getDepth(this.relations, nodeId) === 3 && nodeId.toLowerCase().includes(typedText.toLowerCase()));
+            const filterFn = (nodeId: string) => {
+                const node: Node = getNodeById(this.nodes, nodeId);
+                
+                if (node.depth === 3) {
+                    return node.key.toLowerCase().includes(searchText) || node.displayName.toLowerCase().includes(searchText);
+                }
+
+                return false;
+            };
+
+            const nodeIdMatches = this.nodes.map(node => node.id).filter(filterFn);
 
             if (nodeIdMatches.length === 0) {
                 return;
