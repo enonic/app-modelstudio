@@ -1,5 +1,7 @@
+@header-height: 40px;
+
 .schema-visualization {
-    height: 100%;
+    height: calc(100% - @header-height);
 
     >.error-message {
         color: lightgray;
@@ -14,13 +16,12 @@
     }
 
     .header {
-        position: sticky;
-        top: 0;
+        box-sizing: border-box;
         display: flex;
         align-items: center;
         background-color: @admin-bg-almost-white;
         border-bottom: 1px solid @admin-bg-light-gray;
-        height: 25px;
+        height: @header-height;
         padding: 7.5px 15px;
 
         > .filter-wrapper {
