@@ -209,8 +209,16 @@ export class SVGRender {
             }
         };
 
+        const fnPointerEvents = () => {
+            if(fnHideElementsOpacity() < 1) {
+                return 'none';
+            } else {
+                return '';
+            }
+        };
+
         svg.selectAll(pathSelector).attr('opacity', fnPathElementsOpacity);
-        svg.selectAll(hideSelector).attr('opacity', fnHideElementsOpacity);
+        svg.selectAll(hideSelector).attr('opacity', fnHideElementsOpacity).style('pointer-events', fnPointerEvents);
     }
 
     private updateReferencesCheckboxState() {
