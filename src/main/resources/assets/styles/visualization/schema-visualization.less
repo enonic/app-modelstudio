@@ -95,11 +95,25 @@
 
         > .references-wrapper {
             width: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: end;
 
             .references-checkbox {
                 display: flex;
                 align-items: center;
-                justify-content: end;
+
+                &.disabled:hover {
+                    cursor: default;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                }
+
+                >*:hover {
+                    cursor: inherit
+                }
                 
                 input {
                     appearance: none;
@@ -128,14 +142,6 @@
                         font-size: 12px;
                         color: white;
                     }
-
-                    &:hover {
-                        cursor: pointer;
-                    }
-                }
-
-                label:hover {
-                    cursor: pointer;
                 }
             }
         }
