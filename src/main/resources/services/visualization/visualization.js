@@ -158,7 +158,7 @@ function getReferences(appKey) {
     const references = initialRefs
     .concat(refs)
     .map(reference => ({source: reference[0], target: reference[1]}));
-    
+
     return references;
 }
 
@@ -241,6 +241,11 @@ function getMatches(appKey, initialMatches) {
 
 function getRegExps() {
     return [
+        {
+            targetType: SCHEMA_NAMES.CONTENTTYPE,
+            regExp: new RegExp('<allowContentType>(.*?)<\/allowContentType>', 'g'),
+            fnReplace: (str) => str.replace(/<\/?allowContentType>/g, '')
+        },
         {
             targetType: SCHEMA_NAMES.CONTENTTYPE,
             regExp: new RegExp('<allow-content-type>(.*?)<\/allow-content-type>', 'g'),
