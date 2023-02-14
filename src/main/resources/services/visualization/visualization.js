@@ -206,7 +206,7 @@ function buildReferences(appKey, type, names, schemas) {
             const id = str => prependAppKey(appKey, fnReplace(str));
             const targetUid = str => getSchemaUid(targetType, id(str));
 
-            const sourceUid = getSchemaUid(type, curr.name || curr.key)
+            const sourceUid = getSchemaUid(type, curr.name || curr.key);
 
             const matches = getMatches(appKey, regExpMatches.map(fnReplace)).map(targetUid);
             
@@ -227,8 +227,8 @@ function getMatches(appKey, initialMatches) {
 
     const schemaIds = schemaLib.listSchemas({ application: appKey, type: 'CONTENT_TYPE' })
         .map(schema => schemaLib.getSchema({ name: schema.name, type: 'CONTENT_TYPE' }))
-        .map(schema => (schema.name || schema.key).split(':').pop());
-
+        .map(schema => schema.name || schema.key || '');
+        
     let additionalMatches = [];
 
     initialMatches.forEach(matchId => {
@@ -236,7 +236,9 @@ function getMatches(appKey, initialMatches) {
         additionalMatches = additionalMatches.concat(matches);
     });
 
-    return initialMatches.concat(additionalMatches);
+    return initialMatches
+        .concat(additionalMatches)
+        .map(schemaName => schemaName.split(':').pop());
 }
 
 function getRegExps() {
