@@ -26,7 +26,7 @@
     "@types/q": "^1.5.5",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "autoprefixer": "^10.4.14",
+    "autoprefixer": "^10.4.15",
     "browserslist": "^4.21.10",
     "browserslist-config-enonic": "^1.0.8",
     "circular-dependency-plugin": "^5.2.2",
