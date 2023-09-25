@@ -24,7 +24,7 @@
     "@types/d3": "^7.4.1",
     "@types/hasher": "0.0.33",
     "@types/q": "^1.5.6",
-    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.2",
     "@typescript-eslint/parser": "^5.62.0",
     "autoprefixer": "^10.4.16",
     "browserslist": "^4.21.11",
