@@ -20,7 +20,7 @@
     "q": "^1.5.1"
   },
   "devDependencies": {
-    "@types/core-js": "^2.5.6",
+    "@types/core-js": "^2.5.7",
     "@types/d3": "^7.4.2",
     "@types/hasher": "0.0.33",
     "@types/q": "^1.5.7",
