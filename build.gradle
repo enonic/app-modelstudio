@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'com.enonic.defaults' version '2.1.5'
-    id 'com.enonic.xp.app' version '3.4.0'
+    id 'com.enonic.xp.app' version '3.6.1'
     id "com.github.node-gradle.node" version '7.0.2'
 }
 
@@ -39,11 +39,11 @@ dependencies {
     include "com.enonic.lib:lib-mustache:2.1.1"
 
     testImplementation "com.enonic.xp:testing:${xpVersion}"
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter:5.9.1'
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:4.8.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.8.0'
+    testImplementation(platform("org.junit:junit-bom:5.12.2"))
+    testImplementation(platform("org.mockito:mockito-bom:5.17.0"))
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
     testImplementation( testFixtures( "com.enonic.xp:jaxrs-impl:${xpVersion}" ) )
 }
 
