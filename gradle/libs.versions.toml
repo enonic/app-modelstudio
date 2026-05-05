@@ -1,0 +1,9 @@
+[versions]
+lib-admin-ui = "4.4.0"
+lib-graphql = "2.1.0"
+lib-mustache = "2.1.1"
+
+[libraries]
+lib-admin-ui = { module = "com.enonic.lib:lib-admin-ui", version.ref = "lib-admin-ui" }
+lib-graphql = { module = "com.enonic.lib:lib-graphql", version.ref = "lib-graphql" }
+lib-mustache = { module = "com.enonic.lib:lib-mustache", version.ref = "lib-mustache" }

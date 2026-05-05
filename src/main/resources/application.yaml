@@ -1,0 +1,5 @@
+kind: "Application"
+title: "Model Studio"
+description: "Content model visualization"
+vendorName: "Enonic AS"
+vendorUrl: "https://enonic.com"
