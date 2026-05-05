@@ -1,0 +1,11 @@
+kind: "AdminTool"
+title:
+  text: "Model Studio"
+  i18n: "admin.tool.displayName"
+description:
+  text: "Content model visualization"
+  i18n: "admin.tool.description"
+allow:
+  - "role:system.admin"
+  - "role:system.user.admin"
+  - "role:system.user.app"

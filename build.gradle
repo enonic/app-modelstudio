@@ -1,18 +1,9 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'com.enonic.defaults' version '2.1.5'
-    id 'com.enonic.xp.app' version '3.6.1'
-    id "com.github.node-gradle.node" version '7.0.2'
-}
-
-app {
-    name = project.appName
-    displayName = 'Model Studio'
-    vendorName = 'Enonic AS'
-    vendorUrl = 'https://enonic.com'
-    systemVersion = "${xpVersion}"
-    devSourcePaths += file("$rootDir/../lib-admin-ui/src/main/resources")
+    id 'com.enonic.defaults' version '2.1.6'
+    id 'com.enonic.xp.app'
+    id 'com.github.node-gradle.node' version '7.1.0'
 }
 
 configurations {
@@ -24,19 +15,19 @@ configurations {
 }
 
 dependencies {
-    implementation "com.enonic.xp:jaxrs-api:${xpVersion}"
-    implementation "com.enonic.xp:core-api:${xpVersion}"
-    implementation "com.enonic.xp:portal-api:${xpVersion}"
-    implementation "com.enonic.xp:script-api:${xpVersion}"
-    include "com.enonic.xp:lib-admin:${xpVersion}"
-    include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.xp:lib-schema:${xpVersion}"
-    include "com.enonic.xp:lib-app:${xpVersion}"
-    include "com.enonic.xp:lib-i18n:${xpVersion}"
-    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    include "com.enonic.lib:lib-graphql:2.1.0"
-    include "com.enonic.lib:lib-mustache:2.1.1"
+    implementation xplibs.api.jaxrs
+    implementation xplibs.api.core
+    implementation xplibs.api.portal
+    implementation xplibs.api.script
+    include xplibs.admin
+    include xplibs.portal
+    include xplibs.schema
+    include xplibs.app
+    include xplibs.i18n
+    include libs.lib.admin.ui
+    devResources libs.lib.admin.ui
+    include libs.lib.graphql
+    include libs.lib.mustache
 
     testImplementation "com.enonic.xp:testing:${xpVersion}"
     testImplementation(platform("org.junit:junit-bom:5.12.2"))
