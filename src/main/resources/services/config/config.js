@@ -4,17 +4,15 @@ var admin = require('/lib/xp/admin');
 var portal = require('/lib/xp/portal');
 
 function handleGet() {
+    var toolUri = admin.getToolUrl(app.name, 'main');
     return {
         status: 200,
         contentType: 'application/json',
         body: {
-            adminUrl: admin.getBaseUri(),
+            adminUrl: toolUri.substring(0, toolUri.indexOf('/' + app.name)),
             appId: app.name,
             assetsUri: portal.assetUrl({path: ''}),
-            toolUri: admin.getToolUrl(
-                app.name,
-                'main'
-            ),
+            toolUri: toolUri,
             services: {
                 visualization: portal.serviceUrl({ service: 'visualization'}),
                 graphQlUrl: portal.serviceUrl({ service: 'graphql'}),
