@@ -1,12 +1,13 @@
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
 const i18n = require('/lib/xp/i18n');
+const assetLib = require('/lib/enonic/asset');
 
 function handleGet(req) {
     const view = resolve('./main.html');
 
     const params = {
-        assetsUri: portal.assetUrl({path: ''}),
+        assetsUri: assetLib.assetUrl({path: ''}),
         appName: i18n.localize({
             key: 'admin.tool.displayName',
             bundles: ['i18n/phrases'],

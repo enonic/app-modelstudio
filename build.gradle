@@ -26,6 +26,7 @@ dependencies {
     include xplibs.i18n
     include libs.lib.admin.ui
     devResources libs.lib.admin.ui
+    include libs.lib.asset
     include libs.lib.graphql
     include libs.lib.mustache
 

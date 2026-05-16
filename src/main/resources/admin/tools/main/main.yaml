@@ -9,3 +9,5 @@ allow:
   - "role:system.admin"
   - "role:system.user.admin"
   - "role:system.user.app"
+apis:
+  - "asset"

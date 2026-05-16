@@ -2,6 +2,7 @@
 
 var admin = require('/lib/xp/admin');
 var portal = require('/lib/xp/portal');
+var assetLib = require('/lib/enonic/asset');
 
 function handleGet() {
     var toolUri = admin.getToolUrl(app.name, 'main');
@@ -11,7 +12,7 @@ function handleGet() {
         body: {
             adminUrl: toolUri.substring(0, toolUri.indexOf('/' + app.name)),
             appId: app.name,
-            assetsUri: portal.assetUrl({path: ''}),
+            assetsUri: assetLib.assetUrl({path: ''}),
             toolUri: toolUri,
             services: {
                 visualization: portal.serviceUrl({ service: 'visualization'}),
