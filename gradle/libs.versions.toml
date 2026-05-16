@@ -1,9 +1,11 @@
 [versions]
 lib-admin-ui = "4.4.0"
+lib-asset = "2.0.0-SNAPSHOT"
 lib-graphql = "3.0.0-SNAPSHOT"
 lib-mustache = "3.0.0-SNAPSHOT"
 
 [libraries]
 lib-admin-ui = { module = "com.enonic.lib:lib-admin-ui", version.ref = "lib-admin-ui" }
+lib-asset = { module = "com.enonic.lib:lib-asset", version.ref = "lib-asset" }
 lib-graphql = { module = "com.enonic.lib:lib-graphql", version.ref = "lib-graphql" }
 lib-mustache = { module = "com.enonic.lib:lib-mustache", version.ref = "lib-mustache" }
