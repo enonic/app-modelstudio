@@ -3,7 +3,22 @@ var appLib = require('/lib/xp/app');
 
 module.exports = {
     list: function () {
-        return appLib.list();
+        return appLib.list().map(function (application) {
+            var descriptor = appLib.getDescriptor({key: application.key});
+
+            return {
+                key: application.key,
+                displayName: descriptor ? descriptor.title : null,
+                description: descriptor ? descriptor.description : null,
+                vendorName: descriptor ? descriptor.vendorName : null,
+                vendorUrl: descriptor ? descriptor.vendorUrl : null,
+                url: descriptor ? descriptor.url : null,
+                version: application.version,
+                minSystemVersion: application.minSystemVersion,
+                maxSystemVersion: application.maxSystemVersion,
+                modifiedTime: application.modifiedTime
+            };
+        });
     },
     create: function (params) {
         var key = common.required(params, 'key');

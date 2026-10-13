@@ -3,3 +3,5 @@
 /.idea/
 /.xp/
 /build/
+/.pnpm-store/
+/.eslintcache

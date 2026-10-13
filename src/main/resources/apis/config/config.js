@@ -3,6 +3,7 @@
 var admin = require('/lib/xp/admin');
 var portal = require('/lib/xp/portal');
 var assetLib = require('/lib/enonic/asset');
+var events = require('/lib/events');
 
 function handleGet() {
     var toolUri = admin.getToolUrl(app.name, 'main');
@@ -14,11 +15,13 @@ function handleGet() {
             appId: app.name,
             assetsUri: assetLib.assetUrl({path: ''}),
             toolUri: toolUri,
+            statusApiUrl: portal.apiUrl({api: 'admin:status'}),
+            eventsUrl: portal.apiUrl({api: 'admin:events'}),
+            eventsTopic: events.MODEL_CHANGED_TOPIC,
             services: {
-                visualization: portal.serviceUrl({ service: 'visualization'}),
-                graphQlUrl: portal.serviceUrl({ service: 'graphql'}),
-                reportServiceUrl: portal.serviceUrl({service: 'permissionReport'}),
-                i18nUrl: portal.serviceUrl({service: 'i18n'}),
+                visualization: portal.apiUrl({api: `${app.name}:visualization`}),
+                graphQlUrl: portal.apiUrl({api: `${app.name}:graphql`}),
+                i18nUrl: portal.apiUrl({api: `${app.name}:i18n`}),
             }
         }
     };

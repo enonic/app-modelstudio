@@ -15,7 +15,7 @@ exports.SchemaTypeEnum = schemaGenerator.createEnumType({
     description: 'Enumeration of schema types',
     values: {
         CONTENT_TYPE: 'CONTENT_TYPE',
-        MIXIN: 'MIXIN',
-        XDATA: 'XDATA'
+        FORM_FRAGMENT: 'FORM_FRAGMENT',
+        MIXIN: 'MIXIN'
     }
 });

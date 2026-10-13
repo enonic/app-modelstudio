@@ -30,7 +30,7 @@ export class Data {
     }
 
     private setRelations(relations: Relation[]): void {   
-        this.relations = [...relations, ...this.getAdditionalMixinRelations(relations)];
+        this.relations = [...relations, ...this.getAdditionalFormFragmentRelations(relations)];
     }
 
     private setNodes(): void {
@@ -46,19 +46,19 @@ export class Data {
         this.nodes = arrayOfNodeIds.map(nodeId => this.getNodeData(nodeId));
     }
 
-    private getAdditionalMixinRelations(relations: Relation[]) {
-        const mixinIds = getRelationsFromSource(relations, 'MIXIN').map(({target}) => target);
+    private getAdditionalFormFragmentRelations(relations: Relation[]) {
+        const formFragmentIds = getRelationsFromSource(relations, 'FORM_FRAGMENT').map(({target}) => target);
 
-        let additionalMixinRelations = [];
+        let additionalFormFragmentRelations = [];
 
-        mixinIds.forEach(mixinId => {
-            const sourceIds = getRelationsFromTarget(relations, mixinId).map(({source}) => source).filter(id => id !== 'MIXIN');
-            const targetIds = getRelationsFromSource(relations, mixinId).map(({target}) => target).filter(id => id !== 'MIXIN');
+        formFragmentIds.forEach(formFragmentId => {
+            const sourceIds = getRelationsFromTarget(relations, formFragmentId).map(({source}) => source).filter(id => id !== 'FORM_FRAGMENT');
+            const targetIds = getRelationsFromSource(relations, formFragmentId).map(({target}) => target).filter(id => id !== 'FORM_FRAGMENT');
             
-            sourceIds.forEach(source => targetIds.forEach(target => additionalMixinRelations.push({source, target, dash: true})));
+            sourceIds.forEach(source => targetIds.forEach(target => additionalFormFragmentRelations.push({source, target, dash: true})));
         });
 
-        return additionalMixinRelations;
+        return additionalFormFragmentRelations;
     }
 
     private isNodeClickable(nodeId: string): boolean {
@@ -80,7 +80,7 @@ export class Data {
         if (type === 'layouts') {
             return UrlHelper.getCmsRestUri('cs/schema/content/icon/portal:page-template');
         }
-        if (type === 'pages' || type === 'mixins' || type === 'x-data') {
+        if (type === 'pages' || type === 'form-fragments' || type === 'mixins') {
             return UrlHelper.getCmsRestUri('cs/schema/content/icon/media:document');
         }
         

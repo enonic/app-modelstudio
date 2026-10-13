@@ -13,7 +13,7 @@ function handleGet(req) {
             bundles: ['i18n/phrases'],
             locale: req.locales
         }),
-        configServiceUrl: portal.serviceUrl({service: 'config'})
+        configServiceUrl: portal.apiUrl({api: `${app.name}:config`})
     };
 
     return {

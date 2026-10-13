@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ModelWizardActions} from './action/ModelWizardActions';
 import {DynamicWizardPanelParams} from './DynamicWizardPanelParams';
 import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
@@ -6,7 +6,7 @@ import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem'
 import {FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
 import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';
-import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {ElementShownEvent} from '@enonic/lib-admin-ui/dom/ElementShownEvent';
@@ -71,8 +71,8 @@ export abstract class ModelWizardPanel<USER_ITEM_TYPE extends Equitable>
         return new ModelWizardActions(this);
     }
 
-    protected createMainToolbar(): Toolbar {
-        const toolbar: Toolbar = new Toolbar();
+    protected createMainToolbar(): Toolbar<ToolbarConfig> {
+        const toolbar: Toolbar<ToolbarConfig> = new Toolbar<ToolbarConfig>();
 
         toolbar.addAction(this.wizardActions.getSaveAction());
         toolbar.addAction(this.wizardActions.getDeleteAction());

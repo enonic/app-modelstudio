@@ -1,6 +1,6 @@
 import {NewModelEvent} from '../event/NewModelEvent';
 import {ModelTreeGridItem} from '../ModelTreeGridItem';
-import {ModelItemsTreeGrid} from '../ModelItemsTreeGrid';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NewApplicationEvent} from '../event/NewApplicationEvent';
 import {BrowseAction} from './BrowseAction';
@@ -8,13 +8,13 @@ import {BrowseAction} from './BrowseAction';
 export class NewModelAction
     extends BrowseAction {
 
-    constructor(grid: ModelItemsTreeGrid) {
-        super(grid, i18n('action.new'), 'alt+n');
+    constructor(selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>) {
+        super(selectionWrapper, i18n('action.new'), 'alt+n');
         this.setEnabled(false);
     }
 
     protected handleExecuted() {
-        const modelItems: ModelTreeGridItem[] = this.grid.getSelectedDataList();
+        const modelItems: ModelTreeGridItem[] = this.selectionWrapper.getSelectedItems();
 
         if (modelItems.length === 1) {
             if (modelItems[0].isParts() || modelItems[0].isPart()) {
@@ -34,11 +34,11 @@ export class NewModelAction
                 new NewModelEvent(modelItems).fire();
                 return;
             }
-            if (modelItems[0].isXDatas() || modelItems[0].isXData()) {
+            if (modelItems[0].isMixins() || modelItems[0].isMixin()) {
                 new NewModelEvent(modelItems).fire();
                 return;
             }
-            if (modelItems[0].isMixins() || modelItems[0].isMixin()) {
+            if (modelItems[0].isFormFragments() || modelItems[0].isFormFragment()) {
                 new NewModelEvent(modelItems).fire();
                 return;
             }

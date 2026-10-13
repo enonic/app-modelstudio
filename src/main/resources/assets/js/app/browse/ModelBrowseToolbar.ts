@@ -1,12 +1,10 @@
-import {ModelTreeGridActions} from './ModelTreeGridActions';
-import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Toolbar, ToolbarConfig} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 
 export class ModelBrowseToolbar
-    extends Toolbar {
+    extends Toolbar<ToolbarConfig> {
 
-    constructor(actions: ModelTreeGridActions) {
+    constructor() {
         super();
         this.addClass('user-browse-toolbar');
-        this.addActions(actions.getAllActions());
     }
 }

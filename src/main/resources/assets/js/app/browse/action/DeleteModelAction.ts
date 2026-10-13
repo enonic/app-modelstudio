@@ -1,4 +1,4 @@
-import {ModelItemsTreeGrid} from '../ModelItemsTreeGrid';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {BrowseAction} from './BrowseAction';
@@ -13,8 +13,8 @@ import {ComponentType} from '../../schema/ComponentType';
 export class DeleteModelAction
     extends BrowseAction {
 
-    constructor(grid: ModelItemsTreeGrid) {
-        super(grid, i18n('action.delete'), 'mod+del');
+    constructor(selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>) {
+        super(selectionWrapper, i18n('action.delete'), 'mod+del');
         this.setEnabled(false);
     }
 
@@ -28,7 +28,7 @@ export class DeleteModelAction
 
     private deleteSelectedItems(): void {
         // just one item is allowed to
-        const selectedItem: ModelTreeGridItem = this.grid.getSelectedDataList()[0];
+        const selectedItem: ModelTreeGridItem = this.selectionWrapper.getSelectedItems()[0];
 
         if (selectedItem?.isApplication()) {
             this.deleteApplication(selectedItem);

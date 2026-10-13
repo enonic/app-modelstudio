@@ -135,11 +135,11 @@ export function getNodeDisplayName(displayName: string): string {
         case 'content-types':
             return i18n('field.contentTypes');
 
+        case 'form-fragments':
+            return i18n('field.formFragments');
+
         case 'mixins':
             return i18n('field.mixins');
-
-        case 'x-data':
-            return i18n('field.xdatas');
     }
 
     return displayName;

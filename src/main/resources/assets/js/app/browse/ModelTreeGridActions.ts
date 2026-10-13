@@ -3,7 +3,7 @@ import {ModelTreeGridItem} from './ModelTreeGridItem';
 import {DeleteModelAction} from './action/DeleteModelAction';
 import {EditModelAction} from './action/EditModelAction';
 import {NewModelAction} from './action/NewModelAction';
-import {ModelItemsTreeGrid} from './ModelItemsTreeGrid';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
 import {ActionState} from './ActionState';
@@ -17,13 +17,13 @@ export class ModelTreeGridActions
 
     private readonly isReadonlyMode: boolean;
 
-    constructor(grid: ModelItemsTreeGrid, isReadonlyMode?: boolean) {
+    constructor(selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>, isReadonlyMode?: boolean) {
         this.isReadonlyMode = isReadonlyMode;
 
         if (!isReadonlyMode) {
-            this.actions.set(ModelAction.NEW, new NewModelAction(grid));
-            this.actions.set(ModelAction.EDIT, new EditModelAction(grid));
-            this.actions.set(ModelAction.DELETE, new DeleteModelAction(grid));
+            this.actions.set(ModelAction.NEW, new NewModelAction(selectionWrapper));
+            this.actions.set(ModelAction.EDIT, new EditModelAction(selectionWrapper));
+            this.actions.set(ModelAction.DELETE, new DeleteModelAction(selectionWrapper));
             this.actions.get(ModelAction.NEW).setEnabled(true);
         }
     }

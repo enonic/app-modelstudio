@@ -11,3 +11,9 @@ allow:
   - "role:system.user.app"
 apis:
   - "asset"
+  - "config"
+  - "graphql"
+  - "i18n"
+  - "visualization"
+  - "admin:status"
+  - "admin:events"

@@ -1,25 +1,23 @@
 import {ModelItemStatisticsPanel} from '../view/ModelItemStatisticsPanel';
 import {BrowseItemPanel} from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
 import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
-import {ModelItemsTreeGrid} from './ModelItemsTreeGrid';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
+import {ModelItemsTreeList} from './ModelItemsTreeList';
+import {ModelTreeGridItem} from './ModelTreeGridItem';
 
 export class ModelBrowseItemPanel
     extends BrowseItemPanel {
 
     private modelItemStatisticsPanel: ModelItemStatisticsPanel;
 
-    constructor(treeGrid: ModelItemsTreeGrid) {
+    constructor(treeList: ModelItemsTreeList, selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>) {
         super();
-        
-        this.setModelItemStatiscsPanelTreeGrid(treeGrid);
+
+        this.modelItemStatisticsPanel.setTreeList(treeList, selectionWrapper);
     }
 
     createItemStatisticsPanel(): ItemStatisticsPanel {
         this.modelItemStatisticsPanel = new ModelItemStatisticsPanel();
         return this.modelItemStatisticsPanel;
-    }
-
-    setModelItemStatiscsPanelTreeGrid(treeGrid: ModelItemsTreeGrid): void {
-        this.modelItemStatisticsPanel.setTreeGrid(treeGrid);
     }
 }

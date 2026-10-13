@@ -2,4 +2,25 @@
   .content-grid-and-browse-split-panel {
     top: 0px !important;
   }
+
+  .tree-grid-toolbar {
+    margin-top: 0;
+  }
+
+  .model-list-box-wrapper {
+    overflow: auto;
+    height: calc(100% - 40px);
+
+    .item-view-wrapper {
+      height: 42px;
+
+      &.selected {
+        .viewer {
+          .xp-admin-common-names-view * {
+            color: @admin-white;
+          }
+        }
+      }
+    }
+  }
 }

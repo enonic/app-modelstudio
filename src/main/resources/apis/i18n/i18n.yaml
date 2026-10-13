@@ -1,3 +1,4 @@
-kind: "Service"
+kind: "API"
+title: "I18N API"
 allow:
   - "role:system.authenticated"

@@ -1,15 +1,22 @@
 const graphQl = require('/lib/graphql');
 const schemaGenerator = require('../../schemaUtil').schemaGenerator;
-const iconResolver = __.newBean('com.enonic.xp.app.users.lib.IconResourceResolver');
 
-exports.SchemaType = schemaGenerator.createInterfaceType({
-    name: 'Schema',
-    description: 'Domain representation of a content schema',
-    typeResolver: function(source) {
-        //TODO
-        return "CONTENT_TYPE" === source.type
-               ? exports.ContentTypeSchemaType
-               : "MIXIN" === source.type ? exports.MixinSchemaType : "XDATA" === source.type ? exports.XDataSchemaType : null;
+exports.ComponentType = schemaGenerator.createInterfaceType({
+    name: 'Component',
+    description: 'Domain representation of a component descriptor',
+    typeResolver: function (source) {
+        if('PART' === source.type) {
+            return exports.PartComponentType;
+        }
+
+        if('LAYOUT' === source.type) {
+            return exports.LayoutComponentType;
+        }
+
+        if('PAGE' === source.type) {
+            return exports.PageComponentType;
+        }
+        return null;
     },
     fields: {
         name: {
@@ -18,7 +25,16 @@ exports.SchemaType = schemaGenerator.createInterfaceType({
         displayName: {
             type: graphQl.GraphQLString
         },
+        displayNameI18nKey: {
+            type: graphQl.GraphQLString
+        },
         description: {
+            type: graphQl.GraphQLString
+        },
+        descriptionI18nKey: {
+            type: graphQl.GraphQLString
+        },
+        componentPath: {
             type: graphQl.GraphQLString
         },
         type: {
@@ -26,34 +42,43 @@ exports.SchemaType = schemaGenerator.createInterfaceType({
         },
         resource: {
             type: graphQl.GraphQLString
-        }/*,
-        icon: {
-            type: graphQl.GraphQLString
-        }*/
+        }
     }
 });
 
-exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
-    name: 'ContentType',
-    description: 'Domain representation of a content type schema',
-    interfaces: [exports.SchemaType],
+exports.PartComponentType = schemaGenerator.createObjectType({
+    name: 'Part',
+    description: 'Domain representation of a part component descriptor',
+    interfaces: [exports.ComponentType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.name;
+                return env.source.key;
             }
         },
         displayName: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.displayName;
+                return env.source.title;
+            }
+        },
+        displayNameI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.titleI18nKey;
             }
         },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
+            }
+        },
+        descriptionI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -68,36 +93,48 @@ exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        icon: {
+        componentPath: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                var elements = env.source.name.split(':');
-                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/content-types');
+                return env.source.componentPath;
             }
         }
     }
 });
-exports.MixinSchemaType = schemaGenerator.createObjectType({
-    name: 'Mixin',
-    description: 'Domain representation of a mixin schema',
-    interfaces: [exports.SchemaType],
+
+exports.LayoutComponentType = schemaGenerator.createObjectType({
+    name: 'Layout',
+    description: 'Domain representation of a layout component descriptor',
+    interfaces: [exports.ComponentType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.name;
+                return env.source.key;
             }
         },
         displayName: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.displayName;
+                return env.source.title;
+            }
+        },
+        displayNameI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.titleI18nKey;
             }
         },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
+            }
+        },
+        descriptionI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -112,37 +149,48 @@ exports.MixinSchemaType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        icon: {
+        componentPath: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                var elements = env.source.name.split(':');
-                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/mixins');
+                return env.source.componentPath;
             }
         }
     }
 });
 
-exports.XDataSchemaType = schemaGenerator.createObjectType({
-    name: 'XData',
-    description: 'Domain representation of a xdata schema',
-    interfaces: [exports.SchemaType],
+exports.PageComponentType = schemaGenerator.createObjectType({
+    name: 'Page',
+    description: 'Domain representation of a page component descriptor',
+    interfaces: [exports.ComponentType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.name;
+                return env.source.key;
             }
         },
         displayName: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.displayName;
+                return env.source.title;
+            }
+        },
+        displayNameI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.titleI18nKey;
             }
         },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
+            }
+        },
+        descriptionI18nKey: {
+            type: graphQl.GraphQLString,
+            resolve: function (env) {
+                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -157,19 +205,18 @@ exports.XDataSchemaType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        icon: {
+        componentPath: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                var elements = env.source.name.split(':');
-                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/x-data');
+                return env.source.componentPath;
             }
         }
     }
 });
 
-exports.SchemaDeleteType = schemaGenerator.createObjectType({
-    name: 'SchemaDelete',
-    description: 'Result of a Schema delete operation',
+exports.ComponentDeleteType = schemaGenerator.createObjectType({
+    name: 'ComponentDelete',
+    description: 'Result of a Component delete operation',
     fields: {
         id: {
             type: graphQl.GraphQLString,
@@ -185,3 +232,4 @@ exports.SchemaDeleteType = schemaGenerator.createObjectType({
         }
     }
 });
+

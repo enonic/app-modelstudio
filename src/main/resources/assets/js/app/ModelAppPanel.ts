@@ -179,10 +179,10 @@ export class ModelAppPanel
 
             if (modelItem.isContentType() || modelItem.isContentTypes()) {
                 this.handleSchemaNew(key, SchemaType.CONTENT_TYPE, tabId, i18n('field.contentType'));
+            } else if (modelItem.isFormFragment() || modelItem.isFormFragments()) {
+                this.handleSchemaNew(key, SchemaType.FORM_FRAGMENT, tabId, i18n('field.formFragment'));
             } else if (modelItem.isMixin() || modelItem.isMixins()) {
                 this.handleSchemaNew(key, SchemaType.MIXIN, tabId, i18n('field.mixin'));
-            } else if (modelItem.isXData() || modelItem.isXDatas()) {
-                this.handleSchemaNew(key, SchemaType.XDATA, tabId, i18n('field.xdata'));
             }
 
             if (modelItem.isPart() || modelItem.isParts()) {

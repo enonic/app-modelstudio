@@ -19,14 +19,14 @@ export enum UserTreeGridItemType {
     LAYOUTS,
     PAGES,
     CONTENT_TYPES,
+    FORM_FRAGMENTS,
     MIXINS,
-    XDATAS,
     PART,
     LAYOUT,
     PAGE,
     CONTENT_TYPE,
+    FORM_FRAGMENT,
     MIXIN,
-    XDATA,
     SITE,
     STYLES
 }
@@ -98,8 +98,8 @@ export class ModelTreeGridItem
             return this.component.getDisplayName();
 
         case UserTreeGridItemType.CONTENT_TYPE:
+        case UserTreeGridItemType.FORM_FRAGMENT:
         case UserTreeGridItemType.MIXIN:
-        case UserTreeGridItemType.XDATA:
             return this.schema.getDisplayName();
 
         case UserTreeGridItemType.SITE:
@@ -120,11 +120,11 @@ export class ModelTreeGridItem
         case UserTreeGridItemType.CONTENT_TYPES:
             return i18n('field.contentTypes');
 
+        case UserTreeGridItemType.FORM_FRAGMENTS:
+            return i18n('field.formFragments');
+
         case UserTreeGridItemType.MIXINS:
             return i18n('field.mixins');
-
-        case UserTreeGridItemType.XDATAS:
-            return i18n('field.xdatas');
 
         }
         return '';
@@ -142,10 +142,10 @@ export class ModelTreeGridItem
             return 'pages/' + this.component.getName().toString();
         case UserTreeGridItemType.CONTENT_TYPE:
             return 'content-types/' + this.schema.getName().toString();
+        case UserTreeGridItemType.FORM_FRAGMENT:
+            return 'form-fragments/' + this.schema.getName().toString();
         case UserTreeGridItemType.MIXIN:
             return 'mixins/' + this.schema.getName().toString();
-        case UserTreeGridItemType.XDATA:
-            return 'x-data/' + this.schema.getName().toString();
         case UserTreeGridItemType.SITE:
             return this.site.getKey().toString() + '/site.xml';
         case UserTreeGridItemType.STYLES:
@@ -158,10 +158,10 @@ export class ModelTreeGridItem
             return this.application.getApplicationKey().toString() + '/pages';
         case UserTreeGridItemType.CONTENT_TYPES:
             return this.application.getApplicationKey().toString() + '/content-types';
+        case UserTreeGridItemType.FORM_FRAGMENTS:
+            return this.application.getApplicationKey().toString() + '/form-fragments';
         case UserTreeGridItemType.MIXINS:
             return this.application.getApplicationKey().toString() + '/mixins';
-        case UserTreeGridItemType.XDATAS:
-            return this.application.getApplicationKey().toString() + '/x-data';
         default:
             return '';
         }
@@ -203,6 +203,14 @@ export class ModelTreeGridItem
         return this.type === UserTreeGridItemType.CONTENT_TYPES;
     }
 
+    isFormFragment(): boolean {
+        return this.type === UserTreeGridItemType.FORM_FRAGMENT;
+    }
+
+    isFormFragments(): boolean {
+        return this.type === UserTreeGridItemType.FORM_FRAGMENTS;
+    }
+
     isMixin(): boolean {
         return this.type === UserTreeGridItemType.MIXIN;
     }
@@ -211,26 +219,18 @@ export class ModelTreeGridItem
         return this.type === UserTreeGridItemType.MIXINS;
     }
 
-    isXData(): boolean {
-        return this.type === UserTreeGridItemType.XDATA;
-    }
-
-    isXDatas(): boolean {
-        return this.type === UserTreeGridItemType.XDATAS;
-    }
-
     isSite(): boolean {
         return this.type === UserTreeGridItemType.SITE;
     }
 
     isSchema(): boolean {
-        return this.type === UserTreeGridItemType.CONTENT_TYPE || this.type === UserTreeGridItemType.MIXIN || this.type ===
-               UserTreeGridItemType.XDATA;
+        return this.type === UserTreeGridItemType.CONTENT_TYPE || this.type === UserTreeGridItemType.FORM_FRAGMENT || this.type ===
+               UserTreeGridItemType.MIXIN;
     }
 
     isSchemaFolder(): boolean {
-        return this.type === UserTreeGridItemType.CONTENT_TYPES || this.type === UserTreeGridItemType.MIXINS || this.type ===
-            UserTreeGridItemType.XDATAS;
+        return this.type === UserTreeGridItemType.CONTENT_TYPES || this.type === UserTreeGridItemType.FORM_FRAGMENTS || this.type ===
+            UserTreeGridItemType.MIXINS;
     }
 
     isComponent(): boolean {
@@ -248,7 +248,7 @@ export class ModelTreeGridItem
     }
 
     hasChildren(): boolean {
-        return this.isApplication() || this.children;
+        return this.isApplication() || !!this.children;
     }
 
     equals(o: Equitable): boolean {
@@ -307,7 +307,7 @@ export class ModelTreeGridItem
         if (this.isLayout()) {
             return UrlHelper.getCmsRestUri('cs/schema/content/icon/portal:page-template');
         }
-        if (this.isPage() || this.isMixin() || this.isXData() || this.isSite() || this.isStyles()) {
+        if (this.isPage() || this.isFormFragment() || this.isMixin() || this.isSite() || this.isStyles()) {
             return UrlHelper.getCmsRestUri('cs/schema/content/icon/media:document');
         }
         
@@ -378,11 +378,11 @@ export class UserTreeGridItemBuilder {
             if (SchemaType.CONTENT_TYPE == (<Schema>userItem).getType()) {
                 return this.setSchema(userItem).setType(UserTreeGridItemType.CONTENT_TYPE);
             }
+            if (SchemaType.FORM_FRAGMENT == (<Schema>userItem).getType()) {
+                return this.setSchema(userItem).setType(UserTreeGridItemType.FORM_FRAGMENT);
+            }
             if (SchemaType.MIXIN == (<Schema>userItem).getType()) {
                 return this.setSchema(userItem).setType(UserTreeGridItemType.MIXIN);
-            }
-            if (SchemaType.XDATA == (<Schema>userItem).getType()) {
-                return this.setSchema(userItem).setType(UserTreeGridItemType.XDATA);
             }
         } else if (userItem instanceof Site) {
             return this.setSite(userItem).setType(UserTreeGridItemType.SITE);

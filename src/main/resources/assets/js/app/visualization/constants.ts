@@ -33,8 +33,8 @@ const COLORS = {
     range: [
         '#d3d3d3',
         '#ff7f0e', // Content Type
-        '#2ca02c', // Mixins
-        '#e91e63', // XDatas
+        '#2ca02c', // Form Fragments
+        '#e91e63', // Mixins
         '#2fb6a3', // Pages
         '#000000', // Layouts
         '#1f77b4', // Parts

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Router} from '../Router';
 import {ModelWizardPanel} from './ModelWizardPanel';
 import {WizardStep} from '@enonic/lib-admin-ui/app/wizard/WizardStep';

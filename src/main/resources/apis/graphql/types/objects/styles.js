@@ -9,7 +9,7 @@ exports.StylesType = schemaGenerator.createObjectType({
         key: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.key;
+                return env.source.application;
             }
         },
         resource: {

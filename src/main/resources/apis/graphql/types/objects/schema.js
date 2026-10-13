@@ -1,22 +1,15 @@
 const graphQl = require('/lib/graphql');
 const schemaGenerator = require('../../schemaUtil').schemaGenerator;
+const iconResolver = __.newBean('com.enonic.xp.app.users.lib.IconResourceResolver');
 
-exports.ComponentType = schemaGenerator.createInterfaceType({
-    name: 'Component',
-    description: 'Domain representation of a component descriptor',
-    typeResolver: function (source) {
-        if('PART' === source.type) {
-            return exports.PartComponentType;
-        }
-
-        if('LAYOUT' === source.type) {
-            return exports.LayoutComponentType;
-        }
-
-        if('PAGE' === source.type) {
-            return exports.PageComponentType;
-        }
-        return null;
+exports.SchemaType = schemaGenerator.createInterfaceType({
+    name: 'Schema',
+    description: 'Domain representation of a content schema',
+    typeResolver: function(source) {
+        //TODO
+        return "CONTENT_TYPE" === source.type
+               ? exports.ContentTypeSchemaType
+               : "FORM_FRAGMENT" === source.type ? exports.FormFragmentSchemaType : "MIXIN" === source.type ? exports.MixinSchemaType : null;
     },
     fields: {
         name: {
@@ -25,16 +18,7 @@ exports.ComponentType = schemaGenerator.createInterfaceType({
         displayName: {
             type: graphQl.GraphQLString
         },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString
-        },
         description: {
-            type: graphQl.GraphQLString
-        },
-        descriptionI18nKey: {
-            type: graphQl.GraphQLString
-        },
-        componentPath: {
             type: graphQl.GraphQLString
         },
         type: {
@@ -42,43 +26,34 @@ exports.ComponentType = schemaGenerator.createInterfaceType({
         },
         resource: {
             type: graphQl.GraphQLString
-        }
+        }/*,
+        icon: {
+            type: graphQl.GraphQLString
+        }*/
     }
 });
 
-exports.PartComponentType = schemaGenerator.createObjectType({
-    name: 'Part',
-    description: 'Domain representation of a part component descriptor',
-    interfaces: [exports.ComponentType],
+exports.ContentTypeSchemaType = schemaGenerator.createObjectType({
+    name: 'ContentType',
+    description: 'Domain representation of a content type schema',
+    interfaces: [exports.SchemaType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.key;
+                return env.source.name;
             }
         },
         displayName: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.displayName;
-            }
-        },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.displayNameI18nKey;
+                return env.source.title;
             }
         },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
-            }
-        },
-        descriptionI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -93,48 +68,36 @@ exports.PartComponentType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        componentPath: {
+        icon: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.componentPath;
+                var elements = env.source.name.split(':');
+                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/content-types');
             }
         }
     }
 });
-
-exports.LayoutComponentType = schemaGenerator.createObjectType({
-    name: 'Layout',
-    description: 'Domain representation of a layout component descriptor',
-    interfaces: [exports.ComponentType],
+exports.FormFragmentSchemaType = schemaGenerator.createObjectType({
+    name: 'FormFragment',
+    description: 'Domain representation of a form fragment schema',
+    interfaces: [exports.SchemaType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.key;
+                return env.source.name;
             }
         },
         displayName: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.displayName;
-            }
-        },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.displayNameI18nKey;
+                return env.source.title;
             }
         },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
-            }
-        },
-        descriptionI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -149,48 +112,37 @@ exports.LayoutComponentType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        componentPath: {
+        icon: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.componentPath;
+                var elements = env.source.name.split(':');
+                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/form-fragments');
             }
         }
     }
 });
 
-exports.PageComponentType = schemaGenerator.createObjectType({
-    name: 'Page',
-    description: 'Domain representation of a page component descriptor',
-    interfaces: [exports.ComponentType],
+exports.MixinSchemaType = schemaGenerator.createObjectType({
+    name: 'Mixin',
+    description: 'Domain representation of a mixin schema',
+    interfaces: [exports.SchemaType],
     fields: {
         name: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.key;
+                return env.source.name;
             }
         },
         displayName: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.displayName;
-            }
-        },
-        displayNameI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.displayNameI18nKey;
+                return env.source.title;
             }
         },
         description: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
                 return env.source.description;
-            }
-        },
-        descriptionI18nKey: {
-            type: graphQl.GraphQLString,
-            resolve: function (env) {
-                return env.source.descriptionI18nKey;
             }
         },
         resource: {
@@ -205,18 +157,19 @@ exports.PageComponentType = schemaGenerator.createObjectType({
                 return env.source.type;
             }
         },
-        componentPath: {
+        icon: {
             type: graphQl.GraphQLString,
             resolve: function (env) {
-                return env.source.componentPath;
+                var elements = env.source.name.split(':');
+                return iconResolver.getSchemaIcon(elements[0], elements[1], '/site/mixins');
             }
         }
     }
 });
 
-exports.ComponentDeleteType = schemaGenerator.createObjectType({
-    name: 'ComponentDelete',
-    description: 'Result of a Component delete operation',
+exports.SchemaDeleteType = schemaGenerator.createObjectType({
+    name: 'SchemaDelete',
+    description: 'Result of a Schema delete operation',
     fields: {
         id: {
             type: graphQl.GraphQLString,
@@ -232,4 +185,3 @@ exports.ComponentDeleteType = schemaGenerator.createObjectType({
         }
     }
 });
-

@@ -1,5 +1,5 @@
 [versions]
-lib-admin-ui = "4.4.0"
+lib-admin-ui = "5.2.1"
 lib-asset = "2.0.0"
 lib-graphql = "3.0.0"
 lib-mustache = "3.0.0"

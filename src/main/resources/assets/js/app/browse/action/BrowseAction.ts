@@ -1,15 +1,16 @@
-import {ModelItemsTreeGrid} from '../ModelItemsTreeGrid';
+import {ModelTreeGridItem} from '../ModelTreeGridItem';
 import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export abstract class BrowseAction
     extends Action {
 
-    protected grid: ModelItemsTreeGrid;
+    protected selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>;
 
-    protected constructor(grid: ModelItemsTreeGrid, label: string, shortcut: string) {
+    protected constructor(selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>, label: string, shortcut: string) {
         super(label, shortcut);
 
-        this.grid = grid;
+        this.selectionWrapper = selectionWrapper;
         this.onExecuted(this.handleExecuted.bind(this));
     }
 

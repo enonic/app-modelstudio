@@ -8,7 +8,7 @@ module.exports = {
         component.PartComponentType,
         component.LayoutComponentType,
         component.PageComponentType,
-        schema.XDataSchemaType,
         schema.MixinSchemaType,
+        schema.FormFragmentSchemaType,
         schema.ContentTypeSchemaType]
 };

@@ -28,7 +28,7 @@ function getApplication(): Application {
 }
 
 function startLostConnectionDetector() {
-    ConnectionDetector.get()
+    ConnectionDetector.get(CONFIG.getString('statusApiUrl'))
         .setAuthenticated(true)
         .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
         .setNotificationMessage(i18n('notify.connection.loss'))
@@ -51,7 +51,7 @@ function startApplication() {
     application.setLoaded(true);
 
     startLostConnectionDetector();
-    new ModelStudioServerEventsListener([application]).start();
+    new ModelStudioServerEventsListener().start();
 }
 
 (async () => {

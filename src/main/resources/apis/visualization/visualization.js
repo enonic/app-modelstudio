@@ -22,8 +22,8 @@ exports.get = function handleGet(req) {
 
 const SCHEMA_NAMES = {
     CONTENTTYPE: 'content-types',
+    FORM_FRAGMENT: 'form-fragments',
     MIXIN: 'mixins',
-    XDATA: 'x-data',
     PAGE: 'pages',
     LAYOUT: 'layouts',
     PART: 'parts'
@@ -32,8 +32,8 @@ const SCHEMA_NAMES = {
 function libSchemaSchemaTypeMapper(key) {
     return {
         [SCHEMA_NAMES.CONTENTTYPE]: 'CONTENT_TYPE',
-        [SCHEMA_NAMES.MIXIN]: 'MIXIN',
-        [SCHEMA_NAMES.XDATA]: 'XDATA'
+        [SCHEMA_NAMES.FORM_FRAGMENT]: 'FORM_FRAGMENT',
+        [SCHEMA_NAMES.MIXIN]: 'MIXIN'
     }[key];
 }
 
@@ -48,8 +48,8 @@ function libSchemaComponentTypeMapper(key) {
 function inverseMapper(key) {
     return {
         CONTENT_TYPE: SCHEMA_NAMES.CONTENTTYPE,
+        FORM_FRAGMENT: SCHEMA_NAMES.FORM_FRAGMENT,
         MIXIN: SCHEMA_NAMES.MIXIN,
-        XDATA: SCHEMA_NAMES.XDATA,
         PAGE: SCHEMA_NAMES.PAGE,
         LAYOUT: SCHEMA_NAMES.LAYOUT,
         PART: SCHEMA_NAMES.PART,
@@ -57,7 +57,7 @@ function inverseMapper(key) {
 }
 
 function getDetails(appKey) {
-    const schemaCategories = [SCHEMA_NAMES.CONTENTTYPE, SCHEMA_NAMES.MIXIN, SCHEMA_NAMES.XDATA];
+    const schemaCategories = [SCHEMA_NAMES.CONTENTTYPE, SCHEMA_NAMES.FORM_FRAGMENT, SCHEMA_NAMES.MIXIN];
     const componentCategories = [SCHEMA_NAMES.PAGE, SCHEMA_NAMES.LAYOUT, SCHEMA_NAMES.PART];
 
     const hash = {};
@@ -72,10 +72,11 @@ function getDetails(appKey) {
 
 function setAppDetails(appKey, hash) {
     const application = appLib.get({key: appKey});
+    const descriptor = appLib.getDescriptor({key: appKey});
 
     hash[appKey] = {
         key: application.key,
-        displayName: application.displayName,
+        displayName: descriptor ? descriptor.title : application.key,
         type: 'application'
     }
 }
@@ -103,7 +104,7 @@ function setSchemaDetails(appKey, schemaCategories, hash) {
 
                 hash[key] = {
                     key: schema.name,
-                    displayName: schema.displayName,
+                    displayName: schema.title,
                     type: inverseMapper(schema.type)
                 }
             }
@@ -122,7 +123,7 @@ function setComponentDetails(appKey, componentCategories, hash) {
                 
                 hash[key] = {
                     key: component.key,
-                    displayName: component.displayName,
+                    displayName: component.title,
                     type: inverseMapper(component.type)
                 }
             }
@@ -131,7 +132,7 @@ function setComponentDetails(appKey, componentCategories, hash) {
 }
 
 function getReferences(appKey) {
-    const schemaCategories = [SCHEMA_NAMES.CONTENTTYPE, SCHEMA_NAMES.MIXIN, SCHEMA_NAMES.XDATA];
+    const schemaCategories = [SCHEMA_NAMES.CONTENTTYPE, SCHEMA_NAMES.FORM_FRAGMENT, SCHEMA_NAMES.MIXIN];
     const componentCategories = [SCHEMA_NAMES.PAGE, SCHEMA_NAMES.LAYOUT, SCHEMA_NAMES.PART];
     const categories = [].concat(schemaCategories).concat(componentCategories).map(c => getCategoriesUid(appKey, c));
     const schemaNamesAndReferences = schemaCategories.map(schemaCategory => getSchemaNamesAndReferences(appKey, schemaCategory));
@@ -259,7 +260,7 @@ function getRegExps() {
             fnReplace: (str) => str.replace(/<\/?allow-on-content-type>/g, '')
         },
         {
-            targetType: SCHEMA_NAMES.MIXIN,
+            targetType: SCHEMA_NAMES.FORM_FRAGMENT,
             regExp: new RegExp('<mixin name="(.*?)"\\s?\/>', 'g'),
             fnReplace: (str) => str.replace(/<mixin name=\"/g, '').replace(/\"\s?\/>/g, '')
         },

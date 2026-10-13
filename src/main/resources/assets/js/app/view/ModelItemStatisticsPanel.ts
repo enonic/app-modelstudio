@@ -1,13 +1,15 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ModelTreeGridItem} from '../browse/ModelTreeGridItem';
 import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
 import {Visualization} from '../visualization/Visualization';
-import {ModelItemsTreeGrid} from '../browse/ModelItemsTreeGrid';
+import {ModelItemsTreeList} from '../browse/ModelItemsTreeList';
 import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {SelectableListBoxWrapper} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxWrapper';
 
 export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
 
-    private treeGrid: ModelItemsTreeGrid;
+    private treeList: ModelItemsTreeList;
+    private selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>;
     private schemaVisualization: Visualization;
     private loadMask: LoadMask;
 
@@ -32,19 +34,25 @@ export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
         }
     }
 
-    setTreeGrid(treeGrid: ModelItemsTreeGrid): void {
-        this.treeGrid = treeGrid;
-        this.treeGridNavigationHandler();
+    setTreeList(treeList: ModelItemsTreeList, selectionWrapper: SelectableListBoxWrapper<ModelTreeGridItem>): void {
+        this.treeList = treeList;
+        this.selectionWrapper = selectionWrapper;
+        this.treeListNavigationHandler();
     }
 
-    private treeGridNavigationHandler(): void {
-        this.treeGrid.onHighlightingChanged(() => {
-            const item: ModelTreeGridItem = this.treeGrid.getFirstSelectedOrHighlightedItem();
-                const treeGridAppKey = item.getApplication()?.getApplicationKey()?.toString()
+    private treeListNavigationHandler(): void {
+        this.selectionWrapper.onSelectionChanged(() => {
+            const item: ModelTreeGridItem = this.selectionWrapper.getSelectedItems()[0];
+
+            if (!item) {
+                return;
+            }
+
+            const treeGridAppKey = item.getApplication()?.getApplicationKey()?.toString()
                 || item.getComponent()?.getName()?.getApplicationKey()?.toString()
                 || item.getSchema()?.getName().getApplicationKey().toString();
 
-            if (!item || !treeGridAppKey) {
+            if (!treeGridAppKey) {
                 return;
             }
 
@@ -82,23 +90,23 @@ export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
         if (nodeId) {
             this.schemaVisualization.navigateToNode(nodeId);
         } else {
-            this.treeGrid.highlightItemById(appKey, false, true); // check this!
+            this.selectItemById(appKey);
         }
     }
 
     private schemaVisualizationOnNavigateHandler(): void {
         this.schemaVisualization.onNavigate((nodeIds: string[], nodeIdToCollapse?: string) => {
             if (nodeIdToCollapse) {
-                this.treeGrid.collapseNodeByDataId(nodeIdToCollapse);
+                this.treeList.collapseItem(nodeIdToCollapse);
             }
 
             const highlightAndScroll = (nodeId: string) => {
-                if (!this.treeGrid.hasItemWithDataId(nodeId)) {
+                if (!this.treeList.getItem(nodeId)) {
                     return;
                 }
 
-                this.treeGrid.highlightItemById(nodeId, true, true);
-                this.treeGrid.scrollToRow(this.getIndexOfHighlightedTreeGridItem(), true);
+                this.selectItemById(nodeId);
+                this.treeList.scrollToItem(nodeId);
             };
 
             nodeIds.reduce((prev: Q.Promise<void>, nodeId: string, index: number) => {
@@ -108,7 +116,7 @@ export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
                         return;
                     }
 
-                    return this.treeGrid.expandNodeByDataId(nodeId).then(() => {
+                    return this.treeList.expandItem(nodeId).then(() => {
                         highlightAndScroll(nodeId);
                     });
                 });
@@ -116,18 +124,14 @@ export class ModelItemStatisticsPanel extends ItemStatisticsPanel {
         });
     }
 
-    private getIndexOfHighlightedTreeGridItem(): number {
-        let n: number = -1;
-    
-        for(let i = 0; i < this.treeGrid.getGrid().getDataView().getLength(); i++) {
-            const item = this.treeGrid.getGrid().getDataView().getItem(i);
-    
-            if (item.getData().getId() === this.treeGrid.getHighlightedItem().getId()) {
-                n = i;
-                break;
-            }
+    private selectItemById(id: string): void {
+        const item: ModelTreeGridItem = this.treeList.getItem(id);
+
+        if (!item) {
+            return;
         }
-    
-        return n;
+
+        this.selectionWrapper.deselectAll(true);
+        this.selectionWrapper.select(item, true);
     }
 }
