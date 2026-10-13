@@ -1,5 +1,6 @@
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
+const admin = require('/lib/xp/admin');
 const i18n = require('/lib/xp/i18n');
 const assetLib = require('/lib/enonic/asset');
 
@@ -13,7 +14,15 @@ function handleGet(req) {
             bundles: ['i18n/phrases'],
             locale: req.locales
         }),
-        configServiceUrl: portal.apiUrl({api: `${app.name}:config`})
+        configServiceUrl: portal.apiUrl({api: `${app.name}:config`}),
+        menuLoaderUrl: admin.extensionUrl({
+            application: 'com.enonic.xp.app.main',
+            extension: 'menu-loader',
+            params: {
+                appName: app.name,
+                theme: 'dark'
+            }
+        })
     };
 
     return {
