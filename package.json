@@ -28,7 +28,7 @@
     "dompurify": "~3.4.16",
     "fine-uploader": "^5.16.2",
     "hasher": "^1.2.0",
-    "jquery": "^3.7.1",
+    "jquery": "^4.0.0",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.14.2",
     "mousetrap": "^1.6.5",
