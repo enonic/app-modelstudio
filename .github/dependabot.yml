@@ -11,6 +11,13 @@ updates:
       - "rymsha"
   - package-ecosystem: "npm"
     directory: "/"
+    # Keep in sync with minimumReleaseAge/minimumReleaseAgeExclude in
+    # pnpm-workspace.yaml: Dependabot must not propose versions pnpm would reject,
+    # and must not hold back the first-party packages pnpm lets through.
+    cooldown:
+      default-days: 3
+      exclude:
+        - "@enonic/*"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10

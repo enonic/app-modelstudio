@@ -3,3 +3,9 @@ packages:
 
 ignoredBuiltDependencies:
   - esbuild
+
+# Keep in sync with cooldown.default-days in .github/dependabot.yml:
+# Dependabot must not propose versions pnpm would reject.
+minimumReleaseAge: 4320 # 3 days
+minimumReleaseAgeExclude:
+  - '@enonic/*'
