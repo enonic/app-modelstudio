@@ -16,5 +16,4 @@ apis:
   - "i18n"
   - "visualization"
   - "admin:extension"
-  - "admin:status"
   - "admin:events"

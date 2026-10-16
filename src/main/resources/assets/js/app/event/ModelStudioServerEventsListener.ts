@@ -1,13 +1,17 @@
 import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
 import {NodeEventJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {Message} from '@enonic/lib-admin-ui/notify/Message';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ModelStudioServerEventsTranslator} from './ModelStudioServerEventsTranslator';
 
 interface AdminEventsClient {
     connect(handlers: {
         onEvent: (event: {topic: string, data: EventJson}) => void;
         onLoss: (loss: {topic: string, count: number | null}) => void;
+        onSessionEnd: () => void;
     }): {subscribe(topic: string): void};
 }
 
@@ -27,7 +31,8 @@ export class ModelStudioServerEventsListener {
             .then((client: AdminEventsClient) => {
                 client.connect({
                     onEvent: ({data}) => this.handleEvent(data),
-                    onLoss: () => this.handleLoss()
+                    onLoss: () => this.handleLoss(),
+                    onSessionEnd: () => this.handleSessionEnd()
                 }).subscribe(eventsTopic);
             })
             .catch(e => console.error('Failed to load the admin events client:', e));
@@ -43,5 +48,11 @@ export class ModelStudioServerEventsListener {
     private handleLoss(): void {
         const reloadEvent: NodeEventJson = {type: 'node.updated', timestamp: Date.now(), data: {nodes: []}};
         this.handleEvent(reloadEvent);
+    }
+
+    private handleSessionEnd(): void {
+        const message = Message.newError(i18n('notify.session.ended'), false);
+        message.addAction(i18n('action.refresh'), () => window.location.reload());
+        NotifyManager.get().notify(message);
     }
 }
