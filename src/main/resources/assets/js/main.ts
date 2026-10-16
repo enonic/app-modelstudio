@@ -3,7 +3,6 @@ import {Router} from './app/Router';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {Path} from '@enonic/lib-admin-ui/rest/Path';
-import {ConnectionDetector} from '@enonic/lib-admin-ui/system/ConnectionDetector';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
@@ -27,14 +26,6 @@ function getApplication(): Application {
     return application;
 }
 
-function startLostConnectionDetector() {
-    ConnectionDetector.get(CONFIG.getString('statusApiUrl'))
-        .setAuthenticated(true)
-        .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
-        .setNotificationMessage(i18n('notify.connection.loss'))
-        .startPolling(true);
-}
-
 function startApplication() {
 
     const application: Application = getApplication();
@@ -50,7 +41,6 @@ function startApplication() {
 
     application.setLoaded(true);
 
-    startLostConnectionDetector();
     new ModelStudioServerEventsListener().start();
 }
 
