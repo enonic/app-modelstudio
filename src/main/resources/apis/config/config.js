@@ -15,7 +15,6 @@ function handleGet() {
             appId: app.name,
             assetsUri: assetLib.assetUrl({path: ''}),
             toolUri: toolUri,
-            statusApiUrl: portal.apiUrl({api: 'admin:status'}),
             eventsUrl: portal.apiUrl({api: 'admin:events'}),
             eventsTopic: events.MODEL_CHANGED_TOPIC,
             services: {
