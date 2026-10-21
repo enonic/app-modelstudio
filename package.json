@@ -44,7 +44,7 @@
     "autoprefixer": "^10.6.1",
     "browserslist-config-enonic": "^1.0.8",
     "cross-env": "^10.0.0",
-    "cssnano": "^9.2.0",
+    "cssnano": "^9.9.0",
     "enonic-admin-artifacts": "^2.5.0",
     "esbuild": "^0.28.2",
     "eslint": "^10.13.0",
