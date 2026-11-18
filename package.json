@@ -55,7 +55,7 @@
     "postcss-sort-media-queries": "^6.7.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.72.2",
-    "vite": "^8.3.6"
+    "vite": "^8.3.8"
   },
   "browserslist": [
     "extends browserslist-config-enonic"
